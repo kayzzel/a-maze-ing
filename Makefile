@@ -6,7 +6,7 @@ CONFIG_FILE	=	config.txt
 #-------------------------------- INSTALLS -----------------------------------#
 
 INSTALLS	=	pydantic \
-				./lib/mlx-2.2-py3-none-any.whl
+				./modules/mlx-2.2-py3-none-any.whl
 
 #-------------------------------- RULES --------------------------------------#
 
