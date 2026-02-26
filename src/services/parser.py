@@ -1,6 +1,6 @@
 from ..models.maze_data import MazeData
 from pydantic import ValidationError
-import sys
+from typing import Any as any
 import re
 
 
@@ -30,7 +30,7 @@ def validate_format(line: str) -> tuple:
 
 def parse_config(config_filename: str) -> None | MazeData:
 
-    config_data: dict[str, int | tuple | bool | str] = {}
+    config_data: dict[str, any] = {}
     try:
         with open(config_filename) as config:
             for line in config.readlines():
@@ -41,6 +41,7 @@ def parse_config(config_filename: str) -> None | MazeData:
                         "has already been configured!"
                     )
                 config_data[new_pair[0]] = new_pair[1]
+
         return MazeData(
             width=config_data["width"],
             height=config_data["height"],
@@ -54,18 +55,3 @@ def parse_config(config_filename: str) -> None | MazeData:
     except (ValueError, ValidationError, OSError) as err:
         print(f"Caught {err.__class__.__name__}: {err}\n")
     return None
-
-
-def main() -> None:
-
-    if len(sys.argv) == 1:
-        print("No input file provided!")
-        return None
-
-    maze_data: MazeData | None = parse_config(sys.argv[1])
-    if maze_data:
-        maze_data.display_config_info()
-
-
-if __name__ == "__main__":
-    main()

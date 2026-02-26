@@ -1,2 +1,3 @@
 from .maze_data import MazeData
-__all__ = ["MazeData"]
+from .cell import Cell
+__all__ = ["MazeData", "Cell"]
