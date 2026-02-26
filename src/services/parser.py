@@ -54,18 +54,3 @@ def parse_config(config_filename: str) -> None | MazeData:
     except (ValueError, ValidationError, OSError) as err:
         print(f"Caught {err.__class__.__name__}: {err}\n")
     return None
-
-
-def main() -> None:
-
-    if len(sys.argv) == 1:
-        print("No input file provided!")
-        return None
-
-    maze_data: MazeData | None = parse_config(sys.argv[1])
-    if maze_data:
-        maze_data.display_config_info()
-
-
-if __name__ == "__main__":
-    main()

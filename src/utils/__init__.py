@@ -1,2 +1,2 @@
-from .display import img_put_px
-__all__ = ["img_put_px"]
+from .display import img_put_px, clear_img
+__all__ = ["img_put_px", "clear_img"]
