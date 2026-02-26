@@ -1,3 +1,7 @@
+from mlx import Mlx
+from src.utils import img_put_px
+
+
 class Cell:
 
     def __init__(
@@ -69,3 +73,37 @@ class Cell:
                     *self.img,
                     self.get_px_color(posx, posy)
                 )
+
+
+def test() -> None:
+
+    mlx = Mlx()
+
+    mlx_test = mlx.mlx_init()
+
+    mlx_win = mlx.mlx_new_window(mlx_test, 500, 500, "CellTest")
+
+    mlx_img = mlx.mlx_new_image(mlx_test, 200, 200)
+
+    buf, sz_line, bpp, *oth = mlx.mlx_get_data_addr(mlx_img)
+
+    test_cell: Cell = Cell(
+        "A",
+        (2, 3),
+        50,
+        (buf, sz_line, bpp),
+        (
+            (255, 0, 0, 1),
+            (0, 0, 0, 1)
+        )
+    )
+
+    test_cell.draw()
+
+    mlx.mlx_put_image_to_window(mlx_test, mlx_win, mlx_img, 100, 100)
+
+    mlx.mlx_loop(mlx_test)
+
+
+if __name__ == "__main__":
+    test()

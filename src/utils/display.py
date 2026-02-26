@@ -8,5 +8,8 @@ def img_put_px(
 ) -> None:
 
     offset = y * sz_line + x * (bpp // 8)
+
+    print(colors)
+
     for color in range(len(colors)):
         buf[offset + color] = colors[color]
