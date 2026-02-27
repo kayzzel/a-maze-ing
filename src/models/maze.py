@@ -3,31 +3,31 @@ from .cell import Cell
 
 class Maze:
 
+    @staticmethod
     def display_maze(
-        self,
-        maze_input: list[list[str]],
-        maze_sz: tuple[int, int, int],
+        maze_input: list[str],
+        maze_sz: tuple[int, int],
         mlx_data: tuple
     ) -> None:
 
         mlx, mlx_ptr, mlx_win = mlx_data
 
-        mlx.mlx_clear_window(mlx_win)
+        mlx.mlx_clear_window(mlx_ptr, mlx_win)
 
-        width, height, px_sz = maze_sz
+        width, height = maze_sz
 
-        maze_img = mlx.mlx_new_image(mlx_ptr, mlx_win, width, height)
+        maze_img = mlx.mlx_new_image(mlx_ptr, width, height)
 
-        buf, bpp, sz_line, *oth = mlx.mlx_get_img_addr(maze_img)
+        buf, bpp, sz_line, *oth = mlx.mlx_get_data_addr(maze_img)
 
-        for row in range(height):
+        for row in range(len(maze_input)):
 
-            for col in range(width):
+            for col in range(len(maze_input[0])):
 
                 cell: Cell = Cell(
                     maze_input[row][col],
                     (col, row),
-                    px_sz // width,
+                    width // len(maze_input[0]),
                     (buf, sz_line, bpp),
                     (
                         (105, 130, 73, 255),
@@ -37,6 +37,6 @@ class Maze:
 
                 cell.draw()
 
-        mlx.mlx_put_image_to_window(mlx_ptr, mlx_win, maze_img, 0, 0)
+        mlx.mlx_put_image_to_window(mlx_ptr, mlx_win, maze_img, 100, 100)
 
-        mlx.loop(mlx_ptr)
+        mlx.mlx_loop(mlx_ptr)
