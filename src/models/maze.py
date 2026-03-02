@@ -8,33 +8,30 @@ class Maze:
         maze_input: list[str],
         maze_sz: tuple[int, int],
         mlx_data: tuple,
+        colors: tuple,
         path: list[list]
     ) -> None:
 
         self.input: list[str] = maze_input
-        self.maze_sz: tuple[int, int] = maze_sz
-        self.mlx_data: tuple = mlx_data
+        self.width, self.height = maze_sz
+        self.mlx, self.mlx_ptr, self.mlx_win = mlx_data
         self.toggle_path: bool = False
         self.cells: list[list] = []
         self.path: list[list] = path
         self.toggle_path: bool = True
+        self.img = self.mlx.mlx_new_image(
+            self.mlx_ptr,
+            self.width,
+            self.height
+        )
+        self.buf, self.bpp, self.sz_line, *oth = (
+            self.mlx.mlx_get_data_addr(self.img)
+        )
+        self.colors: tuple = colors
 
     def display_maze(self) -> None:
 
-        mlx, mlx_ptr, mlx_win = self.mlx_data
-
-        mlx.mlx_clear_window(mlx_ptr, mlx_win)
-
-        width, height = self.maze_sz
-
-        self.img = mlx.mlx_new_image(mlx_ptr, width, height)
-
-        buf, bpp, sz_line, *oth = mlx.mlx_get_data_addr(self.img)
-
-        colors: tuple[tuple] = (
-            (105, 130, 73, 255),
-            (184, 217, 139, 255)
-        )
+        self.mlx.mlx_clear_window(self.mlx_ptr, self.mlx_win)
 
         for row in range(len(self.maze_input)):
 
@@ -42,24 +39,37 @@ class Maze:
 
             for col in range(len(self.maze_input[0])):
 
+                bg_color: int = 1
+
                 if self.toggle_path and self.path[row][col]:
-                    colors[1] = (255, 0, 0, 255)
+                    bg_color = 2
 
                 self.cells[row].append(Cell(
                     self.maze_input[row][col],
                     (col, row),
-                    width // len(self.maze_input[0]),
-                    (buf, sz_line, bpp),
-                    colors
+                    self.width // len(self.maze_input[0]),
+                    (self.buf, self.sz_line, self.bpp),
+                    (self.colors[0], self.colors[bg_color])
                 ))
 
                 self.cells[row][col].draw()
 
-        mlx.mlx_put_image_to_window(mlx_ptr, mlx_win, maze_img, 100, 100)
+        self.mlx.mlx_put_image_to_window(
+            self.mlx_ptr,
+            self.mlx_win,
+            self.img,
+            100,
+            100
+        )
 
-        mlx.mlx_loop(mlx_ptr)
+        self.mlx.mlx_loop(self.mlx_ptr)
 
     def toggle_path(self) -> None:
 
         self.toggle_path = True
+        self.draw()
+
+    def change_colors(self, new_colors: tuple) -> None:
+
+        self.colors = new_colors
         self.draw()
