@@ -12,7 +12,7 @@ class Maze:
         path: str
     ) -> None:
 
-        self.grid, self.coor = maze_input
+        self.grid, *self.coor = maze_input
         self.width, self.height = maze_sz
         self.mlx, self.mlx_ptr, self.mlx_win = mlx_data
         self.toggle_path: bool = False
