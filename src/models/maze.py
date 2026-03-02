@@ -33,11 +33,11 @@ class Maze:
 
         self.mlx.mlx_clear_window(self.mlx_ptr, self.mlx_win)
 
-        for row in range(len(self.maze_input)):
+        for row in range(len(self.input)):
 
             self.cells.append([])
 
-            for col in range(len(self.maze_input[0])):
+            for col in range(len(self.input[0])):
 
                 bg_color: int = 1
 
@@ -45,9 +45,9 @@ class Maze:
                     bg_color = 2
 
                 self.cells[row].append(Cell(
-                    self.maze_input[row][col],
+                    self.input[row][col],
                     (col, row),
-                    self.width // len(self.maze_input[0]),
+                    self.width // len(self.input[0]),
                     (self.buf, self.sz_line, self.bpp),
                     (self.colors[0], self.colors[bg_color])
                 ))
