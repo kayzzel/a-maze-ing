@@ -5,24 +5,19 @@ class Maze:
 
     def __init__(
         self,
-        maze_input: list[str],
+        maze_input: tuple,
         maze_sz: tuple[int, int],
         mlx_data: tuple,
         colors: tuple,
-        path: list[list]
+        path: str
     ) -> None:
 
-        self.input: list[str] = maze_input
+        self.grid, self.coor = maze_input
         self.width, self.height = maze_sz
         self.mlx, self.mlx_ptr, self.mlx_win = mlx_data
         self.toggle_path: bool = False
         self.cells: list[list] = []
-        self.path: list[list] = [
-            [False for _ in range(len(self.input[0]))]
-            for _ in range(len(self.input))
-        ]
-        if path:
-            self.path = path
+        self.path: list[list] = self.parse_path(path)
         self.toggle_path: bool = True
         self.img = self.mlx.mlx_new_image(
             self.mlx_ptr,
@@ -78,3 +73,51 @@ class Maze:
 
         self.colors = new_colors
         self.draw()
+
+    def parse_path(self, path: str) -> list[list]:
+
+        path_to_return: list[list] = [
+            [False for _ in range(len(self.input[0]))]
+            for _ in range(len(self.input))
+        ]
+
+        if not path:
+            return path_to_return
+
+        row, col = self.coor[0]
+        path_to_return[row][col] = True
+
+        for p in path:
+
+            match p:
+
+                case "N":
+                    row -= 1
+                case "S":
+                    row += 1
+                case "W":
+                    col -= 1
+                case "E":
+                    col += 1
+
+            if row < 0 or col < 0:
+                print("Invalid path provided!")
+                return [
+                    [False for _ in range(len(self.input[0]))]
+                    for _ in range(len(self.input))
+                ]
+
+            path_to_return[row][col] = True
+        
+        if (row, col) != self.coor[1]:
+            print("Invalid path provided!")
+            return [
+                [False for _ in range(len(self.input[0]))]
+                for _ in range(len(self.input))
+            ]
+
+        return path_to_return
+
+            
+
+        
