@@ -25,11 +25,14 @@ def test_maze_gen() -> None:
 
     mlx_win = mlx.mlx_new_window(mlx_ptr, 1000, 1000, "MAZE GENERATION")
 
-    Maze.display_maze(
+    maze: Maze = Maze(
         maze_input,
         (900, 900),
-        (mlx, mlx_ptr, mlx_win)
+        (mlx, mlx_ptr, mlx_win),
+        []
     )
+
+    maze.display_maze()
 
 
 if __name__ == "__main__":
