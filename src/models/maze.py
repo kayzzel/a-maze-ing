@@ -17,7 +17,12 @@ class Maze:
         self.mlx, self.mlx_ptr, self.mlx_win = mlx_data
         self.toggle_path: bool = False
         self.cells: list[list] = []
-        self.path: list[list] = path
+        self.path: list[list] = [
+            [False for _ in range(len(self.input[0]))]
+            for _ in range(len(self.input))
+        ]
+        if path:
+            self.path = path
         self.toggle_path: bool = True
         self.img = self.mlx.mlx_new_image(
             self.mlx_ptr,
