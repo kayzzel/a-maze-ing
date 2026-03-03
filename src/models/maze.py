@@ -33,11 +33,11 @@ class Maze:
 
         self.mlx.mlx_clear_window(self.mlx_ptr, self.mlx_win)
 
-        for row in range(len(self.input)):
+        for row in range(len(self.grid)):
 
             self.cells.append([])
 
-            for col in range(len(self.input[0])):
+            for col in range(len(self.grid[0])):
 
                 bg_color: int = 1
 
@@ -45,9 +45,9 @@ class Maze:
                     bg_color = 2
 
                 self.cells[row].append(Cell(
-                    self.input[row][col],
+                    self.grid[row][col],
                     (col, row),
-                    self.width // len(self.input[0]),
+                    self.width // len(self.grid[0]),
                     (self.buf, self.sz_line, self.bpp),
                     (self.colors[0], self.colors[bg_color])
                 ))
@@ -76,15 +76,16 @@ class Maze:
 
     def parse_path(self, path: str) -> list[list]:
 
-        path_to_return: list[list] = [
-            [False for _ in range(len(self.input[0]))]
-            for _ in range(len(self.input))
+        default_path: list[list] = [
+            [False for _ in range(len(self.grid[0]))]
+            for _ in range(len(self.grid))
         ]
 
         if not path:
-            return path_to_return
+            return default_path
 
         row, col = self.coor[0]
+        path_to_return: list[list] = default_path
         path_to_return[row][col] = True
 
         for p in path:
@@ -99,25 +100,18 @@ class Maze:
                     col -= 1
                 case "E":
                     col += 1
+                case _:
+                    print("Invalid path provided!")
+                    return default_path
 
             if row < 0 or col < 0:
                 print("Invalid path provided!")
-                return [
-                    [False for _ in range(len(self.input[0]))]
-                    for _ in range(len(self.input))
-                ]
+                return default_path
 
             path_to_return[row][col] = True
-        
-        if (row, col) != self.coor[1]:
+
+        if (col, row) != self.coor[1]:
             print("Invalid path provided!")
-            return [
-                [False for _ in range(len(self.input[0]))]
-                for _ in range(len(self.input))
-            ]
+            return default_path
 
         return path_to_return
-
-            
-
-        
