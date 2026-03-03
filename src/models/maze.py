@@ -1,4 +1,5 @@
 from .cell import Cell
+# import time
 
 
 class Maze:
@@ -18,7 +19,6 @@ class Maze:
         self.toggle_path: bool = False
         self.cells: list[list] = []
         self.path: list[list] = self.parse_path(path)
-        self.toggle_path: bool = True
         self.img = self.mlx.mlx_new_image(
             self.mlx_ptr,
             self.width,
@@ -64,10 +64,10 @@ class Maze:
 
         self.mlx.mlx_loop(self.mlx_ptr)
 
-    def toggle_path(self) -> None:
+    def toggle_path_on_off(self, on_off: bool) -> None:
 
-        self.toggle_path = True
-        self.draw()
+        self.toggle_path = on_off
+        self.display_maze()
 
     def change_colors(self, new_colors: tuple) -> None:
 
@@ -115,3 +115,10 @@ class Maze:
             return default_path
 
         return path_to_return
+
+    def clear_img(self) -> None:
+
+        self.mlx.mlx_destroy_image(
+            self.mlx_ptr,
+            self.img
+        )

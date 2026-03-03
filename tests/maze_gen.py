@@ -46,7 +46,56 @@ def test_maze_gen() -> None:
         path
     )
 
-    maze.display_maze()
+    user_input: str = take_user_input()
+    generated: bool = False
+    path_on_off: bool = False
+
+    while user_input != "e":
+
+        match user_input:
+
+            case "g":
+                generated = True
+                maze.display_maze()
+            case "p":
+                if not generated:
+                    print(
+                        "Maze has not yet been generated, "
+                        "cannot display path"
+                    )
+                else:
+                    path_on_off = not path_on_off
+                    maze.toggle_path_on_off(path_on_off)
+
+        user_input = take_user_input()
+
+    clear_all(mlx, mlx_ptr, mlx_win, maze)
+
+
+def take_user_input() -> str:
+
+    user_input: str = input(
+        "[A-Maze-Ing Options]\n"
+        " => g (Generate new maze)\n"
+        " => p (Toggle path on/off)\n"
+        " => e (Exit)\n"
+    )
+    while user_input not in ["g", "p", "e"]:
+        print("Invalid option, please try again")
+        user_input = input(
+            "[A-Maze-Ing Options]\n"
+            " => g (Generate new maze)\n"
+            " => p (Toggle path on/off)\n"
+            " => e (Exit)\n"
+        )
+    return user_input
+
+
+def clear_all(mlx, mlx_ptr, mlx_win, maze: Maze) -> None:
+
+    maze.clear_img()
+    mlx.mlx_destroy_window(mlx_ptr, mlx_win)
+    mlx.mlx_release(mlx_ptr)
 
 
 if __name__ == "__main__":
