@@ -7,19 +7,20 @@ class Maze:
 
     def __init__(
         self,
-        maze_input: tuple,
+        maze_input: list[str],
         maze_sz: tuple[int, int],
         mlx_data: tuple,
         colors: tuple[tuple[tuple]],
         maze_pos: tuple,
-        path: str
+        path: tuple
     ) -> None:
 
-        self.grid, *self.coor = maze_input
+        self.input: list[str] = maze_input
         self.width, self.height = maze_sz
         self.mlx, self.mlx_ptr, self.mlx_win = mlx_data
         self.toggle_path: bool = False
-        self.path: list[list] = self.parse_path(path)
+        self.path: list[list] = self.parse_path(path[0])
+        self.coor: tuple = path[1]
         self.img = self.mlx.mlx_new_image(
             self.mlx_ptr,
             self.width,
@@ -37,11 +38,11 @@ class Maze:
         clear_img(self.buf)
         cells: list[list] = []
 
-        for row in range(len(self.grid)):
+        for row in range(len(self.input)):
 
             cells.append([])
 
-            for col in range(len(self.grid[0])):
+            for col in range(len(self.input[0])):
 
                 bg_color: int = 1
 
@@ -49,9 +50,9 @@ class Maze:
                     bg_color = 2
 
                 cells[row].append(Cell(
-                    self.grid[row][col],
+                    self.input[row][col],
                     (col, row),
-                    self.width // len(self.grid[0]),
+                    self.width // len(self.input[0]),
                     (self.buf, self.sz_line, self.bpp),
                     (
                         self.current_colors[0],
@@ -84,8 +85,8 @@ class Maze:
     def parse_path(self, path: str) -> list[list]:
 
         default_path: list[list] = [
-            [False for _ in range(len(self.grid[0]))]
-            for _ in range(len(self.grid))
+            [False for _ in range(len(self.input[0]))]
+            for _ in range(len(self.input))
         ]
 
         if not path:

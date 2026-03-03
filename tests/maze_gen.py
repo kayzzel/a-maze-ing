@@ -40,12 +40,12 @@ def test_maze_gen() -> None:
     mlx_win = mlx.mlx_new_window(mlx_ptr, 1000, 1000, "MAZE GENERATION")
 
     maze: Maze = Maze(
-        (maze_input, entry_coor, exit_coor),
+        maze_input,
         (600, 600),
         (mlx, mlx_ptr, mlx_win),
         get_color_palette(),
         (50, 200),
-        path
+        (path, (entry_coor, exit_coor))
     )
 
     buttons: dict[str, tuple] = generate_buttons(
