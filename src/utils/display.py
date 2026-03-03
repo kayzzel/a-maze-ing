@@ -1,3 +1,6 @@
+from .cleanup import clear_img
+
+
 def img_put_px(
     x: int,
     y: int,
@@ -20,11 +23,6 @@ def img_put_px(
     buf[offset + 1] = g
     buf[offset + 2] = b
     buf[offset + 3] = a
-
-
-def clear_img(buf: memoryview) -> None:
-
-    buf[:] = b"\x00" * len(buf)
 
 
 def generate_buttons(mlx_data: tuple, width: int) -> dict:

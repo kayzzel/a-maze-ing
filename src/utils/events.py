@@ -1,4 +1,3 @@
-from ..models import Maze
 from .display import generate_buttons
 from .cleanup import clear_all
 
@@ -11,7 +10,6 @@ def handle_buttons(
 ) -> None:
 
     buttons: dict[str, tuple]
-    maze: Maze
     mlx_data: tuple
     buttons, maze, mlx_data = param
 
@@ -42,7 +40,8 @@ def handle_buttons(
         case "Change colors":
             maze.change_colors()
         case "Exit window":
-            clear_all(*mlx_data, maze)
+            maze.clear_img()
+            clear_all(*mlx_data)
 
     generate_buttons(
         mlx_data,

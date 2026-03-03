@@ -1,5 +1,5 @@
 from .cell import Cell
-from ..utils import clear_img
+from src.utils.cleanup import clear_img
 import random
 
 
