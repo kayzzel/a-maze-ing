@@ -14,10 +14,10 @@ DIRS: list[Cell] = [
         ]
 
 
-# Return all valid neighboring cells of a given cell
 def neighbors(
         cell: Cell,
-        size: tuple[int, int]
+        size: tuple[int, int],
+        pattern_cells: set[Cell]
       ) -> Generator[Cell, None, None]:
 
     # unpack the size tuple in height and width
@@ -35,12 +35,14 @@ def neighbors(
 
         # Compute neighbor coordinates
         new_row, new_col = row + dir_row, col + dir_col
+        neighbor: Cell = (new_row, new_col)
 
         # Check the neighbor is inside the grid
-        if 0 <= new_row < height and 0 <= new_col < width:
+        if (0 <= new_row < height and 0 <= new_col < width
+                and neighbor not in pattern_cells):
 
             # Yield the neighbor cell
-            yield (new_row, new_col)
+            yield neighbor
 
 
 def walk(
@@ -48,7 +50,8 @@ def walk(
         visited: dict[Cell, int],
         unvisited: set[Cell],
         path: list[Cell],
-        size: tuple[int, int]
+        size: tuple[int, int],
+        pattern_cells: set[Cell]
         ) -> list[Cell]:
     """
     Perform a random walk until we reach a visited maze cell
@@ -56,7 +59,7 @@ def walk(
     while cell in unvisited:
 
         # Choose a random neighboring cell
-        cell = choice(list(neighbors(cell, size)))
+        cell = choice(list(neighbors(cell, size, pattern_cells)))
 
         # If we revisit a cell in our current path
         # we found a loop
@@ -88,10 +91,16 @@ def wilson(size: tuple[int, int]) -> list[str]:
     width: int
     height, width = size
 
+    pattern_cells: set[Cell] = create_pattern(size)
+
     # Maze representation:
     # Each cell maps to a set of cells it is connected to
+    # Except the cells int the pattern
     maze: dict[Cell, set[Cell]] = {
-        (row, col): set() for row in range(height) for col in range(width)
+        (row, col): set()
+        for row in range(height)
+        for col in range(width)
+        if (row, col) not in pattern_cells
     }
 
     # All cells start as unvisited
@@ -116,7 +125,7 @@ def wilson(size: tuple[int, int]) -> list[str]:
         visited: dict[Cell, int] = {cell: 0}
 
         # Perform a random walk until we reach a visited maze cell
-        path = walk(cell, visited, unvisited, path, size)
+        path = walk(cell, visited, unvisited, path, size, pattern_cells)
 
         # Carve the path into the maze
         for index in range(len(path) - 1):
@@ -133,13 +142,14 @@ def wilson(size: tuple[int, int]) -> list[str]:
                 unvisited.remove(current_cell)
 
     # Return the completed maze graph
-    return maze_to_hexa(maze, size)
+    return maze_to_hexa(maze, size, pattern_cells)
 
 
 def maze_to_hexa(
         maze: dict[Cell, set[Cell]],
-        size: tuple[int, int]
-        ) -> list[str]:
+        size: tuple[int, int],
+        pattern_cells: set[Cell]
+            ) -> list[str]:
     """
     Convert a maze represented as adjacency lists into a hexadecimal grid.
 
@@ -152,7 +162,10 @@ def maze_to_hexa(
     Result a list of strings, where each character corresponds to one cell.
     """
 
-    def cell_to_hexa(cell: Cell, links: set[Cell]) -> str:
+    def cell_to_hexa(
+            cell: Cell,
+            links: set[Cell]
+                ) -> str:
         """
         Compute the hexadecimal encoding for a single cell.
 
@@ -199,6 +212,10 @@ def maze_to_hexa(
 
             cell: Cell = (row, col)
 
+            if cell in pattern_cells:
+                maze_hexa[row] += 'f'
+                continue
+
             # Cells connected to this one (open passages)
             nexts: set[Cell] = maze[cell]
 
@@ -206,3 +223,33 @@ def maze_to_hexa(
             maze_hexa[row] += cell_to_hexa(cell, nexts)
 
     return maze_hexa
+
+
+def create_pattern(size: tuple[int, int]) -> set[Cell]:
+
+    height: int
+    width: int
+    height, width = size
+
+    if height < 10 or width < 10:
+        return set()
+
+    start_row: int = height // 2 - 2
+    start_col: int = width // 2 - 3
+
+    pattern_cells: list[Cell] = [
+        (0, 0), (1, 0), (2, 0), (2, 1), (2, 2), (3, 2), (4, 2),    # 4
+        (0, 4), (0, 5), (0, 6), (1, 6), (2, 6), (2, 5), (2, 4),    # 2
+        (3, 4), (4, 4), (4, 5), (4, 6)
+    ]
+
+    for index in range(len(pattern_cells)):
+
+        new_cell: Cell = (
+                pattern_cells[index][0] + start_row,
+                pattern_cells[index][1] + start_col
+                )
+
+        pattern_cells[index] = new_cell
+
+    return set(pattern_cells)
