@@ -1,8 +1,8 @@
-from src.models import Maze
+from src.models import Maze, Button, generate_buttons
 from src.utils import (
-    generate_buttons,
     get_color_palette,
-    handle_buttons
+    handle_buttons,
+    global_update
 )
 from mlx import Mlx
 import sys
@@ -48,10 +48,13 @@ def test_maze_gen() -> None:
         (path, (entry_coor, exit_coor))
     )
 
-    buttons: dict[str, tuple] = generate_buttons(
+    buttons: list[Button] = generate_buttons(
         (mlx, mlx_ptr, mlx_win),
-        1000
+        (1000, 1000)
     )
+
+    for button in buttons:
+        button.draw()
 
     mlx.mlx_mouse_hook(
         mlx_win,
@@ -61,6 +64,11 @@ def test_maze_gen() -> None:
             maze,
             (mlx, mlx_ptr, mlx_win)
         )
+    )
+    mlx.mlx_loop_hook(
+        mlx_ptr,
+        global_update,
+        (maze, buttons, mlx, mlx_ptr, mlx_win)
     )
     mlx.mlx_loop(mlx_ptr)
 

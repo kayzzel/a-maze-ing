@@ -1,5 +1,16 @@
-from .display import generate_buttons
 from .cleanup import clear_all
+from .display import render
+
+
+def global_update(param: tuple) -> None:
+
+    maze, buttons, *mlx_data = param
+
+    for button in buttons:
+        button.update()
+
+    maze.animate_step()
+    render(maze, buttons, mlx_data)
 
 
 def handle_buttons(
@@ -9,32 +20,32 @@ def handle_buttons(
     param: tuple
 ) -> None:
 
-    buttons: dict[str, tuple]
+    buttons: list
     mlx_data: tuple
     buttons, maze, mlx_data = param
 
     if button != 1:
         return None
 
-    button_pressed: str = ""
+    button_pressed = None
 
-    for button_name, button_coor in buttons.items():
+    for button in buttons:
+
         if (
-            button_coor[0][0] <= x < button_coor[1][0]
+            button.base_pos[0] <= x < button.end_pos[0]
         ) and (
-            button_coor[0][1] <= y < button_coor[1][1]
+            button.base_pos[1] <= y < button.end_pos[1]
         ):
-            button_pressed = button_name
+            button_pressed = button
+            button.click_button()
 
     if not button_pressed:
         return None
 
-    mlx_data[0].mlx_clear_window(mlx_data[1], mlx_data[2])
-
-    match button_pressed:
+    match button_pressed.name:
 
         case "Generate new maze":
-            maze.display_maze()
+            maze.start_animation()
         case "Toggle path on/off":
             maze.toggle_path_on_off()
         case "Change colors":
@@ -42,8 +53,3 @@ def handle_buttons(
         case "Exit window":
             maze.clear_img()
             clear_all(*mlx_data)
-
-    generate_buttons(
-        mlx_data,
-        1000
-    )
