@@ -4,8 +4,8 @@ from src.utils.tui_display import print_maze
 
 def main() -> None:
     size: tuple[int, int] = (
-            200,  # height
-            200   # width
+            51,  # height
+            51   # width
             )
 
     maze = wilson(size)

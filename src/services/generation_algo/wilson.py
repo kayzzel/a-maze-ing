@@ -1,5 +1,4 @@
 from random import choice
-from typing import Generator
 
 
 # define the type of a cell
@@ -18,17 +17,16 @@ def neighbors(
         cell: Cell,
         size: tuple[int, int],
         pattern_cells: set[Cell]
-      ) -> Generator[Cell, None, None]:
+        ) -> list[Cell]:
+    """
+    get a cell and return the list of all it's available neighbors
+    """
 
     # unpack the size tuple in height and width
-    height: int
-    width: int
     height, width = size
-
-    row: int
-    col: int
     row, col = cell
 
+    neighbors_list: list[Cell] = []
     # DIRS likely contains directions such as:
     # [(1,0), (-1,0), (0,1), (0,-1)]
     for dir_row, dir_col in DIRS:
@@ -42,7 +40,9 @@ def neighbors(
                 and neighbor not in pattern_cells):
 
             # Yield the neighbor cell
-            yield neighbor
+            neighbors_list.append(neighbor)
+
+    return neighbors_list
 
 
 def walk(
@@ -59,7 +59,7 @@ def walk(
     while cell in unvisited:
 
         # Choose a random neighboring cell
-        cell = choice(list(neighbors(cell, size, pattern_cells)))
+        cell = choice(neighbors(cell, size, pattern_cells))
 
         # If we revisit a cell in our current path
         # we found a loop
@@ -85,10 +85,11 @@ def walk(
 
 
 def wilson(size: tuple[int, int]) -> list[str]:
+    """
+    get a size (height, width) and create a maze by using the wilson algorith
+    """
 
     # unpack the size tuple in height and width
-    height: int
-    width: int
     height, width = size
 
     pattern_cells: set[Cell] = create_pattern(size)
@@ -105,17 +106,19 @@ def wilson(size: tuple[int, int]) -> list[str]:
 
     # All cells start as unvisited
     unvisited: set[Cell] = set(maze.keys())
+    unvisited_list: list[Cell] = list(unvisited)
 
     # Pick a random starting cell and mark it visited
     # This becomes the initial tree of the maze
     first: Cell = choice(list(unvisited))
     unvisited.remove(first)
+    unvisited_list.remove(first)
 
     # Continue until every cell is added to the maze
     while unvisited:
 
         # Pick a random unvisited cell to start a random walk
-        cell: Cell = choice(list(unvisited))
+        cell: Cell = choice(unvisited_list)
 
         # Path of the current random walk
         path: list[Cell] = [cell]
@@ -140,6 +143,7 @@ def wilson(size: tuple[int, int]) -> list[str]:
             # Mark the current cell as visited in the maze
             if current_cell in unvisited:
                 unvisited.remove(current_cell)
+                unvisited_list.remove(current_cell)
 
     # Return the completed maze graph
     return maze_to_hexa(maze, size, pattern_cells)
@@ -173,8 +177,7 @@ def maze_to_hexa(
         If a neighbor in a direction is NOT in links, the wall is closed.
         """
 
-        row: int
-        col: int
+        # unpack the celltuple in row and col
         row, col = cell
 
         # Bitmask value representing closed walls
@@ -199,8 +202,6 @@ def maze_to_hexa(
         return hex(value)[2:]
 
     # unpack the size tuple in height and width
-    height: int
-    width: int
     height, width = size
 
     # Initialize the resulting maze as a list of strings (one per row)
@@ -226,23 +227,30 @@ def maze_to_hexa(
 
 
 def create_pattern(size: tuple[int, int]) -> set[Cell]:
+    """
+    take the size (height, width) of the maze and create
+    the 42 patern centered
+    """
 
-    height: int
-    width: int
+    # unpack the size tuple in height and width
     height, width = size
 
+    # create the pattern only if the maze is big enougth (10*10)
     if height < 10 or width < 10:
         return set()
 
+    # get the padding of the pattern to center it
     start_row: int = height // 2 - 2
     start_col: int = width // 2 - 3
 
+    # create the patern to the up left corner
     pattern_cells: list[Cell] = [
         (0, 0), (1, 0), (2, 0), (2, 1), (2, 2), (3, 2), (4, 2),    # 4
         (0, 4), (0, 5), (0, 6), (1, 6), (2, 6), (2, 5), (2, 4),    # 2
         (3, 4), (4, 4), (4, 5), (4, 6)
     ]
 
+    # add the padding to the patern
     for index in range(len(pattern_cells)):
 
         new_cell: Cell = (
