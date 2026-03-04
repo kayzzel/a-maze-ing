@@ -41,10 +41,10 @@ def test_maze_gen() -> None:
 
     maze: Maze = Maze(
         maze_input,
+        (1000, 1000),
         (600, 600),
         (mlx, mlx_ptr, mlx_win),
         get_color_palette(),
-        (200, 50),
         (path, (entry_coor, exit_coor))
     )
 

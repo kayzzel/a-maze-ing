@@ -9,22 +9,25 @@ class Maze:
     def __init__(
         self,
         maze_input: list[str],
+        win_sz: tuple[int, int],
         maze_sz: tuple[int, int],
         mlx_data: tuple,
         colors: tuple[tuple[tuple]],
-        maze_pos: tuple,
         path: tuple
     ) -> None:
 
         self.input: list[str] = maze_input
         self.width, self.height = maze_sz
+        self.maze_pos: tuple[int, int] = (
+            (win_sz[0] - self.width) // 2,
+            (win_sz[1] - self.height - 100) // 2
+        )
         self.mlx, self.mlx_ptr, self.mlx_win = mlx_data
         self.toggle_path: bool = False
         self.generated: bool = False
         self.path_displayed: bool = False
         self.coor: tuple = path[1]
         self.path, self.path_coor = self.parse_path(path[0])
-        self.maze_pos: tuple = maze_pos
         self.img = self.mlx.mlx_new_image(
             self.mlx_ptr,
             self.width,
