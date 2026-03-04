@@ -84,7 +84,6 @@ class Maze:
 
         self.frame_count = time.time()
 
-        self.generated = True
         self.cells: list[list] = [
             [None for _ in range(len(self.input[0]))]
             for _ in range(len(self.input))
@@ -101,6 +100,7 @@ class Maze:
 
         if time.time() - self.frame_count < self.frame_delay:
             return None
+
         self.frame_count = time.time()
 
         if self.anim_row >= len(self.input):
@@ -108,7 +108,10 @@ class Maze:
             return None
 
         if self.toggle_path and self.path_coor:
+
             if self.cur_path_pos >= len(self.path_coor):
+                self.generated = True
+                self.path_displayed = True
                 return None
 
             self.anim_row, self.anim_col = self.path_coor[
@@ -129,10 +132,17 @@ class Maze:
         self.cells[self.anim_row][self.anim_col].draw()
 
         if not self.toggle_path:
+
             self.anim_col += 1
             if self.anim_col >= len(self.input[0]):
                 self.anim_col = 0
                 self.anim_row += 1
+
+            if (
+                self.anim_row == len(self.input) - 1
+                and self.anim_col == len(self.input[0]) - 1
+            ):
+                self.generated = True
 
         else:
             self.cur_path_pos += 1
@@ -153,7 +163,9 @@ class Maze:
             self.start_animation()
             self.path_displayed = True
             return None
+
         self.redraw()
+        self.path_displayed = (not self.path_displayed)
 
     def change_colors(self) -> None:
 

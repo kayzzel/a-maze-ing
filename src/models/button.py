@@ -34,7 +34,7 @@ class Button:
         )
         self.name_pos: tuple[int, int] = (
             self.base_pos[0] + (
-                (self.width - len(name) * 8) // 3
+                (self.width - len(name) * 10) // 2
             ),
             self.base_pos[1] + self.height // 2 - 10
         )
