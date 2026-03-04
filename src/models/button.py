@@ -20,12 +20,12 @@ class Button:
         self.number: int = nb_button
         self.color: tuple = color
         self.depth: int = 8
-        self.width: int = win_sz[0] // 4
+        self.width: int = win_sz[0] // 5 + 25
         self.height: int = win_sz[1] // 8
         self.win_sz: tuple[int, int] = win_sz
         self.base_pos: tuple[int, int] = (
-            self.win_sz[0] - (self.width + 50),
-            self.height // 2 + self.height * self.number * 2
+            (25 + self.width) * self.number + 15,
+            self.win_sz[1] - (self.height + 50)
         )
         self.offset: int = 0
         self.end_pos: tuple[int, int] = (
@@ -47,9 +47,8 @@ class Button:
         self.buf, self.bpp, self.sz_line, *oth = (
             self.mlx.mlx_get_data_addr(self.img)
         )
-        clear_img(self.buf)
         self.is_pressed: bool = False
-        self.press_start_time: int = 0
+        self.press_start_time: float = 0
         self.press_duration: float = 0.08
 
     def draw(self) -> None:
@@ -139,8 +138,15 @@ class Button:
             return None
 
         self.is_pressed = True
-        self.offset = 2
         self.press_start_time = time.time()
+
+    def clean_img(self) -> None:
+
+        clear_img(self.buf)
+        self.mlx.mlx_destroy_image(
+            self.mlx_ptr,
+            self.img
+        )
 
 
 def generate_buttons(mlx_data: tuple, win_sz: tuple[int, int]) -> list[Button]:

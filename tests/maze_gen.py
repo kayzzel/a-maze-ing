@@ -44,7 +44,7 @@ def test_maze_gen() -> None:
         (600, 600),
         (mlx, mlx_ptr, mlx_win),
         get_color_palette(),
-        (50, 200),
+        (200, 50),
         (path, (entry_coor, exit_coor))
     )
 

@@ -51,5 +51,4 @@ def handle_buttons(
         case "Change colors":
             maze.change_colors()
         case "Exit window":
-            maze.clear_img()
-            clear_all(*mlx_data)
+            clear_all(*mlx_data, maze, buttons)

@@ -1,6 +1,7 @@
 from .cell import Cell
 from src.utils.cleanup import clear_img
 import random
+import time
 
 
 class Maze:
@@ -22,13 +23,7 @@ class Maze:
         self.generated: bool = False
         self.path_displayed: bool = False
         self.coor: tuple = path[1]
-        self.path: list[list] = self.parse_path(path[0])
-        self.path_coor: list[tuple] = [
-            (y, x)
-            for y in range(len(self.path))
-            for x in range(len(self.path[0]))
-            if self.path[y][x]
-        ]
+        self.path, self.path_coor = self.parse_path(path[0])
         self.maze_pos: tuple = maze_pos
         self.img = self.mlx.mlx_new_image(
             self.mlx_ptr,
@@ -39,13 +34,13 @@ class Maze:
             self.mlx.mlx_get_data_addr(self.img)
         )
         self.color_palette: tuple = colors
-        self.current_colors: tuple = colors[0]
+        self.current_colors: tuple = random.choice(self.color_palette)
         self.bg_color: int = 1
         self.animating: bool = False
         self.anim_row: int = 0
         self.anim_col: int = 0
-        self.frame_delay: int = 1
-        self.frame_count: int = 0
+        self.frame_delay: float = 0.00000001
+        self.frame_count: float = 0
 
     def redraw(self) -> None:
 
@@ -85,6 +80,9 @@ class Maze:
             clear_img(self.buf)
             self.toggle_path = False
             self.path_displayed = False
+            self.frame_delay = 0.00000001
+
+        self.frame_count = time.time()
 
         self.generated = True
         self.cells: list[list] = [
@@ -94,22 +92,22 @@ class Maze:
         self.anim_row = 0
         self.anim_col = 0
         self.animating = True
+        self.frame_count = time.time()
 
     def animate_step(self) -> None:
 
         if not self.animating:
             return None
 
-        self.frame_count += 1
-        if self.frame_count < self.frame_delay:
+        if time.time() - self.frame_count < self.frame_delay:
             return None
-        self.frame_count = 0
+        self.frame_count = time.time()
 
         if self.anim_row >= len(self.input):
             self.animating = False
             return None
 
-        if self.toggle_path:
+        if self.toggle_path and self.path_coor:
             if self.cur_path_pos >= len(self.path_coor):
                 return None
 
@@ -151,6 +149,7 @@ class Maze:
             else 1
         )
         if self.toggle_path and not self.path_displayed:
+            self.frame_delay = 0.01
             self.start_animation()
             self.path_displayed = True
             return None
@@ -168,7 +167,7 @@ class Maze:
         self.animating = False
         self.redraw()
 
-    def parse_path(self, path: str) -> list[list]:
+    def parse_path(self, path: str) -> tuple[list[list], list[tuple]]:
 
         default_path: list[list] = [
             [False for _ in range(len(self.input[0]))]
@@ -176,11 +175,12 @@ class Maze:
         ]
 
         if not path:
-            return default_path
+            return default_path, []
 
         row, col = self.coor[0]
         path_to_return: list[list] = default_path
         path_to_return[row][col] = True
+        path_coor: list[tuple] = [(row, col)]
 
         for p in path:
 
@@ -196,22 +196,24 @@ class Maze:
                     col += 1
                 case _:
                     print("Invalid path provided!")
-                    return default_path
+                    return default_path, []
 
             if row < 0 or col < 0:
                 print("Invalid path provided!")
-                return default_path
+                return default_path, []
 
             path_to_return[row][col] = True
+            path_coor.append((row, col))
 
         if (col, row) != self.coor[1]:
             print("Invalid path provided!")
-            return default_path
+            return default_path, []
 
-        return path_to_return
+        return path_to_return, path_coor
 
-    def clear_img(self) -> None:
+    def clean_img(self) -> None:
 
+        clear_img(self.buf)
         self.mlx.mlx_destroy_image(
             self.mlx_ptr,
             self.img
