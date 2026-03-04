@@ -47,7 +47,7 @@ class Maze:
         if not self.generated:
             return None
 
-        clear_img(self.buf)
+        clear_img(self.buf, self.height, self.sz_line)
         self.cells = []
 
         for row in range(len(self.input)):
@@ -77,7 +77,7 @@ class Maze:
     def start_animation(self) -> None:
 
         if not self.toggle_path or self.path_displayed:
-            clear_img(self.buf)
+            clear_img(self.buf, self.height, self.sz_line)
             self.toggle_path = False
             self.path_displayed = False
             self.frame_delay = 0.00000001
@@ -213,7 +213,7 @@ class Maze:
 
     def clean_img(self) -> None:
 
-        clear_img(self.buf)
+        clear_img(self.buf, self.height, self.sz_line)
         self.mlx.mlx_destroy_image(
             self.mlx_ptr,
             self.img

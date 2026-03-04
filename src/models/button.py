@@ -53,7 +53,7 @@ class Button:
 
     def draw(self) -> None:
 
-        clear_img(self.buf)
+        clear_img(self.buf, self.height, self.sz_line)
 
         for row in range(self.height):
 
@@ -74,16 +74,13 @@ class Button:
         if not self.is_pressed:
             return None
 
-        if time.time() - self.press_start_time < self.press_duration:
-            self.offset = 2
-
-        else:
+        if time.monotonic() - self.press_start_time >= self.press_duration:
             self.offset = 0
             self.is_pressed = False
 
         self.draw()
 
-    def is_outline(self, x: int, y: int) -> bool:
+    def is_outline(self, col: int, row: int) -> bool:
 
         posx: list[int] = [
             x for x in range(
@@ -101,33 +98,33 @@ class Button:
         for pos in range(
             BORDER_WIDTH, BORDER_WIDTH + self.depth
         ):
-            if (x, y) == (pos, pos):
+            if (col, row) == (pos, pos):
                 return True
 
         for pos in range(len(posx)):
-            if (x, y) == (posx[-(pos + 1)], pos + BORDER_WIDTH):
+            if (col, row) == (posx[-(pos + 1)], pos + BORDER_WIDTH):
                 return True
 
-            if (x, y) == (pos + BORDER_WIDTH, posy[-(pos + 1)]):
+            if (col, row) == (pos + BORDER_WIDTH, posy[-(pos + 1)]):
                 return True
 
-            if (x, y) == (posx[pos], posy[pos]):
+            if (col, row) == (posx[pos], posy[pos]):
                 return True
 
         for pos in [0, BORDER_WIDTH + self.depth]:
 
             if (
-                pos <= x < pos + BORDER_WIDTH
+                pos <= col < pos + BORDER_WIDTH
                 or self.width - pos - BORDER_WIDTH
-                <= x < self.width - pos
-            ) and pos <= y < self.height - pos:
+                <= col < self.width - pos
+            ) and pos <= row < self.height - pos:
                 return True
 
             if (
-                pos <= y < pos + BORDER_WIDTH
+                pos <= row < pos + BORDER_WIDTH
                 or self.height - pos - BORDER_WIDTH
-                <= y < self.height - pos
-            ) and pos <= x < self.width - pos:
+                <= row < self.height - pos
+            ) and pos <= col < self.width - pos:
                 return True
 
         return False
@@ -138,11 +135,12 @@ class Button:
             return None
 
         self.is_pressed = True
-        self.press_start_time = time.time()
+        self.offset = 2
+        self.press_start_time = time.monotonic()
 
     def clean_img(self) -> None:
 
-        clear_img(self.buf)
+        clear_img(self.buf, self.height, self.sz_line)
         self.mlx.mlx_destroy_image(
             self.mlx_ptr,
             self.img

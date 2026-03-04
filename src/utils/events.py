@@ -37,10 +37,12 @@ def handle_buttons(
             button.base_pos[1] <= y < button.end_pos[1]
         ):
             button_pressed = button
-            button.click_button()
 
     if not button_pressed:
         return None
+
+    button_pressed.click_button()
+    render(maze, buttons, mlx_data)
 
     match button_pressed.name:
 

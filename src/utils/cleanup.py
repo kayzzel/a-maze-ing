@@ -1,6 +1,10 @@
-def clear_img(buf: memoryview) -> None:
+def clear_img(
+    buf: memoryview,
+    height: int,
+    sz_line: int
+) -> None:
 
-    buf[:] = b"\x00" * len(buf)
+    buf[:] = b'\x00' * (height * sz_line)
 
 
 def clear_all(mlx, mlx_ptr, mlx_win, maze, buttons) -> None:
