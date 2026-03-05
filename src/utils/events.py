@@ -1,5 +1,5 @@
 from .cleanup import clear_all
-from .display import render
+from .mlx_display import render
 
 
 """
