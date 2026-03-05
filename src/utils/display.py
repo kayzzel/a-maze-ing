@@ -23,7 +23,7 @@ def img_put_px(
 
     # calculates the buffer offset in the memory
 
-    offset = y * sz_line + x * (bpp // 8)
+    offset: int = y * sz_line + x * (bpp // 8)
 
     buf[offset + 0] = r
     buf[offset + 1] = g
@@ -38,9 +38,10 @@ renders both the maze and the buttons
 """
 
 
-def render(maze, buttons: list, mlx_data: tuple) -> None:
+def render(maze: any, buttons: list, mlx_data: tuple) -> None:
 
     mlx, mlx_ptr, mlx_win = mlx_data
+
     mlx.mlx_clear_window(mlx_ptr, mlx_win)
 
     # puts the maze image on the window
