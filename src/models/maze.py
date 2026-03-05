@@ -84,8 +84,9 @@ class Maze:
         self.animating: bool = False
         self.anim_row: int = 0
         self.anim_col: int = 0
-        self.frame_delay: float = 0.000000000001
+        self.frame_delay: float = 0.0000001
         self.frame_count: float = 0
+        self.animating_speed: int = len(maze_input) // 10
 
     """
 
@@ -104,7 +105,8 @@ class Maze:
             self.path_displayed = False
             self.generated = False
             self.bg_color = 1
-            self.frame_delay = 0.000000000001
+            self.frame_delay = 0.0000001
+            self.animating_speed = len(self.input) // 10
             self.cells = [
                 [None for _ in range(len(self.input[0]))]
                 for _ in range(len(self.input))
@@ -140,55 +142,57 @@ class Maze:
 
         # checks if at the end of the maze
 
-        if self.anim_row >= len(self.input):
-            self.animating = False
-            self.generated = True
-            return None
+        for _ in range(self.animating_speed):
 
-        # checks if the path needs to be displayed
-
-        if self.toggle_path and self.path:
-
-            # checks if arrived at the end of the path
-
-            if self.cur_path_pos >= len(self.path):
+            if self.anim_row >= len(self.input):
+                self.animating = False
                 self.generated = True
-                self.path_displayed = True
                 return None
 
-            # gets the cell coordinates from the path
+            # checks if the path needs to be displayed
 
-            self.anim_row, self.anim_col = self.path[
-                self.cur_path_pos
-            ]
+            if self.toggle_path and self.path:
 
-            # going to the next cell in the path
+                # checks if arrived at the end of the path
 
-            self.cur_path_pos += 1
+                if self.cur_path_pos >= len(self.path):
+                    self.generated = True
+                    self.path_displayed = True
+                    return None
 
-        # initializing the cell
+                # gets the cell coordinates from the path
 
-        self.cells[self.anim_row][self.anim_col] = Cell(
-            self.input[self.anim_row][self.anim_col],
-            (self.anim_col, self.anim_row),
-            self.width // len(self.input[0]),
-            (self.buf, self.sz_line, self.bpp),
-            (
-                self.current_colors[0],
-                self.current_colors[self.bg_color]
+                self.anim_row, self.anim_col = self.path[
+                    self.cur_path_pos
+                ]
+
+                # going to the next cell in the path
+
+                self.cur_path_pos += 1
+
+            # initializing the cell
+
+            self.cells[self.anim_row][self.anim_col] = Cell(
+                self.input[self.anim_row][self.anim_col],
+                (self.anim_col, self.anim_row),
+                self.width // len(self.input[0]),
+                (self.buf, self.sz_line, self.bpp),
+                (
+                    self.current_colors[0],
+                    self.current_colors[self.bg_color]
+                )
             )
-        )
 
-        self.cells[self.anim_row][self.anim_col].draw()
+            self.cells[self.anim_row][self.anim_col].draw()
 
-        # going to the next cell
+            # going to the next cell
 
-        if not self.toggle_path:
+            if not self.toggle_path:
 
-            self.anim_col += 1
-            if self.anim_col >= len(self.input[0]):
-                self.anim_col = 0
-                self.anim_row += 1
+                self.anim_col += 1
+                if self.anim_col >= len(self.input[0]):
+                    self.anim_col = 0
+                    self.anim_row += 1
 
     """
 
@@ -215,6 +219,7 @@ class Maze:
 
             self.cur_path_pos: int = 0
             self.frame_delay = 0.01
+            self.animating_speed = 1
             self.start_animation()
             self.path_displayed = True
 
