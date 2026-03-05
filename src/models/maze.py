@@ -1,7 +1,16 @@
 from .cell import Cell
 from src.utils.cleanup import clear_img
+from enum import Enum
 import random
 import time
+
+
+class Walls(str, Enum):
+
+    NORTH = "13579BDF"
+    SOUTH = "4567CDEF"
+    EAST = "2367ABEF"
+    WEST = "89ABCDEF"
 
 
 class Maze:
@@ -59,7 +68,8 @@ class Maze:
             )
             for maze_row in maze_input
             for hexa in maze_row
-        ):
+        ) or not self.check_if_maze_closed(maze_input):
+
             raise ValueError("Invalid input for the maze's cells!")
 
         self.input: list[str] = maze_input
@@ -97,6 +107,33 @@ class Maze:
         self.frame_delay: float = 0.0000001
         self.frame_count: float = 0
         self.animating_speed: int = len(maze_input) // 10
+
+    """
+
+    checks whether or not the maze is properly closed on all sides
+
+    """
+
+    @staticmethod
+    def check_if_maze_closed(maze_input) -> bool:
+
+        if not all(hexa_val in Walls.NORTH for hexa_val in maze_input[0]):
+            return False
+
+        if not all(hexa_val in Walls.SOUTH for hexa_val in maze_input[-1]):
+            return False
+
+        if not all(hexa_val in Walls.WEST for hexa_val in [
+            hexa_line[0] for hexa_line in maze_input
+        ]):
+            return False
+
+        if not all(hexa_val in Walls.EAST for hexa_val in [
+            hexa_line[-1] for hexa_line in maze_input
+        ]):
+            return False
+
+        return True
 
     """
 
