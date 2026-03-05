@@ -53,7 +53,7 @@ class Maze:
     ) -> None:
 
         if not all(
-            hexa in "0123456789ABCDEF"
+            hexa in "0123456789ABCDEFabcdef"
             for maze_row in maze_input
             for hexa in maze_row
         ):
