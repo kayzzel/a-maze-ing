@@ -42,7 +42,7 @@ class Maze:
         self.animating: bool = False
         self.anim_row: int = 0
         self.anim_col: int = 0
-        self.frame_delay: float = 0.00000001
+        self.frame_delay: float = 0.000000000001
         self.frame_count: float = 0
 
     def redraw(self) -> None:
@@ -83,9 +83,7 @@ class Maze:
             clear_img(self.buf, self.height, self.sz_line)
             self.toggle_path = False
             self.path_displayed = False
-            self.frame_delay = 0.00000001
-
-        self.frame_count = time.time()
+            self.frame_delay = 0.000000000001
 
         self.cells: list[list] = [
             [None for _ in range(len(self.input[0]))]
@@ -94,17 +92,17 @@ class Maze:
         self.anim_row = 0
         self.anim_col = 0
         self.animating = True
-        self.frame_count = time.time()
+        self.frame_count = time.monotonic()
 
     def animate_step(self) -> None:
 
         if not self.animating:
             return None
 
-        if time.time() - self.frame_count < self.frame_delay:
+        if time.monotonic() - self.frame_count < self.frame_delay:
             return None
 
-        self.frame_count = time.time()
+        self.frame_count = time.monotonic()
 
         if self.anim_row >= len(self.input):
             self.animating = False
