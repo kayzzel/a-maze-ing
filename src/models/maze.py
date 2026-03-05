@@ -53,7 +53,10 @@ class Maze:
     ) -> None:
 
         if not all(
-            hexa in "0123456789ABCDEFabcdef"
+            (
+                hexa in "0123456789ABCDEF"
+                and len(maze_row) == len(maze_input[0])
+            )
             for maze_row in maze_input
             for hexa in maze_row
         ):
