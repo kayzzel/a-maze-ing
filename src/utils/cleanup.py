@@ -23,7 +23,7 @@ finally exits the mlx loop
 """
 
 
-def clear_all(mlx_data: tuple, maze, buttons) -> None:
+def clear_all(mlx_data: tuple, maze: any, buttons: list) -> None:
 
     mlx, mlx_ptr, mlx_win = mlx_data
 

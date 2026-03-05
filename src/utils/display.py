@@ -1,3 +1,6 @@
+from typing import Any as any
+
+
 """
 
 changes the pixel of an image at the given coordinates
