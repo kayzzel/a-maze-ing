@@ -19,7 +19,7 @@ def global_update(param: tuple) -> None:
 
     maze.animate_step()
 
-    render(maze, buttons, mlx_data)
+    render(maze, buttons, tuple(mlx_data))
 
 
 """
@@ -30,19 +30,18 @@ handles all mouse events that happen during the mlx loop
 
 
 def handle_buttons(
-    button: int,
+    button_type: int,
     x: int,
     y: int,
     param: tuple
 ) -> None:
 
     buttons: list
-    mlx_data: tuple
     buttons, maze, mlx_data = param
 
     # checks whether or not the mouse event is a left click
 
-    if button != 1:
+    if button_type != 1:
         return None
 
     button_pressed = None
@@ -81,4 +80,4 @@ def handle_buttons(
             maze.change_colors()
 
         case "Exit window":
-            clear_all(*mlx_data, maze, buttons)
+            clear_all(mlx_data, maze, buttons)

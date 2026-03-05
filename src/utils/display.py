@@ -38,7 +38,7 @@ renders both the maze and the buttons
 """
 
 
-def render(maze, buttons, mlx_data: tuple) -> None:
+def render(maze, buttons: list, mlx_data: tuple) -> None:
 
     mlx, mlx_ptr, mlx_win = mlx_data
     mlx.mlx_clear_window(mlx_ptr, mlx_win)
@@ -53,6 +53,7 @@ def render(maze, buttons, mlx_data: tuple) -> None:
     )
 
     # puts the button image + button title on the window for each button
+
     for button in buttons:
 
         mlx.mlx_put_image_to_window(
@@ -81,22 +82,22 @@ if you want to add colors, do it directly here
 """
 
 
-def get_color_palette() -> tuple[tuple[tuple]]:
+def get_color_palette() -> list[list[tuple[int, int, int, int]]]:
 
-    return (
-        (
+    return [
+        [
             (0, 0, 255, 255),
             (255, 255, 255, 255),
             (255, 0, 0, 255)
-        ),
-        (
+        ],
+        [
             (0, 255, 0, 255),
             (255, 255, 255, 255),
             (0, 0, 255, 255)
-        ),
-        (
+        ],
+        [
             (255, 0, 0, 255),
             (255, 255, 255, 255),
             (0, 255, 0, 255)
-        )
-    )
+        ]
+    ]

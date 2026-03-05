@@ -48,7 +48,7 @@ class Maze:
         win_sz: tuple[int, int],
         maze_sz: tuple[int, int],
         mlx_data: tuple,
-        colors: tuple[tuple[tuple]],
+        colors: list[list[tuple[int, int, int, int]]],
         path: tuple
     ) -> None:
 
@@ -72,12 +72,14 @@ class Maze:
         self.buf, self.bpp, self.sz_line, *oth = (
             self.mlx.mlx_get_data_addr(self.img)
         )
-        self.cells: list[list[Cell]] = [
+        self.cells: list[list] = [
             [None for _ in range(len(self.input[0]))]
             for _ in range(len(self.input))
         ]
-        self.color_palette: tuple = colors
-        self.current_colors: tuple = random.choice(self.color_palette)
+        self.color_palette: list[list[tuple[int, int, int, int]]] = colors
+        self.current_colors: list[
+            tuple[int, int, int, int]
+        ] = random.choice(self.color_palette)
         self.bg_color: int = 1
         self.animating: bool = False
         self.anim_row: int = 0
@@ -244,7 +246,9 @@ class Maze:
 
         # sets the new colors
 
-        new_colors: tuple = random.choice(self.color_palette)
+        new_colors: list[
+            tuple[int, int, int, int]
+        ] = random.choice(self.color_palette)
 
         while (
             new_colors == self.current_colors
