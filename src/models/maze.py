@@ -230,6 +230,11 @@ class Maze:
             )
             self.cells[path_row][path_col].draw()
 
+        # uncomment the floowing line
+        # if you want to animate the path display every time it is toggled on
+
+        # self.path_displayed = not (self.path_displayed)
+
     """
 
     changes the colors of the maze
