@@ -1,3 +1,10 @@
+"""
+
+changes the pixel of an image at the given coordinates
+
+"""
+
+
 def img_put_px(
     x: int,
     y: int,
@@ -14,6 +21,8 @@ def img_put_px(
 
     b, g, r, a = color
 
+    # calculates the buffer offset in the memory
+
     offset = y * sz_line + x * (bpp // 8)
 
     buf[offset + 0] = r
@@ -22,10 +31,19 @@ def img_put_px(
     buf[offset + 3] = a
 
 
+"""
+
+renders both the maze and the buttons
+
+"""
+
+
 def render(maze, buttons, mlx_data: tuple) -> None:
 
     mlx, mlx_ptr, mlx_win = mlx_data
     mlx.mlx_clear_window(mlx_ptr, mlx_win)
+
+    # puts the maze image on the window
 
     mlx.mlx_put_image_to_window(
         mlx_ptr,
@@ -34,6 +52,7 @@ def render(maze, buttons, mlx_data: tuple) -> None:
         *maze.maze_pos
     )
 
+    # puts the button image + button title on the window for each button
     for button in buttons:
 
         mlx.mlx_put_image_to_window(
@@ -52,6 +71,14 @@ def render(maze, buttons, mlx_data: tuple) -> None:
             0xFFFFFF,
             button.name
         )
+
+
+"""
+
+returns the entire color palette for the maze
+if you want to add colors, do it directly here
+
+"""
 
 
 def get_color_palette() -> tuple[tuple[tuple]]:
