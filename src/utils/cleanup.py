@@ -1,3 +1,6 @@
+from typing import Any as any
+
+
 """
 
 clears each byte in the given image byffer by setting it to zero
