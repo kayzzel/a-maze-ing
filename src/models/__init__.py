@@ -1,3 +1,5 @@
 from .maze_data import MazeData
+from .maze import Maze
 from .cell import Cell
-__all__ = ["MazeData", "Cell"]
+from .button import Button, generate_buttons
+__all__ = ["MazeData", "Maze", "Cell", "Button", "generate_buttons"]
