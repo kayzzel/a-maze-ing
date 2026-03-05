@@ -39,14 +39,18 @@ def test_maze_gen() -> None:
 
     mlx_win = mlx.mlx_new_window(mlx_ptr, 1000, 1000, "MAZE GENERATION")
 
-    maze: Maze = Maze(
-        maze_input,
-        (1000, 1000),
-        (600, 600),
-        (mlx, mlx_ptr, mlx_win),
-        get_color_palette(),
-        (path, (entry_coor, exit_coor))
-    )
+    try:
+        maze: Maze = Maze(
+            maze_input,
+            (1000, 1000),
+            (600, 600),
+            (mlx, mlx_ptr, mlx_win),
+            get_color_palette(),
+            (path, (entry_coor, exit_coor))
+        )
+    except ValueError as ve:
+        print(ve)
+        return None
 
     buttons: list[Button] = generate_buttons(
         (mlx, mlx_ptr, mlx_win),

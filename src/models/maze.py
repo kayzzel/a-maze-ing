@@ -52,6 +52,13 @@ class Maze:
         path: tuple
     ) -> None:
 
+        if not all(
+            hexa in "0123456789ABCDEF"
+            for maze_row in maze_input
+            for hexa in maze_row
+        ):
+            raise ValueError("Invalid input for the maze's cells!")
+
         self.input: list[str] = maze_input
         self.width, self.height = maze_sz
         self.maze_pos: tuple[int, int] = (
