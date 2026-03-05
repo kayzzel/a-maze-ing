@@ -1,4 +1,4 @@
-from .display import (
+from .mlx_display import (
     img_put_px,
     render,
     get_color_palette
