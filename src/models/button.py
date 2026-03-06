@@ -1,9 +1,10 @@
 import time
 from ..utils import clear_img, img_put_px
 
-# the width of the button border
+# the width and depth of the button border
 
 BORDER_WIDTH: int = 2
+BORDER_DEPTH: int = 8
 
 
 class Button:
@@ -15,16 +16,13 @@ class Button:
     [parameters needed]
 
      => name: the name of the button (displayed in the center)
-     => win_sz: the size of the window (width, height)
-     => nb_button: the number of the button
-            (needed to display the buttons next to each other separately)
+     => button_sz: the width and height of the button
+     => button_pos: the base position of the button in the window
      => color: the color for the border
      => mlx_data: the mlx object, the mlx pointer and the mlx window
 
     [attributes of the class]
 
-     => depth: the depth for the button graphics
-     => base_pos: the position inside the window
      => end_pos: the end position of the button
             (needed to know the button area when clicking with the mouse)
      => offset: the offset added to base_pos for the click animation
@@ -41,23 +39,16 @@ class Button:
     def __init__(
         self,
         name: str,
-        win_sz: tuple[int, int],
-        nb_button: int,
+        button_sz: tuple[int, int],
+        button_pos: tuple[int, int],
         color: tuple[int, int, int, int],
         mlx_data: tuple
     ) -> None:
 
         self.name: str = name
-        self.number: int = nb_button
         self.color: tuple = color
-        self.depth: int = 8
-        self.width: int = win_sz[0] // 5 + 25
-        self.height: int = win_sz[1] // 8
-        self.win_sz: tuple[int, int] = win_sz
-        self.base_pos: tuple[int, int] = (
-            (25 + self.width) * self.number + 15,
-            self.win_sz[1] - (self.height + 50)
-        )
+        self.width, self.height = button_sz
+        self.base_pos: tuple[int, int] = button_pos
         self.end_pos: tuple[int, int] = (
             self.base_pos[0] + self.width,
             self.base_pos[1] + self.height
@@ -81,6 +72,18 @@ class Button:
         self.is_pressed: bool = False
         self.press_start_time: float = 0
         self.press_duration: float = 0.08
+        self.posx: list[int] = [
+            x for x in range(
+                self.width - BORDER_WIDTH - BORDER_DEPTH,
+                self.width - BORDER_WIDTH
+            )
+        ]
+        self.posy: list[int] = [
+            y for y in range(
+                self.height - BORDER_WIDTH - BORDER_DEPTH,
+                self.height - BORDER_WIDTH
+            )
+        ]
 
     """
 
@@ -90,6 +93,7 @@ class Button:
     def draw(self) -> None:
 
         clear_img(self.buf, self.height, self.sz_line)
+        print(f"drawing button {self.name}\n")
 
         for row in range(self.height):
 
@@ -114,9 +118,8 @@ class Button:
     def update(self) -> None:
 
         if not self.is_pressed:
-            return None
-
-        # checks if the clicking animation is over
+            return
+            # checks if the clicking animation is over
 
         if time.monotonic() - self.press_start_time >= self.press_duration:
 
@@ -133,36 +136,23 @@ class Button:
 
     def is_outline(self, col: int, row: int) -> bool:
 
-        posx: list[int] = [
-            x for x in range(
-                self.width - BORDER_WIDTH - self.depth,
-                self.width - BORDER_WIDTH
-            )
-        ]
-        posy: list[int] = [
-            y for y in range(
-                self.height - BORDER_WIDTH - self.depth,
-                self.height - BORDER_WIDTH
-            )
-        ]
-
         for pos in range(
-            BORDER_WIDTH, BORDER_WIDTH + self.depth
+            BORDER_WIDTH, BORDER_WIDTH + BORDER_DEPTH
         ):
             if (col, row) == (pos, pos):
                 return True
 
-        for pos in range(len(posx)):
-            if (col, row) == (posx[-(pos + 1)], pos + BORDER_WIDTH):
+        for pos in range(len(self.posx)):
+            if (col, row) == (self.posx[-(pos + 1)], pos + BORDER_WIDTH):
                 return True
 
-            if (col, row) == (pos + BORDER_WIDTH, posy[-(pos + 1)]):
+            if (col, row) == (pos + BORDER_WIDTH, self.posy[-(pos + 1)]):
                 return True
 
-            if (col, row) == (posx[pos], posy[pos]):
+            if (col, row) == (self.posx[pos], self.posy[pos]):
                 return True
 
-        for pos in [0, BORDER_WIDTH + self.depth]:
+        for pos in [0, BORDER_WIDTH + BORDER_DEPTH]:
 
             if (
                 pos <= col < pos + BORDER_WIDTH
@@ -226,18 +216,74 @@ def generate_buttons(mlx_data: tuple, win_sz: tuple[int, int]) -> list[Button]:
         "Generate new maze",
         "Toggle path on/off",
         "Change colors",
+        "Rainbow mode",
         "Exit window"
     ]
 
     buttons: list[Button] = []
 
+    button_width: int = (
+        win_sz[0] // len(button_names) - 100
+    )
+    button_height: int = win_sz[1] // 8
+    horizontal_offset: int = (
+        win_sz[0] -
+        (button_width * len(button_names))
+    ) // (len(button_names) + 1)
+
     for button_number in range(len(button_names)):
+
+        button_pos: tuple[int, int] = (
+            (
+                button_width * button_number
+                + horizontal_offset * (button_number + 1)
+            ),
+            win_sz[1] - (button_height + 50)
+        )
+
         buttons.append(Button(
             button_names[button_number],
-            win_sz,
-            button_number,
+            (button_width, button_height),
+            button_pos,
             (255, 255, 255, 255),
             mlx_data
         ))
+
+    # uncomment the following and comment those up
+    # if you want the buttons to be displayed on two lines
+
+    """
+    lines: list[list[str]] = [
+        button_names[:len(button_names) // 2 + 1],
+        button_names[len(button_names) // 2 + 1:]
+    ]
+
+    for line in range(len(lines)):
+
+        horizontal_offset: int = (
+            win_sz[0] -
+            (button_width * len(lines[line]))
+        ) // (len(lines[line]) + 1)
+
+        vertical_offset: int = len(lines) - line
+
+        for button_number in range(len(lines[line])):
+
+            button_pos: tuple[int, int] = (
+                (
+                    button_width * button_number
+                    + horizontal_offset * (button_number + 1)
+                ),
+                win_sz[1] - vertical_offset * (button_height + 35)
+            )
+
+            buttons.append(Button(
+                lines[line][button_number],
+                (button_width, button_height),
+                button_pos,
+                (255, 255, 255, 255),
+                mlx_data
+            ))
+    """
 
     return buttons

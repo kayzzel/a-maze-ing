@@ -12,14 +12,16 @@ then renders them to display them correctly on the window
 
 def global_update(param: tuple) -> None:
 
-    maze, buttons, *mlx_data = param
+    buttons: list
+    mlx_data: tuple
+    maze, buttons, mlx_data = param
 
     for button in buttons:
         button.update()
 
     maze.animate_step()
 
-    render(maze, buttons, tuple(mlx_data))
+    render(maze, buttons, mlx_data)
 
 
 """
@@ -37,6 +39,7 @@ def handle_buttons(
 ) -> None:
 
     buttons: list
+    mlx_data: tuple
     buttons, maze, mlx_data = param
 
     # checks whether or not the mouse event is a left click
@@ -78,6 +81,9 @@ def handle_buttons(
 
         case "Change colors":
             maze.change_colors()
+
+        case "Rainbow mode":
+            maze.activate_rainbow()
 
         case "Exit window":
             clear_all(mlx_data, maze, buttons)

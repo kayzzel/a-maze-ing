@@ -2,7 +2,8 @@ from src.models import Maze, Button, generate_buttons
 from src.utils import (
     get_color_palette,
     handle_buttons,
-    global_update
+    global_update,
+    render
 )
 from mlx import Mlx
 import sys
@@ -37,12 +38,12 @@ def test_maze_gen() -> None:
 
     mlx_ptr = mlx.mlx_init()
 
-    mlx_win = mlx.mlx_new_window(mlx_ptr, 1000, 1000, "MAZE GENERATION")
+    mlx_win = mlx.mlx_new_window(mlx_ptr, 1920, 1080, "MAZE GENERATION")
 
     try:
         maze: Maze = Maze(
             maze_input,
-            (1000, 1000),
+            (1920, 1080),
             (600, 600),
             (mlx, mlx_ptr, mlx_win),
             get_color_palette(),
@@ -54,7 +55,7 @@ def test_maze_gen() -> None:
 
     buttons: list[Button] = generate_buttons(
         (mlx, mlx_ptr, mlx_win),
-        (1000, 1000)
+        (1920, 1080)
     )
 
     for button in buttons:
@@ -72,7 +73,7 @@ def test_maze_gen() -> None:
     mlx.mlx_loop_hook(
         mlx_ptr,
         global_update,
-        (maze, buttons, mlx, mlx_ptr, mlx_win)
+        (maze, buttons, (mlx, mlx_ptr, mlx_win))
     )
     mlx.mlx_loop(mlx_ptr)
 

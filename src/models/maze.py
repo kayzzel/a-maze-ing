@@ -1,5 +1,6 @@
 from .cell import Cell
-from src.utils.cleanup import clear_img
+from ..utils import clear_img
+from ..utils import get_rainbow_palette
 from enum import Enum
 import random
 import time
@@ -7,10 +8,10 @@ import time
 
 class Walls(str, Enum):
 
-    NORTH = "13579BDF"
-    SOUTH = "4567CDEF"
-    EAST = "2367ABEF"
-    WEST = "89ABCDEF"
+    NORTH = "13579BDFbdf"
+    SOUTH = "4567CDEFcdef"
+    EAST = "2367BEFbefAa"
+    WEST = "89BCDEFbcdefAa"
 
 
 class Maze:
@@ -63,7 +64,7 @@ class Maze:
 
         if not all(
             (
-                hexa in "0123456789ABCDEF"
+                hexa in "0123456789BCDEFbcdefAa"
                 and len(maze_row) == len(maze_input[0])
             )
             for maze_row in maze_input
@@ -107,6 +108,13 @@ class Maze:
         self.frame_delay: float = 0.0000001
         self.frame_count: float = 0
         self.animating_speed: int = len(maze_input) // 10
+        self.rainbow_mode: bool = False
+        self.rainbow_palette: list[
+            list[tuple[int, int, int, int]]
+        ] = get_rainbow_palette()
+        self.rainbow_delimiter: int = (
+            len(self.input[0]) // len(self.rainbow_palette)
+        )
 
     """
 
@@ -186,6 +194,10 @@ class Maze:
         # resets the frame count for next cell
 
         self.frame_count = time.monotonic()
+
+        if self.rainbow_mode and self.generated:
+            self.rainbow_step()
+            return None
 
         # checks if at the end of the maze
 
@@ -301,6 +313,9 @@ class Maze:
         if not self.generated:
             return None
 
+        if self.rainbow_mode:
+            self.activate_rainbow()
+
         # sets the new colors
 
         new_colors: list[
@@ -331,6 +346,56 @@ class Maze:
                     self.current_colors[self.bg_color]
                 )
                 self.cells[row][col].draw()
+
+    def activate_rainbow(self) -> None:
+
+        if not self.generated:
+            return None
+
+        self.rainbow_mode = not (self.rainbow_mode)
+
+        if not self.rainbow_mode or self.rainbow_delimiter < 1:
+            self.animating = False
+            self.frame_delay = 0.0000001
+            self.change_colors()
+            return None
+
+        self.animating = True
+        self.frame_delay = 0.00000000001
+        self.frame_count = time.monotonic()
+
+    def rainbow_step(self) -> None:
+
+        for row in range(len(self.input)):
+
+            cur_color_index: int = 0
+            rainbow_palette_index: int = 0
+
+            for col in range(len(self.input[0])):
+
+                if cur_color_index == self.rainbow_delimiter:
+                    cur_color_index = 0
+                    rainbow_palette_index += 1
+                    if rainbow_palette_index == len(self.rainbow_palette):
+                        rainbow_palette_index = 0
+
+                self.bg_color = 1
+
+                if self.toggle_path and (row, col) in self.path:
+                    self.bg_color = 2
+
+                self.cells[row][col].colors = (
+                    self.rainbow_palette[rainbow_palette_index][0],
+                    self.rainbow_palette[rainbow_palette_index][self.bg_color]
+                )
+
+                cur_color_index += 1
+
+                self.cells[row][col].draw()
+
+        last_color: list[tuple[int, int, int, int]] = self.rainbow_palette[-1]
+        self.rainbow_palette.remove(self.rainbow_palette[-1])
+        self.rainbow_palette = [last_color] + self.rainbow_palette
 
     """
 
