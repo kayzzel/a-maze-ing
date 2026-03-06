@@ -60,6 +60,7 @@ def walk(
     while cell in unvisited:
 
         # Choose a random neighboring cell
+        # uses the seeded random for the choice
         cell = rnd.choice(neighbors(cell, size, pattern_cells))
 
         # If we revisit a cell in our current path
@@ -93,11 +94,19 @@ def wilson(
     get a size (height, width) and create a maze by using the wilson algorith
     """
 
+    # Create a rnd: Random wich is the base form the choices so that:
     rnd: Random
+
+    # Whene no seed is given it generate one randomly
     if seed is None:
         rnd = Random(randint(0, 1000000000))
+
+    # Whene there is a seed given it put the base Random to the seed
+    # to be able to generate the same maze with the same seed
     elif isinstance(seed, int) and seed >= 0:
         rnd = Random(seed)
+
+    # When the seed format is wrong it raises a ValueError
     else:
         raise ValueError("seed must be a positive integer")
 
@@ -122,6 +131,7 @@ def wilson(
 
     # Pick a random starting cell and mark it visited
     # This becomes the initial tree of the maze
+    # uses the seeded random for the choice
     first: Cell = rnd.choice(list(unvisited))
     unvisited.remove(first)
     unvisited_list.remove(first)
@@ -130,6 +140,7 @@ def wilson(
     while unvisited:
 
         # Pick a random unvisited cell to start a random walk
+        # uses the seeded random for the choice
         cell: Cell = rnd.choice(unvisited_list)
 
         # Path of the current random walk
