@@ -66,7 +66,6 @@ def handle_buttons(
     # starts and displays the clicking animation for the button pressed
 
     button_pressed.click_button()
-
     render(maze, buttons, mlx_data)
 
     # calls the appropriate function/method corresponding to the button action
@@ -74,6 +73,8 @@ def handle_buttons(
     match button_pressed.name:
 
         case "Generate new maze":
+            # for button in buttons:
+            # button.needs_refresh = True
             maze.start_animation()
 
         case "Toggle path on/off":

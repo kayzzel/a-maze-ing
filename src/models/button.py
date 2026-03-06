@@ -66,12 +66,14 @@ class Button:
             self.width,
             self.height
         )
-        self.buf, self.bpp, self.sz_line, *oth = (
+        self.buf, self.bpp, self.sz_line, _ = (
             self.mlx.mlx_get_data_addr(self.img)
         )
+        clear_img(self.buf, self.height, self.sz_line)
         self.is_pressed: bool = False
         self.press_start_time: float = 0
         self.press_duration: float = 0.08
+        self.needs_refresh: bool = True
         self.posx: list[int] = [
             x for x in range(
                 self.width - BORDER_WIDTH - BORDER_DEPTH,
@@ -92,8 +94,7 @@ class Button:
     """
     def draw(self) -> None:
 
-        clear_img(self.buf, self.height, self.sz_line)
-        print(f"drawing button {self.name}\n")
+        # clear_img(self.buf, self.height, self.sz_line)
 
         for row in range(self.height):
 
@@ -118,6 +119,7 @@ class Button:
     def update(self) -> None:
 
         if not self.is_pressed:
+            self.needs_refresh = False
             return
             # checks if the clicking animation is over
 
@@ -125,8 +127,10 @@ class Button:
 
             self.offset = 0
             self.is_pressed = False
+            self.needs_refresh = True
 
-        self.draw()
+        if self.needs_refresh:
+            self.draw()
 
     """
 
@@ -184,6 +188,7 @@ class Button:
             return None
 
         self.is_pressed = True
+        self.needs_refresh = True
         self.offset = 2
         self.press_start_time = time.monotonic()
 

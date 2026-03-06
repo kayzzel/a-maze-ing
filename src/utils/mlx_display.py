@@ -1,4 +1,5 @@
-from typing import Any as any
+from typing import Any
+from .cleanup import clear_img
 
 
 """
@@ -41,11 +42,15 @@ renders both the maze and the buttons
 """
 
 
-def render(maze: any, buttons: list, mlx_data: tuple) -> None:
+def render(maze: Any, buttons: list, mlx_data: tuple) -> None:
 
     mlx, mlx_ptr, mlx_win = mlx_data
 
-    mlx.mlx_clear_window(mlx_ptr, mlx_win)
+    # puts the button image + button title on the window for each button
+
+    if any(button.needs_refresh for button in buttons):
+
+        mlx.mlx_clear_window(mlx_ptr, mlx_win)
 
     # puts the maze image on the window
 
@@ -56,26 +61,26 @@ def render(maze: any, buttons: list, mlx_data: tuple) -> None:
         *maze.maze_pos
     )
 
-    # puts the button image + button title on the window for each button
+    if any(button.needs_refresh for button in buttons):
 
-    for button in buttons:
+        for button in buttons:
 
-        mlx.mlx_put_image_to_window(
-            mlx_ptr,
-            mlx_win,
-            button.img,
-            button.base_pos[0] - button.offset,
-            button.base_pos[1] - button.offset
-        )
+            mlx.mlx_put_image_to_window(
+                mlx_ptr,
+                mlx_win,
+                button.img,
+                button.base_pos[0] - button.offset,
+                button.base_pos[1] - button.offset
+            )
 
-        mlx.mlx_string_put(
-            mlx_ptr,
-            mlx_win,
-            button.name_pos[0] - button.offset,
-            button.name_pos[1] - button.offset,
-            0xFFFFFF,
-            button.name
-        )
+            mlx.mlx_string_put(
+                mlx_ptr,
+                mlx_win,
+                button.name_pos[0] - button.offset,
+                button.name_pos[1] - button.offset,
+                0xFFFFFF,
+                button.name
+            )
 
 
 """
