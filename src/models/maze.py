@@ -115,7 +115,7 @@ class Maze:
     """
 
     @staticmethod
-    def check_if_maze_closed(maze_input) -> bool:
+    def check_if_maze_closed(maze_input: list[str]) -> bool:
 
         if not all(hexa_val in Walls.NORTH for hexa_val in maze_input[0]):
             return False

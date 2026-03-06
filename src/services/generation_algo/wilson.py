@@ -1,4 +1,4 @@
-from random import choice
+from random import Random, randint
 
 
 # define the type of a cell
@@ -51,7 +51,8 @@ def walk(
         unvisited: set[Cell],
         path: list[Cell],
         size: tuple[int, int],
-        pattern_cells: set[Cell]
+        pattern_cells: set[Cell],
+        rnd: Random
         ) -> list[Cell]:
     """
     Perform a random walk until we reach a visited maze cell
@@ -59,7 +60,7 @@ def walk(
     while cell in unvisited:
 
         # Choose a random neighboring cell
-        cell = choice(neighbors(cell, size, pattern_cells))
+        cell = rnd.choice(neighbors(cell, size, pattern_cells))
 
         # If we revisit a cell in our current path
         # we found a loop
@@ -84,10 +85,21 @@ def walk(
     return path
 
 
-def wilson(size: tuple[int, int]) -> list[str]:
+def wilson(
+        size: tuple[int, int],
+        seed: int | None
+        ) -> list[str]:
     """
     get a size (height, width) and create a maze by using the wilson algorith
     """
+
+    rnd: Random
+    if seed is None:
+        rnd = Random(randint(0, 1000000000))
+    elif isinstance(seed, int) and seed >= 0:
+        rnd = Random(seed)
+    else:
+        raise ValueError("seed must be a positive integer")
 
     # unpack the size tuple in height and width
     height, width = size
@@ -110,7 +122,7 @@ def wilson(size: tuple[int, int]) -> list[str]:
 
     # Pick a random starting cell and mark it visited
     # This becomes the initial tree of the maze
-    first: Cell = choice(list(unvisited))
+    first: Cell = rnd.choice(list(unvisited))
     unvisited.remove(first)
     unvisited_list.remove(first)
 
@@ -118,7 +130,7 @@ def wilson(size: tuple[int, int]) -> list[str]:
     while unvisited:
 
         # Pick a random unvisited cell to start a random walk
-        cell: Cell = choice(unvisited_list)
+        cell: Cell = rnd.choice(unvisited_list)
 
         # Path of the current random walk
         path: list[Cell] = [cell]
@@ -128,7 +140,7 @@ def wilson(size: tuple[int, int]) -> list[str]:
         visited: dict[Cell, int] = {cell: 0}
 
         # Perform a random walk until we reach a visited maze cell
-        path = walk(cell, visited, unvisited, path, size, pattern_cells)
+        path = walk(cell, visited, unvisited, path, size, pattern_cells, rnd)
 
         # Carve the path into the maze
         for index in range(len(path) - 1):
