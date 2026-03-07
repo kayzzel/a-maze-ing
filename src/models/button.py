@@ -1,5 +1,5 @@
 import time
-from ..utils import clear_img, img_put_px
+from ..utils import clear_img, img_put_px, draw_borders
 
 # the width and depth of the button border
 
@@ -17,20 +17,32 @@ class Button:
 
      => name: the name of the button (displayed in the center)
      => button_sz: the width and height of the button
-     => button_pos: the base position of the button in the window
+     => button_pos: the base position of the button in the button image
      => color: the color for the border
+     => img_sz: the size of the button image
+     => button_img_pos: the position of the button image in the window
      => mlx_data: the mlx object, the mlx pointer and the mlx window
 
     [attributes of the class]
 
-     => end_pos: the end position of the button
+     => end_pos: the end position of the button in the image
             (needed to know the button area when clicking with the mouse)
-     => offset: the offset added to base_pos for the click animation
      => name_pos: the position of the button name in the window
-     => img: the button image
-     => is_pressed: indicates whether or not the button is being pressed
+     => not_clicked:
+            a dictionary containing
+            the image where no buttons are press
+            and its data
+     => clicked:
+            a dictionary containing
+            the image where the button is pressed
+            and its data
+     => needs_refresh: indicates whether or not
+            the button needs to be rendered
+     => is_pressed: indicates whether or not
+            the button is being pressed
             (needed for the animation)
-     => press_start_time: tracks the elapsed time since the button was pressed
+     => press_start_time: tracks the elapsed time
+            since the button was pressed
      => press_duration:
             sets the maximum time for the clicking animation to last
 
@@ -42,9 +54,7 @@ class Button:
         button_sz: tuple[int, int],
         button_pos: tuple[int, int],
         color: tuple[int, int, int, int],
-        button_img,
         img_sz: tuple[int, int],
-        button_img_data: tuple[memoryview, int, int],
         button_img_pos: tuple[int, int]
     ) -> None:
 
@@ -56,62 +66,92 @@ class Button:
             self.base_pos[0] + self.width,
             self.base_pos[1] + self.height
         )
-        self.offset: int = 0
         self.win_pos: tuple[int, int] = button_img_pos
         self.name_pos: tuple[int, int] = (
             self.win_pos[0] + self.base_pos[0] + (
                 (self.width - len(name) * 10) // 2
             ),
-            self.win_pos[1] + self.base_pos[1] + self.height // 2 - 10
+            self.win_pos[1] + self.base_pos[1]
+            + self.height // 2 - 10
         )
-        self.img = button_img
+        self.not_clicked: dict
+        self.clicked: dict
         self.img_sz: tuple[int, int] = img_sz
-        self.buf, self.sz_line, self.bpp = button_img_data
+        self.needs_refresh: bool = False
         self.is_pressed: bool = False
         self.press_start_time: float = 0
         self.press_duration: float = 0.08
-        self.needs_refresh: bool = True
-        self.posx: list[int] = [
-            x for x in range(
-                self.width - BORDER_WIDTH - BORDER_DEPTH,
-                self.width - BORDER_WIDTH
-            )
-        ]
-        self.posy: list[int] = [
-            y for y in range(
-                self.height - BORDER_WIDTH - BORDER_DEPTH,
-                self.height - BORDER_WIDTH
-            )
-        ]
 
     """
 
-    draws the button border on the image
+    draws the button borders on the image provided
+    with the correct offset
 
     """
-    def draw(self) -> None:
+    def draw(
+        self,
+        img_data: tuple[memoryview, int, int],
+        offset: int
+    ) -> None:
 
-        # clear_img(self.buf, self.height, self.sz_line)
+        s_x: int = self.base_pos[0] - offset
+        s_y: int = self.base_pos[1] - offset
+        e_x: int = s_x + self.width
+        e_y: int = s_y + self.height
 
-        for row in range(
-            self.base_pos[1] - self.offset,
-            self.end_pos[1] - self.offset
-        ):
+        draw_borders(
+            (s_x, s_y),
+            (e_x, e_y),
+            BORDER_WIDTH,
+            img_data,
+            self.color
+        )
 
-            for col in range(
-                self.base_pos[0] - self.offset,
-                self.end_pos[0] - self.offset
-            ):
+        s_x += BORDER_WIDTH
+        s_y += BORDER_WIDTH
+        e_x -= BORDER_WIDTH
+        e_y -= BORDER_WIDTH
 
-                if self.is_outline(col, row):
-                    img_put_px(
-                        col,
-                        row,
-                        self.buf,
-                        self.sz_line,
-                        self.bpp,
-                        self.color
-                    )
+        draw_borders(
+            (s_x + BORDER_DEPTH, s_y + BORDER_DEPTH),
+            (e_x - BORDER_DEPTH, e_y - BORDER_DEPTH),
+            BORDER_WIDTH,
+            img_data,
+            self.color
+        )
+
+        positions: tuple[int, int, int, int] = (s_x, s_y, e_x, e_y)
+        s_x, s_y, e_x, e_y = positions
+
+        for _ in range(BORDER_WIDTH, BORDER_WIDTH + BORDER_DEPTH):
+
+            img_put_px(s_x, s_y, *img_data, self.color)
+            s_x += 1
+            s_y += 1
+
+        s_x, s_y, e_x, e_y = positions
+
+        for _ in range(BORDER_WIDTH, BORDER_WIDTH + BORDER_DEPTH):
+
+            img_put_px(e_x, s_y, *img_data, self.color)
+            e_x -= 1
+            s_y += 1
+
+        s_x, s_y, e_x, e_y = positions
+
+        for _ in range(BORDER_WIDTH, BORDER_WIDTH + BORDER_DEPTH):
+
+            img_put_px(s_x, e_y, *img_data, self.color)
+            s_x += 1
+            e_y -= 1
+
+        s_x, s_y, e_x, e_y = positions
+
+        for _ in range(BORDER_WIDTH, BORDER_WIDTH + BORDER_DEPTH):
+
+            img_put_px(e_x, e_y, *img_data, self.color)
+            e_x -= 1
+            e_y -= 1
 
     """
 
@@ -123,73 +163,28 @@ class Button:
 
         if not self.is_pressed:
             self.needs_refresh = False
-            return
-            # checks if the clicking animation is over
+            return None
+
+        # checks if the clicking animation is over
 
         if time.monotonic() - self.press_start_time >= self.press_duration:
 
-            self.offset = 0
             self.is_pressed = False
             self.needs_refresh = True
 
-        if self.needs_refresh:
-            self.draw()
+    """
+
+    clears and destroys the button's clicking image
 
     """
 
-    verifies if the current pixel is part of the border and needs to be drawn
+    def clean_img(self, mlx_data: tuple) -> None:
 
-    """
+        buf, sz_line, bpp = self.clicked["img_data"]
 
-    def is_outline(self, col: int, row: int) -> bool:
+        clear_img(buf, self.img_sz[1], sz_line)
 
-        start_pos: tuple[int, int] = (
-            self.base_pos[0] - self.offset,
-            self.base_pos[1] - self.offset
-        )
-
-        for pos in range(
-            BORDER_WIDTH, BORDER_WIDTH + BORDER_DEPTH
-        ):
-            if (col, row) == (start_pos[0] + pos, start_pos[1] + pos):
-                return True
-
-        for pos in range(len(self.posx)):
-            if (col, row) == (
-                self.posx[-(pos + 1)] + start_pos[0],
-                pos + BORDER_WIDTH + start_pos[1]
-            ):
-                return True
-
-            if (col, row) == (
-                pos + BORDER_WIDTH + start_pos[0],
-                self.posy[-(pos + 1)] + start_pos[1]
-            ):
-                return True
-
-            if (col, row) == (
-                self.posx[pos] + start_pos[0],
-                self.posy[pos] + start_pos[1]
-            ):
-                return True
-
-        for pos in [0, BORDER_WIDTH + BORDER_DEPTH]:
-
-            if (
-                pos + start_pos[0] <= col < pos + BORDER_WIDTH + start_pos[0]
-                or self.width - pos - BORDER_WIDTH + start_pos[0]
-                <= col < self.width - pos + start_pos[0]
-            ) and pos + start_pos[1] <= row < self.height - pos + start_pos[1]:
-                return True
-
-            if (
-                pos + start_pos[1] <= row < pos + BORDER_WIDTH + start_pos[1]
-                or self.height - pos - BORDER_WIDTH + start_pos[1]
-                <= row < self.height - pos + start_pos[1]
-            ) and pos + start_pos[0] <= col < self.width - pos + start_pos[0]:
-                return True
-
-        return False
+        mlx_data[0].mlx_destroy_image(mlx_data[1], self.clicked["img"])
 
     """
 
@@ -206,7 +201,6 @@ class Button:
 
         self.is_pressed = True
         self.needs_refresh = True
-        self.offset = 2
         self.press_start_time = time.monotonic()
 
 
@@ -227,13 +221,9 @@ def generate_buttons(mlx_data: tuple, win_sz: tuple[int, int]) -> list[Button]:
         "Exit window"
     ]
 
-    button_image = mlx_data[0].mlx_new_image(
-        mlx_data[1],
+    button_img_sz: tuple[int, int] = (
         win_sz[0],
         win_sz[1] // 8 + 100
-    )
-    buf, bpp, sz_line, _ = mlx_data[0].mlx_get_data_addr(
-        button_image
     )
     button_image_pos: tuple[int, int] = (
         (0, win_sz[1] - (win_sz[1] // 8 + 100))
@@ -245,15 +235,18 @@ def generate_buttons(mlx_data: tuple, win_sz: tuple[int, int]) -> list[Button]:
         win_sz[0] // len(button_names) - 100
     )
     button_height: int = win_sz[1] // 8
-    horizontal_offset: int = len(button_names) * 10
+    horizontal_offset: int = (
+        win_sz[0] - len(button_names) * button_width
+    ) // (len(button_names) + 1)
+
+    # initializing each button with the correct values
 
     for button_number in range(len(button_names)):
 
         button_pos: tuple[int, int] = (
-            horizontal_offset // 2 +
             (
                 button_width * button_number
-                + horizontal_offset * button_number
+                + horizontal_offset * (button_number + 1)
             ),
             50
         )
@@ -263,47 +256,71 @@ def generate_buttons(mlx_data: tuple, win_sz: tuple[int, int]) -> list[Button]:
             (button_width, button_height),
             button_pos,
             (255, 255, 255, 255),
-            button_image,
-            (win_sz[0], win_sz[1] // 8 + 100),
-            (buf, sz_line, bpp),
+            button_img_sz,
             button_image_pos
         ))
 
-    # uncomment the following and comment those up
-    # if you want the buttons to be displayed on two lines
+    # rendering the button image where no buttons are pressed
 
-    """
-    lines: list[list[str]] = [
-        button_names[:len(button_names) // 2 + 1],
-        button_names[len(button_names) // 2 + 1:]
-    ]
+    none_clicked_img = mlx_data[0].mlx_new_image(
+        mlx_data[1],
+        *button_img_sz
+    )
+    buf, bpp, sz_line, _ = mlx_data[0].mlx_get_data_addr(none_clicked_img)
+    clear_img(buf, button_img_sz[1], sz_line)
 
-    for line in range(len(lines)):
+    for button in buttons:
 
-        horizontal_offset: int = (
-            win_sz[0] -
-            (button_width * len(lines[line]))
-        ) // (len(lines[line]) + 1)
+        button.draw(
+            (buf, sz_line, bpp),
+            0
+        )
 
-        vertical_offset: int = len(lines) - line
+    # setting the no clicked image of each button
 
-        for button_number in range(len(lines[line])):
+    for button in buttons:
 
-            button_pos: tuple[int, int] = (
-                (
-                    button_width * button_number
-                    + horizontal_offset * (button_number + 1)
-                ),
-                win_sz[1] - vertical_offset * (button_height + 35)
+        button.not_clicked = {
+            "img": none_clicked_img,
+            "img_data": (buf, sz_line, bpp)
+        }
+
+    # rendering all the pressed button images
+
+    for b in range(len(buttons)):
+
+        # initializing a new image for each button
+
+        clicked_img = mlx_data[0].mlx_new_image(
+            mlx_data[1],
+            *button_img_sz
+        )
+        buf, bpp, sz_line, _ = mlx_data[0].mlx_get_data_addr(
+            clicked_img
+        )
+        clear_img(buf, button_img_sz[1], sz_line)
+
+        for button_nb in range(len(buttons)):
+
+            # setting the offset to draw the button
+            # at the correct position on the image
+
+            offset: int = 0
+
+            if button_nb == b:
+                offset = 2
+
+            buttons[button_nb].draw(
+                (buf, sz_line, bpp),
+                offset
             )
 
-            buttons.append(Button(
-                lines[line][button_number],
-                (button_width, button_height),
-                button_pos,
-                (255, 255, 255, 255),
-                mlx_data
-            ))
-    """
+        # setting the clicked button image
+        # to the corresponding button
+
+        buttons[b].clicked = {
+            "img": clicked_img,
+            "img_data": (buf, sz_line, bpp)
+        }
 
     return buttons

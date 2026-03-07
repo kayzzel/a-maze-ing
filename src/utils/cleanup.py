@@ -26,13 +26,21 @@ finally exits the mlx loop
 """
 
 
-def clear_all(mlx_data: tuple, maze: any, button) -> None:
+def clear_all(mlx_data: tuple, maze: any, buttons: list) -> None:
 
     mlx, mlx_ptr, mlx_win = mlx_data
 
     maze.clean_img()
-    clear_img(button.buf, button.img_sz[1], button.sz_line)
-    mlx.mlx_destroy_image(mlx_ptr, button.img)
+
+    for button in buttons:
+        button.clean_img((mlx, mlx_ptr, mlx_win))
+
+    clear_img(
+        buttons[0].not_clicked["img_data"][0],
+        buttons[0].img_sz[1],
+        buttons[0].not_clicked["img_data"][1]
+    )
+    mlx.mlx_destroy_image(mlx_ptr, buttons[0].not_clicked["img"])
 
     mlx.mlx_clear_window(mlx_ptr, mlx_win)
     mlx.mlx_destroy_window(mlx_ptr, mlx_win)

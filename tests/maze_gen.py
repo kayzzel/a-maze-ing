@@ -58,11 +58,8 @@ def test_maze_gen() -> None:
         (1920, 1080)
     )
 
-    for button in buttons:
-        button.draw()
+    buttons[0].needs_refresh = True
     render(maze, buttons, (mlx, mlx_ptr, mlx_win))
-    for button in buttons:
-        button.needs_refresh = False
 
     mlx.mlx_mouse_hook(
         mlx_win,

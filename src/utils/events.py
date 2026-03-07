@@ -54,9 +54,11 @@ def handle_buttons(
     for button in buttons:
 
         if (
-            button.base_pos[0] <= x < button.end_pos[0]
+            button.win_pos[0] + button.base_pos[0] <=
+            x < button.end_pos[0] + button.win_pos[0]
         ) and (
-            button.base_pos[1] <= y < button.end_pos[1]
+            button.base_pos[1] + button.win_pos[1] <=
+            y < button.end_pos[1] + button.win_pos[1]
         ):
             button_pressed = button
 
@@ -73,9 +75,6 @@ def handle_buttons(
     match button_pressed.name:
 
         case "Generate new maze":
-            mlx_data[0].mlx_clear_window(mlx_data[1], mlx_data[2])
-            for button in buttons:
-                button.needs_refresh = True
             maze.start_animation()
 
         case "Toggle path on/off":
@@ -88,4 +87,4 @@ def handle_buttons(
             maze.activate_rainbow()
 
         case "Exit window":
-            clear_all(mlx_data, maze, buttons[0])
+            clear_all(mlx_data, maze, buttons)
