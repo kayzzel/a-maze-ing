@@ -11,7 +11,7 @@ import sys
 def test_maze_gen() -> None:
 
     input_filename: str = "tests/input_maze.txt"
-    path_name: str = "tests/path.txt"
+    path_name: str = "tests/path_other.txt"
 
     if len(sys.argv) < 2:
         print(
