@@ -73,8 +73,9 @@ def handle_buttons(
     match button_pressed.name:
 
         case "Generate new maze":
-            # for button in buttons:
-            # button.needs_refresh = True
+            mlx_data[0].mlx_clear_window(mlx_data[1], mlx_data[2])
+            for button in buttons:
+                button.needs_refresh = True
             maze.start_animation()
 
         case "Toggle path on/off":
@@ -87,4 +88,4 @@ def handle_buttons(
             maze.activate_rainbow()
 
         case "Exit window":
-            clear_all(mlx_data, maze, buttons)
+            clear_all(mlx_data, maze, buttons[0])

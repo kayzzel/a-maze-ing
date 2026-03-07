@@ -42,7 +42,10 @@ class Button:
         button_sz: tuple[int, int],
         button_pos: tuple[int, int],
         color: tuple[int, int, int, int],
-        mlx_data: tuple
+        button_img,
+        img_sz: tuple[int, int],
+        button_img_data: tuple[memoryview, int, int],
+        button_img_pos: tuple[int, int]
     ) -> None:
 
         self.name: str = name
@@ -54,22 +57,16 @@ class Button:
             self.base_pos[1] + self.height
         )
         self.offset: int = 0
+        self.win_pos: tuple[int, int] = button_img_pos
         self.name_pos: tuple[int, int] = (
-            self.base_pos[0] + (
+            self.win_pos[0] + self.base_pos[0] + (
                 (self.width - len(name) * 10) // 2
             ),
-            self.base_pos[1] + self.height // 2 - 10
+            self.win_pos[1] + self.base_pos[1] + self.height // 2 - 10
         )
-        self.mlx, self.mlx_ptr, self.mlx_win = mlx_data
-        self.img = self.mlx.mlx_new_image(
-            self.mlx_ptr,
-            self.width,
-            self.height
-        )
-        self.buf, self.bpp, self.sz_line, _ = (
-            self.mlx.mlx_get_data_addr(self.img)
-        )
-        clear_img(self.buf, self.height, self.sz_line)
+        self.img = button_img
+        self.img_sz: tuple[int, int] = img_sz
+        self.buf, self.sz_line, self.bpp = button_img_data
         self.is_pressed: bool = False
         self.press_start_time: float = 0
         self.press_duration: float = 0.08
@@ -96,9 +93,15 @@ class Button:
 
         # clear_img(self.buf, self.height, self.sz_line)
 
-        for row in range(self.height):
+        for row in range(
+            self.base_pos[1] - self.offset,
+            self.end_pos[1] - self.offset
+        ):
 
-            for col in range(self.width):
+            for col in range(
+                self.base_pos[0] - self.offset,
+                self.end_pos[0] - self.offset
+            ):
 
                 if self.is_outline(col, row):
                     img_put_px(
@@ -140,36 +143,50 @@ class Button:
 
     def is_outline(self, col: int, row: int) -> bool:
 
+        start_pos: tuple[int, int] = (
+            self.base_pos[0] - self.offset,
+            self.base_pos[1] - self.offset
+        )
+
         for pos in range(
             BORDER_WIDTH, BORDER_WIDTH + BORDER_DEPTH
         ):
-            if (col, row) == (pos, pos):
+            if (col, row) == (start_pos[0] + pos, start_pos[1] + pos):
                 return True
 
         for pos in range(len(self.posx)):
-            if (col, row) == (self.posx[-(pos + 1)], pos + BORDER_WIDTH):
+            if (col, row) == (
+                self.posx[-(pos + 1)] + start_pos[0],
+                pos + BORDER_WIDTH + start_pos[1]
+            ):
                 return True
 
-            if (col, row) == (pos + BORDER_WIDTH, self.posy[-(pos + 1)]):
+            if (col, row) == (
+                pos + BORDER_WIDTH + start_pos[0],
+                self.posy[-(pos + 1)] + start_pos[1]
+            ):
                 return True
 
-            if (col, row) == (self.posx[pos], self.posy[pos]):
+            if (col, row) == (
+                self.posx[pos] + start_pos[0],
+                self.posy[pos] + start_pos[1]
+            ):
                 return True
 
         for pos in [0, BORDER_WIDTH + BORDER_DEPTH]:
 
             if (
-                pos <= col < pos + BORDER_WIDTH
-                or self.width - pos - BORDER_WIDTH
-                <= col < self.width - pos
-            ) and pos <= row < self.height - pos:
+                pos + start_pos[0] <= col < pos + BORDER_WIDTH + start_pos[0]
+                or self.width - pos - BORDER_WIDTH + start_pos[0]
+                <= col < self.width - pos + start_pos[0]
+            ) and pos + start_pos[1] <= row < self.height - pos + start_pos[1]:
                 return True
 
             if (
-                pos <= row < pos + BORDER_WIDTH
-                or self.height - pos - BORDER_WIDTH
-                <= row < self.height - pos
-            ) and pos <= col < self.width - pos:
+                pos + start_pos[1] <= row < pos + BORDER_WIDTH + start_pos[1]
+                or self.height - pos - BORDER_WIDTH + start_pos[1]
+                <= row < self.height - pos + start_pos[1]
+            ) and pos + start_pos[0] <= col < self.width - pos + start_pos[0]:
                 return True
 
         return False
@@ -192,21 +209,6 @@ class Button:
         self.offset = 2
         self.press_start_time = time.monotonic()
 
-    """
-
-    clears the button image and destroys it
-
-    """
-
-    def clean_img(self) -> None:
-
-        clear_img(self.buf, self.height, self.sz_line)
-
-        self.mlx.mlx_destroy_image(
-            self.mlx_ptr,
-            self.img
-        )
-
 
 """
 
@@ -225,25 +227,35 @@ def generate_buttons(mlx_data: tuple, win_sz: tuple[int, int]) -> list[Button]:
         "Exit window"
     ]
 
+    button_image = mlx_data[0].mlx_new_image(
+        mlx_data[1],
+        win_sz[0],
+        win_sz[1] // 8 + 100
+    )
+    buf, bpp, sz_line, _ = mlx_data[0].mlx_get_data_addr(
+        button_image
+    )
+    button_image_pos: tuple[int, int] = (
+        (0, win_sz[1] - (win_sz[1] // 8 + 100))
+    )
+
     buttons: list[Button] = []
 
     button_width: int = (
         win_sz[0] // len(button_names) - 100
     )
     button_height: int = win_sz[1] // 8
-    horizontal_offset: int = (
-        win_sz[0] -
-        (button_width * len(button_names))
-    ) // (len(button_names) + 1)
+    horizontal_offset: int = len(button_names) * 10
 
     for button_number in range(len(button_names)):
 
         button_pos: tuple[int, int] = (
+            horizontal_offset // 2 +
             (
                 button_width * button_number
-                + horizontal_offset * (button_number + 1)
+                + horizontal_offset * button_number
             ),
-            win_sz[1] - (button_height + 50)
+            50
         )
 
         buttons.append(Button(
@@ -251,7 +263,10 @@ def generate_buttons(mlx_data: tuple, win_sz: tuple[int, int]) -> list[Button]:
             (button_width, button_height),
             button_pos,
             (255, 255, 255, 255),
-            mlx_data
+            button_image,
+            (win_sz[0], win_sz[1] // 8 + 100),
+            (buf, sz_line, bpp),
+            button_image_pos
         ))
 
     # uncomment the following and comment those up
