@@ -29,29 +29,22 @@ class PathCell:
         self.col: int
         self.row, self.col = coor
 
-        self.distance: tuple[int, int] = self.calculate_distance(
-            entry_coor,
-            exit_coor
-        )
-
-        self.parent: "PathCell"
-
-    def calculate_distance(
-        self,
-        entry_coor: tuple[int, int],
-        exit_coor: tuple[int, int]
-    ) -> tuple[int, int]:
-
-        distance_from_entry: int = (
-            abs(self.row - entry_coor[1])
-            + abs(self.col - entry_coor[0])
-        )
-        distance_from_exit: int = (
+        self.distance_from_entry: int = 0
+        self.distance_from_exit: int = (
             abs(self.row - exit_coor[1])
             + abs(self.col - exit_coor[0])
         )
 
-        return (distance_from_entry, distance_from_exit)
+        self.parent: "PathCell"
+
+    def update(self, parent_cell: "PathCell", in_to_explore: bool) -> None:
+
+        if (
+            not in_to_explore
+            or parent_cell.distance_from_entry + 1 < self.distance_from_entry
+        ):
+            self.distance_from_entry = parent_cell.distance_from_entry + 1
+            self.parent = parent_cell
 
 
 def a_star(
@@ -83,8 +76,6 @@ def a_star(
                 print(ve)
                 return None
 
-    destination_found: bool = False
-
     current_cell: PathCell = cells[entry_coor[1]][entry_coor[0]]
     explored: list[PathCell] = [current_cell]
     to_explore: list[PathCell] = find_valid_neighbors(
@@ -96,35 +87,38 @@ def a_star(
     path_found: list[PathCell] = []
 
     while (
-        not destination_found
+        not path_found
         and len(explored) < len(maze_input) * len(maze_input[0])
     ):
 
         next_cell: PathCell | None = find_next_cell(to_explore)
-        # print(f"\nNEXT CELL CHOSEN: {next_cell.col, next_cell.row} DISTANCE: {next_cell.distance}\n\n")
+
         if not next_cell:
             break
+
         to_explore.remove(next_cell)
+
         explored.append(next_cell)
-        # if is_neighbor(current_cell, next_cell, cells):
-        # next_cell.parent = current_cell
+
         if (next_cell.col, next_cell.row) == exit_coor:
-            print("Found the exit!")
+
             path_found = retrace_steps(
                 next_cell,
                 entry_coor
             )
-            destination_found = True
             break
+
         to_explore = find_valid_neighbors(
             cells,
             next_cell,
             to_explore,
             explored
         )
+
         current_cell = next_cell
 
     if not path_found:
+
         print("Path not found!")
         return None
 
@@ -134,31 +128,6 @@ def a_star(
         print("Something went wrong while computing the path")
 
     return path_to_return
-
-
-"""
-def is_neighbor(
-    cell: PathCell,
-    neighbor: PathCell,
-    cells: list[list[PathCell]]
-) -> bool:
-
-    neighbors: list[PathCell] = []
-
-    if not cell.walls[Walls.NORTH]:
-        neighbors.append(cells[cell.row - 1][cell.col])
-
-    if not cell.walls[Walls.SOUTH]:
-        neighbors.append(cells[cell.row + 1][cell.col])
-
-    if not cell.walls[Walls.WEST]:
-        neighbors.append(cells[cell.row][cell.col - 1])
-
-    if not cell.walls[Walls.EAST]:
-        neighbors.append(cells[cell.row][cell.col + 1])
-
-    return neighbor in neighbors
-"""
 
 
 def find_valid_neighbors(
@@ -184,9 +153,13 @@ def find_valid_neighbors(
 
     for neighbor in neighbors:
 
-        if not (neighbor in to_explore or neighbor in explored):
+        if neighbor in explored:
+            continue
+
+        neighbor.update(cur_cell, neighbor in to_explore)
+
+        if neighbor not in to_explore:
             to_explore.append(neighbor)
-            neighbor.parent = cur_cell
 
     return to_explore
 
@@ -195,39 +168,45 @@ def find_next_cell(to_explore: list[PathCell]) -> PathCell | None:
 
     if not to_explore:
         return None
+
     sorted_list: list[PathCell] = sorted(
         to_explore,
-        key=lambda cell: cell.distance[0] + cell.distance[1]
+        key=lambda cell: cell.distance_from_entry + cell.distance_from_exit
     )
+
     if any(
-        (cell.distance[0] + cell.distance[1]) ==
-        (sorted_list[0].distance[0] + sorted_list[0].distance[1])
+        (cell.distance_from_entry + cell.distance_from_exit) ==
+        (sorted_list[0].distance_from_entry
+         + sorted_list[0].distance_from_exit)
         for cell in sorted_list[1:]
     ):
+
         sorted_list = [
             cell
             for cell in to_explore
-            if (cell.distance[0] + cell.distance[1]) ==
-            (sorted_list[0].distance[0] + sorted_list[0].distance[1])
+            if (cell.distance_from_entry + cell.distance_from_exit) ==
+            (sorted_list[0].distance_from_entry
+             + sorted_list[0].distance_from_exit)
         ]
+
         sorted_list = sorted(
             sorted_list,
-            key=lambda cell: cell.distance[1]
+            key=lambda cell: cell.distance_from_exit
         )
-        # print("same overall distance, sorting by distance from exit")
-        # for cell in sorted_list:
-        #    print(f"cell in sorted list: {cell.row, cell.col} distance: {cell.distance}")
-        # print("\n\n")
+
         if any(
-            cell.distance[1] == sorted_list[0].distance[1]
+            cell.distance_from_exit == sorted_list[0].distance_from_exit
             for cell in sorted_list[1:]
         ):
+
             sorted_list = [
                 cell
                 for cell in to_explore
-                if cell.distance[1] == sorted_list[0].distance[1]
+                if cell.distance_from_exit == sorted_list[0].distance_from_exit
             ]
+
             return random.choice(sorted_list)
+
     return sorted_list[0]
 
 
@@ -237,13 +216,16 @@ def retrace_steps(
 ) -> list[PathCell]:
 
     cell: PathCell = destination
+
     path: list[PathCell] = []
+
     while (cell.col, cell.row) != entry_coor:
 
         path.append(cell)
         cell = cell.parent
 
     path.reverse()
+
     return path
 
 
