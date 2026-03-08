@@ -87,7 +87,7 @@ renders both the maze and the buttons
 
 def render(
     maze: Any,
-    buttons: list,
+    button_menu,
     mlx_data: tuple
 ) -> None:
 
@@ -95,10 +95,7 @@ def render(
 
     # checks if the button image needs to be changed
 
-    if (
-        not any(button.is_pressed for button in buttons)
-        and not any(button.needs_refresh for button in buttons)
-    ):
+    if not button_menu.needs_refresh():
 
         mlx.mlx_put_image_to_window(
             mlx_ptr,
@@ -120,41 +117,7 @@ def render(
         *maze.maze_pos
     )
 
-    # by default the button image is the one where none are pressed
-
-    button_image: dict = buttons[0].not_clicked
-
-    # changes the button image if needed and displays it
-
-    for button in buttons:
-
-        if button.is_pressed:
-
-            button_image = button.clicked
-
-    mlx.mlx_put_image_to_window(
-        mlx_ptr,
-        mlx_win,
-        button_image["img"],
-        *buttons[0].win_pos
-    )
-
-    # putting the button titles on the window
-
-    for button in buttons:
-
-        name_offset: int = (
-            2 if button.is_pressed
-            else 0
-        )
-        mlx.mlx_string_put(
-            mlx_ptr,
-            mlx_win,
-            button.name_pos[0] - name_offset,
-            button.name_pos[1] - name_offset,
-            0xFFFFFF,
-            button.name
-        )
+    button_menu.display_button_menu()
 
 
 """

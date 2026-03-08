@@ -1,6 +1,5 @@
-from src.models import Maze, Button, generate_buttons
+from src.models import Maze, ButtonMenu
 from src.utils import (
-    get_color_palette,
     handle_buttons,
     global_update,
     render
@@ -38,42 +37,48 @@ def test_maze_gen() -> None:
 
     mlx_ptr = mlx.mlx_init()
 
-    mlx_win = mlx.mlx_new_window(mlx_ptr, 1920, 1080, "MAZE GENERATION")
+    mlx_win = mlx.mlx_new_window(mlx_ptr, 1600, 1000, "MAZE GENERATION")
 
     try:
         maze: Maze = Maze(
             maze_input,
-            (1920, 1080),
+            (1600, 1000),
             (600, 600),
             (mlx, mlx_ptr, mlx_win),
-            get_color_palette(),
+            [
+                (255, 255, 255, 255),
+                (0, 0, 0, 255),
+                (255, 0, 0, 255),
+                (0, 255, 0, 255)
+            ],
             (path, (entry_coor, exit_coor))
         )
     except ValueError as ve:
         print(ve)
         return None
 
-    buttons: list[Button] = generate_buttons(
-        (mlx, mlx_ptr, mlx_win),
-        (1920, 1080)
+    mlx_data: tuple = (mlx, mlx_ptr, mlx_win)
+    button_menu: ButtonMenu = ButtonMenu(
+        mlx_data,
+        maze,
+        (1600, 1000)
     )
-
-    buttons[0].needs_refresh = True
-    render(maze, buttons, (mlx, mlx_ptr, mlx_win))
+    button_menu.menus["main"][0].needs_refresh = True
+    render(maze, button_menu, mlx_data)
 
     mlx.mlx_mouse_hook(
         mlx_win,
         handle_buttons,
         (
-            buttons,
+            button_menu,
             maze,
-            (mlx, mlx_ptr, mlx_win)
+            mlx_data
         )
     )
     mlx.mlx_loop_hook(
         mlx_ptr,
         global_update,
-        (maze, buttons, (mlx, mlx_ptr, mlx_win))
+        (maze, button_menu, mlx_data)
     )
     mlx.mlx_loop(mlx_ptr)
 

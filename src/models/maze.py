@@ -2,7 +2,6 @@ from .cell import Cell
 from ..utils import clear_img
 from ..utils import get_rainbow_palette
 from enum import Enum
-import random
 import time
 
 
@@ -58,7 +57,7 @@ class Maze:
         win_sz: tuple[int, int],
         maze_sz: tuple[int, int],
         mlx_data: tuple,
-        colors: list[list[tuple[int, int, int, int]]],
+        colors: list[tuple[int, int, int, int]],
         path: tuple
     ) -> None:
 
@@ -77,7 +76,7 @@ class Maze:
         self.width, self.height = maze_sz
         self.maze_pos: tuple[int, int] = (
             (win_sz[0] - self.width) // 2,
-            (win_sz[1] - self.height - 100) // 2
+            (win_sz[1] - self.height - 200) // 2
         )
         self.mlx, self.mlx_ptr, self.mlx_win = mlx_data
         self.toggle_path: bool = False
@@ -97,11 +96,12 @@ class Maze:
             [None for _ in range(len(self.input[0]))]
             for _ in range(len(self.input))
         ]
-        self.color_palette: list[list[tuple[int, int, int, int]]] = colors
-        self.current_colors: list[
-            tuple[int, int, int, int]
-        ] = random.choice(self.color_palette)
-        self.bg_color: int = 1
+        # self.color_palette: list[list[tuple[int, int, int, int]]] = colors
+        self.wall_color: tuple = colors[0]
+        self.bg_color: tuple = colors[1]
+        self.path_color: tuple = colors[2]
+        self.entry_exit_color: tuple = colors[3]
+        self.cur_bg_color: tuple = self.bg_color
         self.animating: bool = False
         self.anim_row: int = 0
         self.anim_col: int = 0
@@ -159,7 +159,7 @@ class Maze:
             self.toggle_path = False
             self.path_displayed = False
             self.generated = False
-            self.bg_color = 1
+            self.cur_bg_color = self.bg_color
             self.frame_delay = 0.0000001
             self.animating_speed = len(self.input) // 10
             self.cells = [
@@ -231,16 +231,31 @@ class Maze:
 
             # initializing the cell
 
-            self.cells[self.anim_row][self.anim_col] = Cell(
-                self.input[self.anim_row][self.anim_col],
-                (self.anim_col, self.anim_row),
-                self.width // len(self.input[0]),
-                (self.buf, self.sz_line, self.bpp),
-                (
-                    self.current_colors[0],
-                    self.current_colors[self.bg_color]
+            if (self.anim_col, self.anim_row) in self.coor:
+
+                self.cells[self.anim_row][self.anim_col] = Cell(
+                    self.input[self.anim_row][self.anim_col],
+                    (self.anim_col, self.anim_row),
+                    self.width // len(self.input[0]),
+                    (self.buf, self.sz_line, self.bpp),
+                    (
+                        self.wall_color,
+                        self.entry_exit_color
+                    )
                 )
-            )
+
+            else:
+
+                self.cells[self.anim_row][self.anim_col] = Cell(
+                    self.input[self.anim_row][self.anim_col],
+                    (self.anim_col, self.anim_row),
+                    self.width // len(self.input[0]),
+                    (self.buf, self.sz_line, self.bpp),
+                    (
+                        self.wall_color,
+                        self.cur_bg_color
+                    )
+                )
 
             self.cells[self.anim_row][self.anim_col].draw()
 
@@ -267,9 +282,9 @@ class Maze:
             return None
 
         self.toggle_path = not (self.toggle_path)
-        self.bg_color = (
-            2 if self.toggle_path
-            else 1
+        self.cur_bg_color = (
+            self.path_color if self.toggle_path
+            else self.bg_color
         )
 
         # checks if animation is needed
@@ -288,11 +303,13 @@ class Maze:
 
         for path_row, path_col in self.path:
 
-            self.cells[path_row][path_col].colors = (
-                self.current_colors[0],
-                self.current_colors[self.bg_color]
-            )
-            self.cells[path_row][path_col].draw()
+            if (path_col, path_row) not in self.coor:
+
+                self.cells[path_row][path_col].colors = (
+                    self.wall_color,
+                    self.cur_bg_color
+                )
+                self.cells[path_row][path_col].draw()
 
         # uncomment the floowing line
         # if you want to animate the path display every time it is toggled on
@@ -306,29 +323,24 @@ class Maze:
 
     """
 
-    def change_colors(self) -> None:
+    def change_colors(self, new_colors: list[tuple]) -> None:
 
         # checks if the maze has been generated
 
         if not self.generated:
             return None
 
-        if self.rainbow_mode:
-            self.activate_rainbow()
-
         # sets the new colors
 
-        new_colors: list[
-            tuple[int, int, int, int]
-        ] = random.choice(self.color_palette)
+        self.wall_color = new_colors[0]
+        self.bg_color = new_colors[1]
+        self.path_color = new_colors[2]
+        self.entry_exit_color = new_colors[3]
 
-        while (
-            new_colors == self.current_colors
-            and len(self.color_palette) > 1
-        ):
-            new_colors = random.choice(self.color_palette)
-
-        self.current_colors = new_colors
+        if self.toggle_path:
+            self.cur_bg_color = self.path_color
+        else:
+            self.cur_bg_color = self.bg_color
 
         # changes the colors of each cell in the maze then redraws it
 
@@ -336,15 +348,24 @@ class Maze:
 
             for col in range(len(self.input[0])):
 
-                self.bg_color = 1
+                if (col, row) in self.coor:
+                    self.cells[row][col].colors = (
+                        self.wall_color,
+                        self.entry_exit_color
+                    )
 
-                if self.toggle_path and (row, col) in self.path:
-                    self.bg_color = 2
+                elif self.toggle_path and (row, col) in self.path:
+                    self.cells[row][col].colors = (
+                        self.wall_color,
+                        self.path_color
+                    )
 
-                self.cells[row][col].colors = (
-                    self.current_colors[0],
-                    self.current_colors[self.bg_color]
-                )
+                else:
+                    self.cells[row][col].colors = (
+                        self.wall_color,
+                        self.bg_color
+                    )
+
                 self.cells[row][col].draw()
 
     def activate_rainbow(self) -> None:
@@ -357,7 +378,12 @@ class Maze:
         if not self.rainbow_mode or self.rainbow_delimiter < 1:
             self.animating = False
             self.frame_delay = 0.0000001
-            self.change_colors()
+            self.change_colors([
+                self.wall_color,
+                self.bg_color,
+                self.path_color,
+                self.entry_exit_color
+            ])
             return None
 
         self.animating = True
@@ -379,14 +405,14 @@ class Maze:
                     if rainbow_palette_index == len(self.rainbow_palette):
                         rainbow_palette_index = 0
 
-                self.bg_color = 1
+                bg_color: int = 1
 
                 if self.toggle_path and (row, col) in self.path:
-                    self.bg_color = 2
+                    bg_color = 2
 
                 self.cells[row][col].colors = (
                     self.rainbow_palette[rainbow_palette_index][0],
-                    self.rainbow_palette[rainbow_palette_index][self.bg_color]
+                    self.rainbow_palette[rainbow_palette_index][bg_color]
                 )
 
                 cur_color_index += 1
