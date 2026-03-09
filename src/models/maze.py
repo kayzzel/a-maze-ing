@@ -92,6 +92,7 @@ class Maze:
         self.buf, self.bpp, self.sz_line, *oth = (
             self.mlx.mlx_get_data_addr(self.img)
         )
+        clear_img(self.buf, self.height, self.sz_line)
         self.cells: list[list] = [
             [None for _ in range(len(self.input[0]))]
             for _ in range(len(self.input))

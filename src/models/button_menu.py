@@ -30,7 +30,7 @@ class ButtonMenu:
         self.menus: dict = {
             "main": self.generate_buttons([
                 "Generate new maze",
-                "Toggle path on/off",
+                "Path menu",
                 "Change colors",
                 "Exit window"
             ]),
@@ -38,21 +38,20 @@ class ButtonMenu:
                 "Random colors",
                 "Custom colors",
                 "Rainbow mode on/off",
-                "Back"
+                "Back to menu"
             ]),
             "gen_algo_choice": self.generate_buttons([
                 "Wilson algorithm",
                 "??? algorithm",
                 "Random"
+            ]),
+            "path_menu": self.generate_buttons([
+                'A* algorithm',
+                '??? solving algorithm',
+                "Toggle path on/off",
+                "Back to menu"
             ])
         }
-        """
-        'solv_algo_choice': self.generate_buttons([
-            'A* algorithm',
-            '??? algorithm',
-            'Random'
-        ])
-        """
 
         self.color_palette: ColorPalette = ColorPalette(
             mlx_data,
@@ -372,10 +371,13 @@ class ButtonMenu:
             case "Generate new maze":
                 self.cur_menu = "gen_algo_choice"
 
+            case "Path menu":
+                self.cur_menu = "path_menu"
+
             case "Change colors":
                 self.cur_menu = "color_change"
 
-            case "Back":
+            case "Back to menu":
                 self.cur_menu = "main"
 
             case "Random colors":
@@ -391,7 +393,7 @@ class ButtonMenu:
                 self.maze.activate_rainbow()
 
             case "Toggle path on/off":
-                self.cur_menu = "main"
+                self.cur_menu = "path_menu"
                 self.maze.toggle_path_on_off()
 
             case "OK":
@@ -426,6 +428,14 @@ class ButtonMenu:
         ]:
             self.cur_menu = "main"
             self.maze.start_animation()
+
+        elif button_clicked.name in [
+            "A* algorithm",
+            "??? solving algorithm",
+            "Random solving algorithm"
+        ]:
+            self.cur_menu = "path_menu"
+            # start pathfinding animation
 
         self.update_button_title()
 
