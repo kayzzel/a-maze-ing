@@ -1,6 +1,6 @@
 from .cell import Cell
 from ..utils import clear_img
-from ..utils import get_rainbow_palette
+from .color_palette import RAINBOW_PALETTE
 from enum import Enum
 import time
 
@@ -112,7 +112,7 @@ class Maze:
         self.rainbow_mode: bool = False
         self.rainbow_palette: list[
             list[tuple[int, int, int, int]]
-        ] = get_rainbow_palette()
+        ] = RAINBOW_PALETTE
         self.rainbow_delimiter: int = (
             len(self.input[0]) // len(self.rainbow_palette)
         )
