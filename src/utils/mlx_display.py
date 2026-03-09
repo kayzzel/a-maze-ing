@@ -1,5 +1,5 @@
 from typing import Any
-from .letters import LETTERS
+from .letters import LETTERS, ALLOWED_LETTERS
 
 
 """
@@ -166,7 +166,7 @@ def put_str_to_img(
         color: tuple[int, int, int, int],
         ):
 
-    if not all(c.isalpha() or c.isspace() for c in string):
+    if not all(letter in ALLOWED_LETTERS for letter in string):
         raise ValueError(
                 "the str must be composed only of letters and spaces"
                 f"entry: {string}"

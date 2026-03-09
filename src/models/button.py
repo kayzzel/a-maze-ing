@@ -1,5 +1,5 @@
 import time
-from ..utils import clear_img, img_put_px, draw_borders
+from ..utils import clear_img, img_put_px, draw_borders, put_str_to_img
 
 # the width and depth of the button border
 
@@ -75,10 +75,10 @@ class Button:
             self.img_pos[1] + self.end_pos[1]
         )
         self.name_pos: tuple[int, int] = (
-            self.start_win_pos[0] + (
-                (self.width - len(name) * 10) // 2
+            self.base_pos[0] + (
+                (self.width - len(name) * 12) // 2
             ),
-            self.start_win_pos[1]
+            self.base_pos[1]
             + self.height // 2 - 10
         )
         self.not_clicked: dict
@@ -159,6 +159,15 @@ class Button:
             img_put_px(e_x, e_y, *img_data, self.color)
             e_x -= 1
             e_y -= 1
+
+        put_str_to_img(
+            self.name,
+            img_data[0],
+            self.name_pos,
+            img_data[1],
+            img_data[2],
+            (255, 255, 255, 255)
+        )
 
     def display_name(self, mlx, mlx_ptr, mlx_win) -> None:
 

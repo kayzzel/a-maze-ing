@@ -42,12 +42,12 @@ class ButtonMenu:
             ]),
             "gen_algo_choice": self.generate_buttons([
                 "Wilson algorithm",
-                "??? algorithm",
+                "algorithm",
                 "Random"
             ]),
             "path_menu": self.generate_buttons([
                 'A* algorithm',
-                '??? solving algorithm',
+                'solving algorithm',
                 "Toggle path on/off",
                 "Back to menu"
             ])
@@ -97,6 +97,7 @@ class ButtonMenu:
             return None
 
         self.mlx.mlx_clear_window(self.mlx_ptr, self.mlx_win)
+        self.display_button_title()
 
         if self.cur_menu == "color_palette":
 
@@ -114,7 +115,6 @@ class ButtonMenu:
                 *self.ok_button.img_pos
             )
 
-            self.display_button_titles()
             return None
 
         menu_to_display: list[Button] = self.menus[self.cur_menu]
@@ -133,9 +133,7 @@ class ButtonMenu:
             *menu_to_display[0].img_pos
         )
 
-        self.display_button_titles()
-
-    def display_button_titles(self) -> None:
+    def display_button_title(self) -> None:
 
         self.mlx.mlx_string_put(
             self.mlx_ptr,
@@ -145,15 +143,6 @@ class ButtonMenu:
             0xFFFFFF,
             self.button_title
         )
-
-        if self.cur_menu == "color_palette":
-
-            self.ok_button.display_name(self.mlx, self.mlx_ptr, self.mlx_win)
-            return None
-
-        for button in self.menus[self.cur_menu]:
-
-            button.display_name(self.mlx, self.mlx_ptr, self.mlx_win)
 
     def create_ok_button(self) -> None:
 
