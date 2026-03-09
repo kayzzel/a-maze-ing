@@ -25,21 +25,23 @@ class Cell:
 
     def __init__(
         self,
-        hexa: str,
         coor: tuple[int, int],
         size: int,
         img: tuple[memoryview, int, int],
         colors: tuple[tuple, tuple]
     ) -> None:
 
-        self.walls: tuple[
-            bool, bool, bool, bool
-        ] = self.compute_walls(hexa)
         self.coor: tuple[int, int] = coor
         self.size: int = size
         self.wall_size: int = size // 8
         self.img: tuple[memoryview, int, int] = img
-        self.colors: tuple[tuple, tuple] = colors
+        self.wall_color, self.bg_color = colors
+        self.walls: dict[str, bool] = {
+            "N": True,
+            "S": True,
+            "W": True,
+            "E": True
+        }
 
     """
 
@@ -81,17 +83,17 @@ class Cell:
     def get_px_color(self, x: int, y: int) -> tuple:
 
         if (
-            0 <= y < self.wall_size and self.walls[3]
+            0 <= y < self.wall_size and self.walls["W"]
         ) or (
-            self.size - self.wall_size <= y < self.size and self.walls[1]
+            self.size - self.wall_size <= y < self.size and self.walls["S"]
         ) or (
-            0 <= x < self.wall_size and self.walls[0]
+            0 <= x < self.wall_size and self.walls["N"]
         ) or (
-            self.size - self.wall_size <= x < self.size and self.walls[2]
+            self.size - self.wall_size <= x < self.size and self.walls["E"]
         ):
-            return self.colors[0]
+            return self.wall_color
 
-        return self.colors[1]
+        return self.bg_color
 
     """
 

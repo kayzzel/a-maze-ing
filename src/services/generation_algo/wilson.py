@@ -150,7 +150,7 @@ def wilson(
         # value = index of that cell in the path
         visited: dict[Cell, int] = {cell: 0}
 
-        # Perform a random walk until we reach a visited maze cell
+        # Perform a r0andom walk until we reach a visited maze cell
         path = walk(cell, visited, unvisited, path, size, pattern_cells, rnd)
 
         # Carve the path into the maze
