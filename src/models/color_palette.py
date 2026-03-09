@@ -1,5 +1,5 @@
 from enum import Enum
-from ..utils import img_put_px, clear_img
+from ..utils import img_put_px, clear_img, draw_borders
 
 
 class Color:
@@ -99,8 +99,8 @@ class ColorPalette:
 
         self.mlx, self.mlx_ptr, self.mlx_win = mlx_data
 
-        self.width: int = win_sz[0] // 2
-        self.height: int = win_sz[1] // 5
+        self.width: int = win_sz[0] // 2 + 4
+        self.height: int = win_sz[1] // 5 + 4
 
         self.win_pos: tuple[int, int] = (
             200,
@@ -123,8 +123,16 @@ class ColorPalette:
 
         clear_img(self.buf, self.height, self.sz_line)
 
-        self.column_width: int = self.width // len(self.colors)
-        self.row_height: int = self.height // 4
+        draw_borders(
+            (0, 0),
+            (self.width, self.height),
+            2,
+            (self.buf, self.sz_line, self.bpp),
+            (255, 255, 255, 255)
+        )
+
+        self.column_width: int = (self.width - 4) // len(self.colors)
+        self.row_height: int = (self.height - 4) // len(self.colors[0].nuances)
 
         self.draw_color_palette()
 
@@ -132,11 +140,11 @@ class ColorPalette:
 
     def draw_color_palette(self) -> None:
 
-        start_row: int = 0
+        start_row: int = 2
 
         for nuance in range(4):
 
-            start_col: int = 0
+            start_col: int = 2
 
             for color in self.colors:
 
@@ -167,17 +175,17 @@ class ColorPalette:
 
     def get_color_clicked(self, x: int, y: int) -> None:
 
-        if not (self.win_pos[0] <= x < self.win_pos[0] + self.width):
+        if not (self.win_pos[0] + 2 <= x < self.win_pos[0] + self.width - 2):
             return None
 
-        if not (self.win_pos[1] <= y < self.win_pos[1] + self.height):
+        if not (self.win_pos[1] + 2 <= y < self.win_pos[1] + self.height - 2):
             return None
 
-        start_row: int = self.win_pos[1]
+        start_row: int = self.win_pos[1] + 2
 
         for nuance in range(4):
 
-            start_col: int = self.win_pos[0]
+            start_col: int = self.win_pos[0] + 2
             end_row: int = start_row + self.row_height
 
             for color in range(len(self.colors)):
