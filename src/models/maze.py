@@ -97,7 +97,6 @@ class Maze:
             [None for _ in range(len(self.input[0]))]
             for _ in range(len(self.input))
         ]
-        # self.color_palette: list[list[tuple[int, int, int, int]]] = colors
         self.wall_color: tuple = colors[0]
         self.bg_color: tuple = colors[1]
         self.path_color: tuple = colors[2]
@@ -420,6 +419,9 @@ class Maze:
 
                 if self.toggle_path and (row, col) in self.path:
                     bg_color = 2
+
+                elif (col, row) in self.coor:
+                    bg_color = 3
 
                 self.cells[row][col].colors = (
                     self.rainbow_palette[rainbow_palette_index][0],

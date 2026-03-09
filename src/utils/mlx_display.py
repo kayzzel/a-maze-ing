@@ -103,6 +103,7 @@ def render(
         *maze.maze_pos
     )
 
+
 def put_str_to_img(
         string: str,
         buf: memoryview,

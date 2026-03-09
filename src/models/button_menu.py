@@ -148,18 +148,18 @@ class ButtonMenu:
 
         self.ok_button: Button = Button(
             "ok",
-            (48, 48),
+            (98, 98),
             (2, 2),
             (255, 255, 255, 255),
-            (50, 50),
+            (100, 100),
             (
                 self.win_sz[0] - (
-                    (self.win_sz[0] - self.color_palette.end_pos[0] + 100)
+                    (self.win_sz[0] - self.color_palette.end_pos[0] + 200)
                     // 2
                 ),
                 (
                     self.color_palette.win_pos[1] +
-                    (self.color_palette.height - 50) // 2
+                    (self.color_palette.height - 100) // 2
                 )
             )
         )

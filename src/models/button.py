@@ -163,7 +163,10 @@ class Button:
         put_str_to_img(
             self.name,
             img_data[0],
-            self.name_pos,
+            (
+                self.name_pos[0] - offset,
+                self.name_pos[1] - offset
+            ),
             img_data[1],
             img_data[2],
             (255, 255, 255, 255)

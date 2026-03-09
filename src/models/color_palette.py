@@ -2,50 +2,6 @@ from enum import Enum
 from ..utils import img_put_px, clear_img, draw_borders
 
 
-RAINBOW_PALETTE = [
-    [
-        (99, 31, 17, 255),
-        (219, 110, 88, 255),
-        (173, 39, 12, 255)
-    ],
-    [
-        (120, 63, 16, 255),
-        (212, 146, 93, 255),
-        (207, 108, 27, 255)
-    ],
-    [
-        (150, 132, 26, 255),
-        (222, 204, 100, 255),
-        (209, 184, 44, 255)
-    ],
-    [
-        (67, 122, 18, 255),
-        (166, 217, 121, 255),
-        (106, 194, 29, 255)
-    ],
-    [
-        (63, 140, 29, 255),
-        (139, 217, 106, 255),
-        (87, 186, 45, 255)
-    ],
-    [
-        (27, 139, 143, 255),
-        (120, 218, 222, 255),
-        (47, 209, 214, 255)
-    ],
-    [
-        (25, 29, 138, 255),
-        (101, 127, 219, 255),
-        (33, 68, 194, 255)
-    ],
-    [
-        (63, 19, 112, 255),
-        (176, 132, 227, 255),
-        (102, 26, 189, 255)
-    ]
-]
-
-
 class Color:
 
     def __init__(
@@ -259,3 +215,15 @@ class ColorPalette:
         clear_img(self.buf, self.height, self.sz_line)
 
         self.mlx.mlx_destroy_image(self.mlx_ptr, self.img)
+
+
+RAINBOW_PALETTE = [
+    Colors.RED,
+    Colors.ORANGE,
+    Colors.YELLOW,
+    Colors.GREEN_1,
+    Colors.GREEN_2,
+    Colors.BLUE_1,
+    Colors.BLUE_2,
+    Colors.VIOLET
+]
