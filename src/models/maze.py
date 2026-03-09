@@ -144,6 +144,14 @@ class Maze:
 
         return True
 
+    def display_maze(self) -> None:
+
+        for row in range(len(self.input)):
+
+            for col in range(len(self.input[0])):
+
+                self.cells[row][col].draw()
+
     """
 
     starts the animation for displaying the maze/path
@@ -367,7 +375,7 @@ class Maze:
                         self.bg_color
                     )
 
-                self.cells[row][col].draw()
+        self.display_maze()
 
     def activate_rainbow(self) -> None:
 

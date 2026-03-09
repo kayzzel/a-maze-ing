@@ -39,6 +39,8 @@ def test_maze_gen() -> None:
 
     mlx_win = mlx.mlx_new_window(mlx_ptr, 1600, 1000, "MAZE GENERATION")
 
+    mlx.mlx_clear_window(mlx_ptr, mlx_win)
+
     try:
         maze: Maze = Maze(
             maze_input,
