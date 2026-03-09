@@ -313,7 +313,8 @@ class ButtonMenu:
 
                 self.color_palette.get_color_clicked(x, y)
                 self.update_colors()
-                return None
+
+            return None
 
         for button in self.menus[self.cur_menu]:
 

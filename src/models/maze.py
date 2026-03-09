@@ -312,8 +312,6 @@ class Maze:
 
         # redrawing the maze to display/remove the path
 
-        clear_img(self.buf, self.height, self.sz_line)
-
         for path_row, path_col in self.path:
 
             if (path_col, path_row) not in self.coor:
