@@ -41,13 +41,13 @@ class ButtonMenu:
                 "back to menu"
             ]),
             "gen_algo_choice": self.generate_buttons([
-                "wilson algorithm",
-                "unknown algorithm",
+                "wilson",
+                "recursive backtracking",
                 "random"
             ]),
             "path_menu": self.generate_buttons([
-                "a star algorithm",
-                "unknown solving algorithm",
+                "a*",
+                "jump point search",
                 "toggle path on/off",
                 "back to menu"
             ])
@@ -432,17 +432,16 @@ class ButtonMenu:
                 )
 
         if button_clicked.name in [
-            "wilson algorithm",
-            "unknown algorithm",
+            "wilson",
+            "recursive backtracking",
             "random"
         ]:
             self.cur_menu = "main"
             self.maze.start_animation()
 
         elif button_clicked.name in [
-            "a star algorithm",
-            "unknown solving algorithm",
-            "random solving algorithm"
+            "a*",
+            "jump point search"
         ]:
             self.cur_menu = "path_menu"
             # start pathfinding animation
