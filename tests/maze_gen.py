@@ -65,8 +65,6 @@ def test_maze_gen() -> None:
         maze,
         (1600, 1000)
     )
-    button_menu.menus["main"][0].needs_refresh = True
-    render(maze, button_menu, mlx_data)
 
     mlx.mlx_mouse_hook(
         mlx_win,

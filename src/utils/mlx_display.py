@@ -93,22 +93,7 @@ def render(
 
     mlx, mlx_ptr, mlx_win = mlx_data
 
-    # checks if the button image needs to be changed
-
-    if not button_menu.needs_refresh():
-
-        mlx.mlx_put_image_to_window(
-            mlx_ptr,
-            mlx_win,
-            maze.img,
-            *maze.maze_pos
-        )
-
-        return None
-
-    mlx.mlx_clear_window(mlx_ptr, mlx_win)
-
-    # puts the maze image on the window
+    button_menu.display_button_menu()
 
     mlx.mlx_put_image_to_window(
         mlx_ptr,
@@ -116,8 +101,6 @@ def render(
         maze.img,
         *maze.maze_pos
     )
-
-    button_menu.display_button_menu()
 
 
 """

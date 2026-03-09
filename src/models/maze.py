@@ -146,6 +146,8 @@ class Maze:
 
     def display_maze(self) -> None:
 
+        clear_img(self.buf, self.height, self.sz_line)
+
         for row in range(len(self.input)):
 
             for col in range(len(self.input[0])):
@@ -310,6 +312,8 @@ class Maze:
 
         # redrawing the maze to display/remove the path
 
+        clear_img(self.buf, self.height, self.sz_line)
+
         for path_row, path_col in self.path:
 
             if (path_col, path_row) not in self.coor:
@@ -426,7 +430,7 @@ class Maze:
 
                 cur_color_index += 1
 
-                self.cells[row][col].draw()
+        self.display_maze()
 
         last_color: list[tuple[int, int, int, int]] = self.rainbow_palette[-1]
         self.rainbow_palette.remove(self.rainbow_palette[-1])
