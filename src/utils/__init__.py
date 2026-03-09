@@ -1,7 +1,9 @@
 from .mlx_display import (
     img_put_px,
     render,
-    draw_borders
+    draw_borders,
+    get_rainbow_palette,
+    put_str_to_img
 )
 from .events import handle_buttons, global_update
 from .cleanup import clear_all, clear_img
@@ -9,6 +11,8 @@ from .checks import is_in
 __all__ = [
     "img_put_px",
     "draw_borders",
+    "put_str_to_img",
+    "get_rainbow_palette",
     "handle_buttons",
     "global_update",
     "render",
