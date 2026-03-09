@@ -102,3 +102,33 @@ def render(
         maze.img,
         *maze.maze_pos
     )
+
+def put_str_to_img(
+        string: str,
+        buf: memoryview,
+        str_coord: tuple[int, int],
+        size_line: int,
+        bpp: int,
+        color: tuple[int, int, int, int],
+        ):
+
+    if not all(letter in ALLOWED_LETTERS for letter in string):
+        raise ValueError(
+                "the str must be composed only of letters and spaces"
+                f"entry: {string}"
+                )
+
+    for index in range(len(string)):
+
+        letter: list[list[int]] = LETTERS[string[index].lower()]
+
+        x_offset = str_coord[0] + (len(letter[0]) + 2) * index
+        y_offset = str_coord[1]
+
+        for y in range(len(letter)):
+            for x in range(len(letter[0])):
+                if letter[y][x] == 0:
+                    continue
+                img_put_px(
+                        x + x_offset, y + y_offset, buf, size_line, bpp, color
+                        )
