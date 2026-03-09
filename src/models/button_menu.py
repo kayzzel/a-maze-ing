@@ -29,27 +29,27 @@ class ButtonMenu:
 
         self.menus: dict = {
             "main": self.generate_buttons([
-                "Generate new maze",
-                "Path menu",
-                "Change colors",
-                "Exit window"
+                "generate new maze",
+                "path menu",
+                "change colors",
+                "exit window"
             ]),
             "color_change": self.generate_buttons([
-                "Random colors",
-                "Custom colors",
-                "Rainbow mode on/off",
-                "Back to menu"
+                "random colors",
+                "custom colors",
+                "rainbow mode on/off",
+                "back to menu"
             ]),
             "gen_algo_choice": self.generate_buttons([
-                "Wilson algorithm",
-                "??? algorithm",
-                "Random"
+                "wilson algorithm",
+                "unknown algorithm",
+                "random"
             ]),
             "path_menu": self.generate_buttons([
-                'A* algorithm',
-                '??? solving algorithm',
-                "Toggle path on/off",
-                "Back to menu"
+                "a star algorithm",
+                "unknown solving algorithm",
+                "toggle path on/off",
+                "back to menu"
             ])
         }
 
@@ -158,7 +158,7 @@ class ButtonMenu:
     def create_ok_button(self) -> None:
 
         self.ok_button: Button = Button(
-            "OK",
+            "ok",
             (48, 48),
             (2, 2),
             (255, 255, 255, 255),
@@ -377,35 +377,35 @@ class ButtonMenu:
 
         match button_clicked.name:
 
-            case "Generate new maze":
+            case "generate new maze":
                 self.cur_menu = "gen_algo_choice"
 
-            case "Path menu":
+            case "path menu":
                 self.cur_menu = "path_menu"
 
-            case "Change colors":
+            case "change colors":
                 self.cur_menu = "color_change"
 
-            case "Back to menu":
+            case "back to menu":
                 self.cur_menu = "main"
 
-            case "Random colors":
+            case "random colors":
                 self.cur_menu = "color_change"
                 self.update_colors()
 
-            case "Custom colors":
+            case "custom colors":
                 self.cur_menu = "color_palette"
                 self.color_type = ColorType.WALL
 
-            case "Rainbow mode on/off":
+            case "rainbow mode on/off":
                 self.cur_menu = "color_change"
                 self.maze.activate_rainbow()
 
-            case "Toggle path on/off":
+            case "toggle path on/off":
                 self.cur_menu = "path_menu"
                 self.maze.toggle_path_on_off()
 
-            case "OK":
+            case "ok":
 
                 if self.color_type != ColorType.ENTRY_EXIT:
 
@@ -423,7 +423,7 @@ class ButtonMenu:
                 else:
                     self.cur_menu = "color_change"
 
-            case "Exit window":
+            case "exit window":
                 self.clear_all_buttons()
                 clear_all(
                     (self.mlx, self.mlx_ptr, self.mlx_win),
@@ -431,17 +431,17 @@ class ButtonMenu:
                 )
 
         if button_clicked.name in [
-            "Wilson algorithm",
-            "??? algorithm",
-            "Random"
+            "wilson algorithm",
+            "unknown algorithm",
+            "random"
         ]:
             self.cur_menu = "main"
             self.maze.start_animation()
 
         elif button_clicked.name in [
-            "A* algorithm",
-            "??? solving algorithm",
-            "Random solving algorithm"
+            "a star algorithm",
+            "unknown solving algorithm",
+            "random solving algorithm"
         ]:
             self.cur_menu = "path_menu"
             # start pathfinding animation
