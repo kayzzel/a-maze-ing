@@ -1,4 +1,4 @@
-letters: dict[str, list[list[int]]] = {
+LETTERS: dict[str, list[list[int]]] = {
         " ": [
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],

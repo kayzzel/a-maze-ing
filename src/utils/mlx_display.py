@@ -1,4 +1,5 @@
 from typing import Any
+from .letters import LETTERS
 
 
 """
@@ -105,35 +106,6 @@ def render(
 
 """
 
-returns the entire color palette for the maze
-if you want to add colors, do it directly here
-
-"""
-
-
-def get_color_palette() -> list[list[tuple[int, int, int, int]]]:
-
-    return [
-        [
-            (0, 0, 255, 255),
-            (255, 255, 255, 255),
-            (255, 0, 0, 255)
-        ],
-        [
-            (0, 255, 0, 255),
-            (255, 255, 255, 255),
-            (0, 0, 255, 255)
-        ],
-        [
-            (255, 0, 0, 255),
-            (255, 255, 255, 255),
-            (0, 255, 0, 255)
-        ]
-    ]
-
-
-"""
-
 returns a rainbow color palette
 
 """
@@ -183,3 +155,34 @@ def get_rainbow_palette() -> list[list[tuple[int, int, int, int]]]:
             (102, 26, 189, 255)
         ]
     ]
+
+
+def put_str_to_img(
+        string: str,
+        buf: memoryview,
+        str_coord: tuple[int, int],
+        size_line: int,
+        bpp: int,
+        color: tuple[int, int, int, int],
+        ):
+
+    if not all(c.isalpha() or c.isspace() for c in string):
+        raise ValueError(
+                "the str must be composed only of letters and spaces"
+                f"entry: {string}"
+                )
+
+    for index in range(len(string)):
+
+        letter: list[list[int]] = LETTERS[string[index].lower()]
+
+        x_offset = str_coord[0] + (len(letter[0]) + 2) * index
+        y_offset = str_coord[1]
+
+        for y in range(len(letter)):
+            for x in range(len(letter[0])):
+                if letter[y][x] == 0:
+                    continue
+                img_put_px(
+                        x + x_offset, y + y_offset, buf, size_line, bpp, color
+                        )
