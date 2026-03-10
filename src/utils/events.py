@@ -1,4 +1,3 @@
-from .cleanup import clear_all
 from .mlx_display import render
 
 
@@ -12,14 +11,14 @@ then renders them to display them correctly on the window
 
 def global_update(param: tuple) -> None:
 
-    maze, buttons, *mlx_data = param
+    mlx_data: tuple
+    maze, button_menu, mlx_data = param
 
-    for button in buttons:
-        button.update()
+    button_menu.update_buttons()
 
     maze.animate_step()
 
-    render(maze, buttons, tuple(mlx_data))
+    render(maze, button_menu, mlx_data)
 
 
 """
@@ -36,48 +35,22 @@ def handle_buttons(
     param: tuple
 ) -> None:
 
-    buttons: list
-    buttons, maze, mlx_data = param
+    mlx_data: tuple
+    button_menu, maze, mlx_data = param
 
     # checks whether or not the mouse event is a left click
 
     if button_type != 1:
         return None
 
-    button_pressed = None
+    button_pressed = button_menu.find_button_clicked(x, y)
 
     # checks if the mouse click is in the area of one of the buttons
 
-    for button in buttons:
+    if button_pressed:
 
-        if (
-            button.base_pos[0] <= x < button.end_pos[0]
-        ) and (
-            button.base_pos[1] <= y < button.end_pos[1]
-        ):
-            button_pressed = button
+        # starts and displays the clicking animation for the button pressed
 
-    if not button_pressed:
-        return None
-
-    # starts and displays the clicking animation for the button pressed
-
-    button_pressed.click_button()
-
-    render(maze, buttons, mlx_data)
-
-    # calls the appropriate function/method corresponding to the button action
-
-    match button_pressed.name:
-
-        case "Generate new maze":
-            maze.start_animation()
-
-        case "Toggle path on/off":
-            maze.toggle_path_on_off()
-
-        case "Change colors":
-            maze.change_colors()
-
-        case "Exit window":
-            clear_all(mlx_data, maze, buttons)
+        button_pressed.click_button()
+        render(maze, button_menu, mlx_data)
+        button_menu.change_menu(button_pressed)

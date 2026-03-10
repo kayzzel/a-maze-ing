@@ -1,4 +1,5 @@
-from typing import Any as any
+from typing import Any
+from .letters import LETTERS, ALLOWED_LETTERS
 
 
 """
@@ -36,18 +37,64 @@ def img_put_px(
 
 """
 
+draws the borders of a button using the coordinates provided
+
+"""
+
+
+def draw_borders(
+    start_pos: tuple[int, int],
+    end_pos: tuple[int, int],
+    border_width: int,
+    img_data: tuple[memoryview, int, int],
+    color: tuple[int, int, int, int]
+) -> None:
+
+    start_x: int
+    start_y: int
+    end_x: int
+    end_y: int
+
+    start_x, start_y = start_pos
+    end_x, end_y = end_pos
+
+    # top border
+    for y in range(start_y, start_y + border_width):
+        for x in range(start_x, end_x):
+            img_put_px(x, y, *img_data, color)
+
+    # bottom border
+    for y in range(end_y - border_width, end_y):
+        for x in range(start_x, end_x):
+            img_put_px(x, y, *img_data, color)
+
+    # left border
+    for x in range(start_x, start_x + border_width):
+        for y in range(start_y, end_y):
+            img_put_px(x, y, *img_data, color)
+
+    # right border
+    for x in range(end_x - border_width, end_x):
+        for y in range(start_y, end_y):
+            img_put_px(x, y, *img_data, color)
+
+
+"""
+
 renders both the maze and the buttons
 
 """
 
 
-def render(maze: any, buttons: list, mlx_data: tuple) -> None:
+def render(
+    maze: Any,
+    button_menu,
+    mlx_data: tuple
+) -> None:
 
     mlx, mlx_ptr, mlx_win = mlx_data
 
-    mlx.mlx_clear_window(mlx_ptr, mlx_win)
-
-    # puts the maze image on the window
+    button_menu.display_button_menu()
 
     mlx.mlx_put_image_to_window(
         mlx_ptr,
@@ -56,52 +103,33 @@ def render(maze: any, buttons: list, mlx_data: tuple) -> None:
         *maze.maze_pos
     )
 
-    # puts the button image + button title on the window for each button
 
-    for button in buttons:
+def put_str_to_img(
+        string: str,
+        buf: memoryview,
+        str_coord: tuple[int, int],
+        size_line: int,
+        bpp: int,
+        color: tuple[int, int, int, int],
+        ):
 
-        mlx.mlx_put_image_to_window(
-            mlx_ptr,
-            mlx_win,
-            button.img,
-            button.base_pos[0] - button.offset,
-            button.base_pos[1] - button.offset
-        )
+    if not all(letter in ALLOWED_LETTERS for letter in string):
+        raise ValueError(
+                "the str must be composed only of letters and spaces"
+                f"entry: {string}"
+                )
 
-        mlx.mlx_string_put(
-            mlx_ptr,
-            mlx_win,
-            button.name_pos[0] - button.offset,
-            button.name_pos[1] - button.offset,
-            0xFFFFFF,
-            button.name
-        )
+    for index in range(len(string)):
 
+        letter: list[list[int]] = LETTERS[string[index].lower()]
 
-"""
+        x_offset = str_coord[0] + (len(letter[0]) + 2) * index
+        y_offset = str_coord[1]
 
-returns the entire color palette for the maze
-if you want to add colors, do it directly here
-
-"""
-
-
-def get_color_palette() -> list[list[tuple[int, int, int, int]]]:
-
-    return [
-        [
-            (0, 0, 255, 255),
-            (255, 255, 255, 255),
-            (255, 0, 0, 255)
-        ],
-        [
-            (0, 255, 0, 255),
-            (255, 255, 255, 255),
-            (0, 0, 255, 255)
-        ],
-        [
-            (255, 0, 0, 255),
-            (255, 255, 255, 255),
-            (0, 255, 0, 255)
-        ]
-    ]
+        for y in range(len(letter)):
+            for x in range(len(letter[0])):
+                if letter[y][x] == 0:
+                    continue
+                img_put_px(
+                        x + x_offset, y + y_offset, buf, size_line, bpp, color
+                        )
