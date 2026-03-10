@@ -6,7 +6,7 @@
 #
 # Start from the start coordinate
 # and set it to True
-# create new pathfider for each ways possible
+# create new pathfinder for each ways possible
 #
 # calculate the cost to go to the end (heuristic calcul)
 # and add the distance from the start
@@ -59,7 +59,7 @@ def get_path(
 def create_path_finders(
         maze: list[str],
         cell: Cell,
-        path_fiders: list[Cell],
+        path_finders: list[Cell],
         routes: list[list[int]],
         end: Cell
         ) -> bool:
@@ -75,27 +75,27 @@ def create_path_finders(
     # Add the direction to all the cell where the path finders are
     # Returns True if the path_finder correspond to the end
     if bin_val[3] == "0" and routes[row + 1][col] == -1:
-        path_fiders.append((row + 1, col))
+        path_finders.append((row + 1, col))
         routes[row + 1][col] = 1
         if (row + 1, col) is end:
             return True
     if bin_val[1] == "0" and routes[row - 1][col] == -1:
-        path_fiders.append((row - 1, col))
+        path_finders.append((row - 1, col))
         routes[row - 1][col] = 2
         if (row - 1, col) is end:
             return True
     if bin_val[0] == "0" and routes[row][col - 1] == -1:
-        path_fiders.append((row, col - 1))
+        path_finders.append((row, col - 1))
         routes[row][col - 1] = 3
         if (row, col - 1) is end:
             return True
     if bin_val[2] == "0" and routes[row][col + 1] == -1:
-        path_fiders.append((row, col + 1))
+        path_finders.append((row, col + 1))
         routes[row][col + 1] = 4
         if (row, col + 1) is end:
             return True
 
-    path_fiders.remove(cell)
+    path_finders.remove(cell)
 
     return False
 
@@ -106,25 +106,13 @@ def get_path_finder(
         end: Cell
         ) -> Cell:
 
-    path_finder: Cell = path_finders[0]
-    path_finder_distance: float = (
-            abs(start[0] - path_finder[0]) + abs(start[1] - path_finder[1]) +
-            abs(end[0] - path_finder[0]) + abs(end[1] - path_finder[1])
-            )
+    def score(cell):
+        return (
+            abs(start[0] - cell[0]) + abs(start[1] - cell[1]) +
+            abs(end[0] - cell[0]) + abs(end[1] - cell[1])
+        )
 
-    for next_path_finder in path_finders[1:]:
-        next_path_finder_distance: float = (
-                abs(start[0] - next_path_finder[0])
-                + abs(start[1] - next_path_finder[1]) +
-                abs(end[0] - next_path_finder[0])
-                + abs(end[1] - next_path_finder[1])
-            )
-
-        if next_path_finder_distance < path_finder_distance:
-            path_finder = next_path_finder
-            path_finder_distance = next_path_finder_distance
-
-    return path_finder
+    return min(path_finders, key=score)
 
 
 def walk(
@@ -134,14 +122,33 @@ def walk(
         routes: list[list[int]],
         end: Cell
         ) -> bool:
+
     height: int = len(maze)
     width: int = len(maze[0])
 
     while True:
+        # Unpacking the cell into row and coll to have the coordinates
+        row, col = path_finder
+
+        direction: int = routes[row][col]
+
         if create_path_finders(maze, path_finder, path_finders, routes, end):
             return True
 
-        if 
+        elif direction == 1 and row > 1 and routes[row - 1][col] == 1:
+            path_finder = (row - 1, col)
+
+        elif direction == 2 and row < height - 2 and routes[row + 1][col] == 1:
+            path_finder = (row + 1, col)
+
+        elif direction == 3 and col > 1 and routes[row][col - 1] == 1:
+            path_finder = (row, col - 1)
+
+        elif direction == 4 and col < width - 2 and routes[row][col + 1] == 1:
+            path_finder = (row, col + 1)
+
+        else:
+            return False
 
     return False
 
@@ -162,20 +169,20 @@ def jump_point_search(
         ]
 
     # Create a list af all the path finders
-    path_fiders: list[Cell] = []
+    path_finders: list[Cell] = []
 
     # Create all the possible path finders from the start
     routes[start[0]][start[1]] = 0
-    if create_path_finders(maze, start, path_fiders, routes, end):
+    if create_path_finders(maze, start, path_finders, routes, end):
         return get_path(routes, start, end)
 
-    while (path_fiders):
+    while (path_finders):
 
         # a path finder walk into a direction until it can't or
         # it finds the end, the return True if it finds it else False
         if walk(
-                get_path_finder(path_fiders, start, end),
-                maze, routes, end
+                get_path_finder(path_finders, start, end),
+                maze, path_finders,  routes, end
                 ):
             return get_path(routes, start, end)
 
