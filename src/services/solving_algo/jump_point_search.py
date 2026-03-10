@@ -2,7 +2,7 @@
 #
 # Create a new array with the same dimentions as the maze filled with None
 # to have the cell already expolered and theyre direction
-# 0 -> still; 1 -> North; 2 -> South; 3 -> West; 4 East
+# 0 -> still; 1 -> North; 2 -> South; 3 -> West; 4 -> East
 #
 # Start from the start coordinate
 # and set it to True
@@ -31,35 +31,38 @@ def get_path(
         start: Cell,
         end: Cell
         ) -> str:
-    # Initialize the path from the start to the end
+    # Initialize the reverse path from the start to the end
     path: str = ""
 
     # Start to create the path from the end to the start with the directions
-    cell: Cell = end
+    cell: Cell = end[::-1]
 
     # Loop from the end to the start and add the direction of each cell
     # The next cell is the cell invert of the direction inside the routes
-    while (cell != start):
+    while (cell != start[::-1]):
         if routes[cell[0]][cell[1]] == 1:
-            cell = (cell[0] - 1, cell[1])
-            path += "N"
-        elif routes[cell[0]][cell[1]] == 1:
             cell = (cell[0] + 1, cell[1])
+            path += "N"
+        elif routes[cell[0]][cell[1]] == 2:
+            cell = (cell[0] - 1, cell[1])
             path += "S"
-        elif routes[cell[0]][cell[1]] == 1:
-            cell = (cell[0], cell[1] - 1)
-            path += "W"
-        elif routes[cell[0]][cell[1]] == 1:
+        elif routes[cell[0]][cell[1]] == 3:
             cell = (cell[0], cell[1] + 1)
+            path += "W"
+        elif routes[cell[0]][cell[1]] == 4:
+            cell = (cell[0], cell[1] - 1)
             path += "E"
+        else:
+            raise Exception("Error will parting the Maze")
 
+    # return the reverse path into the right order
     return path[::-1]
 
 
 def create_path_finders(
         maze: list[str],
         cell: Cell,
-        path_finders: list[Cell],
+        path_finders: set[Cell],
         routes: list[list[int]],
         end: Cell
         ) -> bool:
@@ -74,25 +77,33 @@ def create_path_finders(
     # Create the path finders to all the possible directions
     # Add the direction to all the cell where the path finders are
     # Returns True if the path_finder correspond to the end
-    if bin_val[3] == "0" and routes[row + 1][col] == -1:
-        path_finders.append((row + 1, col))
-        routes[row + 1][col] = 1
-        if (row + 1, col) is end:
+
+    # North
+    if bin_val[3] == "0" and routes[row - 1][col] == -1:
+        path_finders.add((row - 1, col))
+        routes[row - 1][col] = 1
+        if (col, row - 1) == end:
             return True
-    if bin_val[1] == "0" and routes[row - 1][col] == -1:
-        path_finders.append((row - 1, col))
-        routes[row - 1][col] = 2
-        if (row - 1, col) is end:
+
+    # South
+    if bin_val[1] == "0" and routes[row + 1][col] == -1:
+        path_finders.add((row + 1, col))
+        routes[row + 1][col] = 2
+        if (col, row + 1) == end:
             return True
+
+    # West
     if bin_val[0] == "0" and routes[row][col - 1] == -1:
-        path_finders.append((row, col - 1))
+        path_finders.add((row, col - 1))
         routes[row][col - 1] = 3
-        if (row, col - 1) is end:
+        if (col - 1, row) == end:
             return True
+
+    # East
     if bin_val[2] == "0" and routes[row][col + 1] == -1:
-        path_finders.append((row, col + 1))
+        path_finders.add((row, col + 1))
         routes[row][col + 1] = 4
-        if (row, col + 1) is end:
+        if (col + 1, row) == end:
             return True
 
     path_finders.remove(cell)
@@ -105,48 +116,85 @@ def get_path_finder(
         start: Cell,
         end: Cell
         ) -> Cell:
+    # unpack the start and the exit into theire coordinates
+    sx, sy = start
+    ex, ey = end
 
-    def score(cell):
-        return (
-            abs(start[0] - cell[0]) + abs(start[1] - cell[1]) +
-            abs(end[0] - cell[0]) + abs(end[1] - cell[1])
+    # get the first path_finder in the array and unpack it coord
+    path_finder = path_finders[0]
+    x, y = path_finder
+
+    # calculate the distance from the start + the end
+    # with the manhattan distance formula
+    path_finder_distance = (
+            abs(sx - x) + abs(sy - y) + abs(ex - x) + abs(ey - y)
         )
 
-    return min(path_finders, key=score)
+    for i in range(1, len(path_finders)):
+        # get the coordinate of the next path_finder
+        x, y = path_finders[i]
+
+        # calculate it's distance using the same formula as before
+        next_distance = abs(sx - x) + abs(sy - y) + abs(ex - x) + abs(ey - y)
+
+        # test if it is nearer than the previous nearest one
+        # if that is the case store the new best path_finder
+        # and it's distance
+        if next_distance < path_finder_distance:
+            path_finder = (x, y)
+            path_finder_distance = next_distance
+
+    # Return The nearest path_finder
+    return path_finder
 
 
 def walk(
         path_finder: Cell,
         maze: list[str],
-        path_finders: list[Cell],
+        path_finders: set[Cell],
         routes: list[list[int]],
         end: Cell
         ) -> bool:
 
-    height: int = len(maze)
-    width: int = len(maze[0])
+    # loop while there still are path finders in the maze
+    while (path_finders):
 
-    while True:
-        # Unpacking the cell into row and coll to have the coordinates
+        # Unpack the path_finder to get it's coordinates
         row, col = path_finder
 
-        direction: int = routes[row][col]
+        # Get the direction the current path_finder goes to
+        direction = routes[row][col]
 
+        # Create the coord for the next path_finder in the same direction
+        next_row, next_col = row, col
+
+        # add or remove on to the coord to have the coord of the next case
+        # in the good direction
+        if direction == 1:  # North
+            next_row -= 1
+        elif direction == 2:  # South
+            next_row += 1
+        elif direction == 3:  # West
+            next_col -= 1
+        elif direction == 4:  # East
+            next_col += 1
+        elif direction != 0:
+            raise Exception("Error will parting the Maze")
+
+        # Create new path_finder
+        # if One of the new path_finder is on the exit return True
         if create_path_finders(maze, path_finder, path_finders, routes, end):
             return True
 
-        elif direction == 1 and row > 1 and routes[row - 1][col] == 1:
-            path_finder = (row - 1, col)
+        # Test if there is a new path_finder in the same direction that
+        # the actual one goes to, if that is the case set the actual
+        # path_finder to the new coord an continue the loop
+        if ((next_row, next_col) in path_finders and
+                routes[next_row][next_col] == direction):
+            path_finder = (next_row, next_col)
 
-        elif direction == 2 and row < height - 2 and routes[row + 1][col] == 1:
-            path_finder = (row + 1, col)
-
-        elif direction == 3 and col > 1 and routes[row][col - 1] == 1:
-            path_finder = (row, col - 1)
-
-        elif direction == 4 and col < width - 2 and routes[row][col + 1] == 1:
-            path_finder = (row, col + 1)
-
+        # If that is not the case return false to continue and calculate
+        # the new best path_finder
         else:
             return False
 
@@ -159,6 +207,10 @@ def jump_point_search(
         end: Cell,
         ) -> str | None:
 
+    # Returns an empty path if the entry and exit are the same cell
+    if start == end:
+        return ""
+
     # Get the width and the height from the given maze
     height: int = len(maze)
     width: int = len(maze[0])
@@ -169,21 +221,23 @@ def jump_point_search(
         ]
 
     # Create a list af all the path finders
-    path_finders: list[Cell] = []
+    path_finders: set[Cell] = {(start[1], start[0])}
 
     # Create all the possible path finders from the start
-    routes[start[0]][start[1]] = 0
-    if create_path_finders(maze, start, path_finders, routes, end):
-        return get_path(routes, start, end)
+    routes[start[1]][start[0]] = 0
 
+    # loop while there still are path finders in the maze
     while (path_finders):
 
         # a path finder walk into a direction until it can't or
         # it finds the end, the return True if it finds it else False
         if walk(
-                get_path_finder(path_finders, start, end),
+                get_path_finder(list(path_finders), start, end),
                 maze, path_finders,  routes, end
                 ):
+            # take the array with the dirrection and
+            # Go frome the exit to the start using the inverted direction
+            # Then return the path that it used to make it
             return get_path(routes, start, end)
 
     # If no path is found it returns None

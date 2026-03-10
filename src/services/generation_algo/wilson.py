@@ -199,7 +199,7 @@ def maze_to_hexa(
                 value |= bit
 
         # Convert the bitmask to a hexadecimal character
-        return hex(value)[2:]
+        return "0123456789ABCDEF"[value]
 
     # unpack the size tuple in height and width
     height, width = size
@@ -214,7 +214,7 @@ def maze_to_hexa(
             cell: Cell = (row, col)
 
             if cell in pattern_cells:
-                maze_hexa[row] += 'f'
+                maze_hexa[row] += 'F'
                 continue
 
             # Cells connected to this one (open passages)
