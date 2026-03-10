@@ -1,7 +1,8 @@
 from ..utils import img_put_px
+from .maze_generator import Cell
 
+class DisplayCell:
 
-class Cell:
 
     """
 
@@ -28,22 +29,17 @@ class Cell:
         coor: tuple[int, int],
         size: int,
         img: tuple[memoryview, int, int],
-        colors: tuple[tuple, tuple]
+        colors: list[tuple],
+        walls: dict[str, bool]
     ) -> None:
 
         self.coor: tuple[int, int] = coor
         self.col, self.row = coor
-        self.size: int = size
-        self.wall_size: int = size // 8
+        self.sz: int = size
+        self.wall_sz: int = self.sz // 8
         self.img: tuple[memoryview, int, int] = img
         self.wall_color, self.bg_color = colors
-        self.walls: dict[str, bool] = {
-            "N": True,
-            "S": True,
-            "W": True,
-            "E": True
-        }
-        self.visited: bool = False
+        self.walls: dict[str, bool] = walls
 
     """
     calculates the color needed to draw the cell border
@@ -54,15 +50,16 @@ class Cell:
 
     def get_px_color(self, x: int, y: int) -> tuple:
 
-        if (
-            0 <= y < self.wall_size and self.walls["N"]
-        ) or (
-            self.size - self.wall_size <= y < self.size and self.walls["S"]
-        ) or (
-            0 <= x < self.wall_size and self.walls["W"]
-        ) or (
-            self.size - self.wall_size <= x < self.size and self.walls["E"]
-        ):
+        if 0 <= y < self.wall_sz and self.walls["N"]:
+            return self.wall_color
+
+        if self.sz - self.wall_sz <= y < self.sz and self.walls["S"]:
+            return self.wall_color
+
+        if 0 <= x < self.wall_sz and self.walls["W"]:
+            return self.wall_color
+
+        if self.sz - self.wall_sz <= x < self.sz and self.walls["E"]:
             return self.wall_color
 
         return self.bg_color
@@ -73,18 +70,25 @@ class Cell:
 
     """
 
-    def draw(self) -> None:
+    def draw_cell(self) -> None:
 
-        x: int = (self.col * self.size)
-        y: int = (self.row * self.size)
+        x: int = (self.col * self.sz)
+        y: int = (self.row * self.sz)
 
-        for row in range(self.size):
+        for row in range(self.sz):
 
             posy: int = y + row
 
-            for col in range(self.size):
+            for col in range(self.sz):
 
                 posx: int = x + col
+
+                img_put_px(
+                    posx,
+                    posy,
+                    *self.img,
+                    (0, 0, 0, 0)
+                )
 
                 img_put_px(
                     posx,

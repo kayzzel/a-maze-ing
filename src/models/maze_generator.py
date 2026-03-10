@@ -47,6 +47,34 @@ class Maze:
         self.gen_steps: list[Cell] = []
         self.solving_steps: list[Cell] = []
 
+        self.path: list[tuple]
+        self.path_dirs: str
+
+    def maze_to_hexa(self) -> list[str]:
+
+        walls_values: dict[str, int] = {
+            "N": 1,
+            "E": 2,
+            "S": 4,
+            "W": 8
+        }
+
+        hexa_maze: list[str] = []
+
+        for row in self.cells:
+
+            for cell in row:
+
+                val: int = 0
+
+                for wall, state in cell.walls.items():
+                    if state:
+                        val |= walls_values[wall]
+
+                hexa_maze[row] += hex(val)[2:]
+
+        return hexa_maze
+
 
 class MazeGenerator:
 
@@ -66,20 +94,17 @@ class MazeGenerator:
 
         return self.gen_algo(maze_sz, entry_point, exit_point, seed)
 
-    def write_to_output(self.maze: Maze, output_filename: str) -> None:
-
-        hexa_maze: list[str] = maze_to_hexa(maze)
-        path: list[str] = self.calculate_path(maze)
+    def write_to_output(self, maze: Maze, output_filename: str) -> None:
 
         try:
 
             with open(output_filename) as output:
 
-                output.write("\n".join(hexa_maze))
+                output.write("\n".join(maze.maze_to_hexa()))
                 output.write("\n")
                 output.write(str(maze.entry_point) + "\n")
                 output.write(str(maze.exit_point) + "\n")
-                output.write(path + "\n")
+                output.write(maze.path + "\n")
 
         except OSError as err:
 
@@ -90,29 +115,3 @@ class MazeGenerator:
     def calculate_path(self, maze: Maze) -> str:
 
         return self.solve_algo(maze)
-
-    @staticmethod
-    def maze_to_hexa(maze: Maze) -> list[str]:
-
-        walls_values: dict[str, int] = {
-            "N": 1,
-            "E": 2,
-            "S": 4,
-            "W": 8
-        }
-
-        hexa_maze: list[str] = []
-
-        for row in maze:
-
-            for cell in row:
-
-                val: int = 0
-
-                for wall, state in cell.walls.items():
-                    if state:
-                        val |= walls_values[wall]
-
-                hexa_maze[row] += hex(val)[2:]
-
-        return maze_to_hexa

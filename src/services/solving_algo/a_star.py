@@ -1,30 +1,26 @@
-from enum import Enum
-from ...utils import compute_walls, check_maze_input
+from ...models import Maze
 import random
 
 
-class Walls(int, Enum):
-
-    WEST = 0
-    SOUTH = 1
-    EAST = 2
-    NORTH = 3
+WALL_DIRS: dict[str, tuple[int, int]] = {
+    "N": (-1, 0),
+    "S": (1, 0),
+    "W": (0, -1),
+    "E": (0, 1)
+}
 
 
 class PathCell:
 
     def __init__(
         self,
-        hexa_val: str,
+        walls: dict[str, int],
         coor: tuple[int, int],
         entry_coor: tuple[int, int],
         exit_coor: tuple[int, int]
     ) -> None:
 
-        self.walls: tuple[
-            bool, bool, bool, bool
-        ] = compute_walls(hexa_val)
-
+        self.walls: dict[str, int] = walls
         self.row: int
         self.col: int
         self.row, self.col = coor
@@ -48,39 +44,35 @@ class PathCell:
 
 
 def a_star(
-    maze_input: list[str],
-    entry_coor: tuple[int, int],
-    exit_coor: tuple[int, int]
+    maze: Maze
 ) -> str | None:
 
+    """
     if not check_maze_input(maze_input):
         print("Invalid maze input!")
         return None
+    """
 
     cells: list[list[PathCell]] = []
 
-    for row in range(len(maze_input)):
+    for row in range(maze.height):
 
         cells.append([])
 
-        for col in range(len(maze_input[0])):
+        for col in range(maze.width):
 
-            try:
-                cells[row].append(PathCell(
-                    maze_input[row][col],
-                    (row, col),
-                    entry_coor,
-                    exit_coor
-                ))
-            except ValueError as ve:
-                print(ve)
-                return None
+            cells[row].append(PathCell(
+                maze.cells[row][col].walls,
+                (row, col),
+                maze.entry_coor,
+                maze.exit_coor
+            ))
 
-    current_cell: PathCell = cells[entry_coor[1]][entry_coor[0]]
-    explored: list[PathCell] = [current_cell]
+    cur_cell: PathCell = cells[maze.entry_coor[1]][maze.entry_coor[0]]
+    explored: list[PathCell] = [cur_cell]
     to_explore: list[PathCell] = find_valid_neighbors(
         cells,
-        current_cell,
+        cur_cell,
         [],
         explored
     )
@@ -88,8 +80,10 @@ def a_star(
 
     while (
         not path_found
-        and len(explored) < len(maze_input) * len(maze_input[0])
+        and len(explored) < maze.height * maze.width
     ):
+
+        maze.solve_steps.append(maze.cells[cur_cell.row][cur_cell.col])
 
         next_cell: PathCell | None = find_next_cell(to_explore)
 
@@ -100,11 +94,11 @@ def a_star(
 
         explored.append(next_cell)
 
-        if (next_cell.col, next_cell.row) == exit_coor:
+        if (next_cell.col, next_cell.row) == maze.exit_coor:
 
             path_found = retrace_steps(
                 next_cell,
-                entry_coor
+                maze.entry_coor
             )
             break
 
@@ -115,17 +109,21 @@ def a_star(
             explored
         )
 
-        current_cell = next_cell
+        cur_cell = next_cell
 
     if not path_found:
 
         print("Path not found!")
         return None
 
-    path_to_return: str | None = compute_path(path_found, entry_coor)
+    maze.path = path_found
+
+    path_to_return: str | None = compute_path(path_found, maze.entry_coor)
 
     if not path_to_return:
         print("Something went wrong while computing the path")
+
+    maze.path_dirs = path_to_return
 
     return path_to_return
 
@@ -139,17 +137,12 @@ def find_valid_neighbors(
 
     neighbors: list[PathCell] = []
 
-    if not cur_cell.walls[Walls.NORTH]:
-        neighbors.append(cells[cur_cell.row - 1][cur_cell.col])
+    for wall, state in cur_cell.walls.items():
 
-    if not cur_cell.walls[Walls.SOUTH]:
-        neighbors.append(cells[cur_cell.row + 1][cur_cell.col])
-
-    if not cur_cell.walls[Walls.WEST]:
-        neighbors.append(cells[cur_cell.row][cur_cell.col - 1])
-
-    if not cur_cell.walls[Walls.EAST]:
-        neighbors.append(cells[cur_cell.row][cur_cell.col + 1])
+        if not state:
+            dir_y: int = cur_cell.row + WALL_DIRS[wall][0]
+            dir_x: int = cur_cell.col + WALL_DIRS[wall][1]
+            neighbors.append(cells[dir_y][dir_x])
 
     for neighbor in neighbors:
 
@@ -242,20 +235,13 @@ def compute_path(
 
     for cell in path:
 
-        if cell.row == cur_row - 1:
-            directions += "N"
+        for wall, dirs in WALL_DIRS.items():
 
-        elif cell.row == cur_row + 1:
-            directions += "S"
-
-        elif cell.col == cur_col - 1:
-            directions += "W"
-
-        elif cell.col == cur_col + 1:
-            directions += "E"
-
-        else:
-            return None
+            if (
+                cur_row == cell.row + dirs[0]
+                and cur_col == cell.col + dirs[1]
+            ):
+                directions += wall
 
         cur_row, cur_col = cell.row, cell.col
 
