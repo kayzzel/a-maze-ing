@@ -24,10 +24,7 @@ OPPOSITE = {
 
 class GenColor(tuple[int, int, int, int], Enum):
 
-    WALL = (255, 255, 255, 255)
-    BG = (0, 0, 0, 255)
-    POINT = (255, 0, 0, 255)
-    VISITED = (117, 113, 113, 255)
+    VISITED = (115, 115, 115, 255)
     CURRENT = (0, 255, 0, 255)
 
 
@@ -37,7 +34,7 @@ def rec_backtrack(
     seed: int | None
 ) -> None:
 
-    sys.setrecursionlimit(8000)
+    # sys.setrecursionlimit(8000)
     # resource.setrlimit(resource.RLIMIT_STACK, (2 ** 29, -1))
 
     rnd: Random
@@ -56,9 +53,7 @@ def rec_backtrack(
 
     entry_point: tuple[int, int] = maze.entry_point
 
-    pattern_cells: set[tuple] = create_pattern((maze.width, maze.height))
-
-    directions: list[str] = list(DIRS.keys())
+    pattern_cells: set[tuple] = create_pattern((maze.height, maze.width))
 
     maze.start_animation()
 
@@ -66,7 +61,6 @@ def rec_backtrack(
         maze.cells[entry_point[1]][entry_point[0]],
         maze,
         rnd,
-        directions,
         pattern_cells
     )
 
@@ -78,7 +72,6 @@ def backtracking_carving(
     cur_cell: Cell,
     maze: Maze,
     rnd: Random,
-    directions: list[str],
     pattern_cells: set[tuple]
 ) -> None:
 
@@ -86,6 +79,8 @@ def backtracking_carving(
 
     if cur_cell.coor not in [maze.entry_point, maze.exit_point]:
         cur_cell.bg_color = GenColor.CURRENT
+
+    directions: list[str] = list(DIRS.keys())
 
     rnd.shuffle(directions)
 
@@ -99,14 +94,13 @@ def backtracking_carving(
             if cur_cell.coor not in [maze.entry_point, maze.exit_point]:
                 cur_cell.bg_color = GenColor.VISITED
 
-            new_cell: Cell = maze.cells[new_y][new_y]
+            new_cell: Cell = maze.cells[new_y][new_x]
             cur_cell.walls[direction] = False
             new_cell.walls[OPPOSITE[direction]] = False
-            return backtracking_carving(
+            backtracking_carving(
                 new_cell,
                 maze,
                 rnd,
-                directions,
                 pattern_cells
             )
 
@@ -124,5 +118,5 @@ def is_valid(
         0 <= x < maze.width
         and 0 <= y < maze.height
         and not maze.cells[y][x].visited
-        and (x, y) not in pattern_cells
+        and (y, x) not in pattern_cells
     )

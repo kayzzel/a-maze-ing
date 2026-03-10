@@ -55,11 +55,11 @@ class Cell:
     def get_px_color(self, x: int, y: int) -> tuple:
 
         if (
-            0 <= y < self.wall_size and self.walls["W"]
+            0 <= y < self.wall_size and self.walls["N"]
         ) or (
             self.size - self.wall_size <= y < self.size and self.walls["S"]
         ) or (
-            0 <= x < self.wall_size and self.walls["N"]
+            0 <= x < self.wall_size and self.walls["W"]
         ) or (
             self.size - self.wall_size <= x < self.size and self.walls["E"]
         ):

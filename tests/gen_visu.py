@@ -33,7 +33,7 @@ def test_visu() -> None:
         mlx_win,
         handle_buttons,
         (
-            maze,
+            button_menu.maze,
             button_menu,
             mlx_data
         )
@@ -41,7 +41,7 @@ def test_visu() -> None:
     mlx.mlx_loop_hook(
         mlx_ptr,
         global_update,
-        (maze, button_menu, mlx_data)
+        (button_menu.maze, button_menu, mlx_data)
     )
     mlx.mlx_loop(mlx_ptr)
 

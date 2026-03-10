@@ -2,7 +2,7 @@ from .button import Button
 from .maze import Maze
 from .color_palette import ColorPalette
 from ..utils import clear_img, clear_all, is_in
-from ..services.generation_algo import rec_backtrack
+from ..services.generation_algo.rec_backtrack import rec_backtrack
 from enum import Enum
 import random
 
