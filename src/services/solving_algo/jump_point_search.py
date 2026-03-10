@@ -1,23 +1,23 @@
 # steps
 #
-# Create a new array with the same dimentions as the maze filled with None
-# to have the cell already expolered and theyre direction
+# Create a new array with the same dimensions as the maze filled with None
+# to have the cell already explored and its direction
 # 0 -> still; 1 -> North; 2 -> South; 3 -> West; 4 -> East
 #
-# Start from the start coordinate
+# Start from the start coordinates
 # and set it to True
-# create new pathfinder for each ways possible
+# create new pathfinder for each way possible
 #
 # calculate the cost to go to the end (heuristic calcul)
 # and add the distance from the start
 #
-# With the one with the less cost go in the same direction will you can
+# With the one with the less cost go in the same direction while you can
 # (open wall in front and cell not explored)
-# and create a new pathfinder at each open wall that is open
-# set all the cell that has already been explored at theyre direction
+# and create a new pathfinder at each wall that is open
+# set all the cells that have already been explored at their direction
 # in the new array
 #
-# Repeate the 2 previous steps utile the end is found
+# Repeat the 2 previous steps until the end is found
 #
 # When the end is found go back to the start using the directions in the array
 # for each direction add the letter for the opposite direction
@@ -53,7 +53,7 @@ def get_path(
             cell = (cell[0], cell[1] - 1)
             path += "E"
         else:
-            raise Exception("Error will parting the Maze")
+            raise Exception("Error while parsing the Maze")
 
     # return the reverse path into the right order
     return path[::-1]
@@ -66,17 +66,17 @@ def create_path_finders(
         routes: list[list[int]],
         end: Cell
         ) -> bool:
-    # Unpacking the cell into row and coll to have the coordinates
+    # Unpacking the cell into row and col to have the coordinates
     row, col = cell
 
-    # Converting the value og the cell in the maze in bin to have the walls
+    # Converting the value of the cell in the maze in bin to have the walls
     bin_val: str = bin(int(maze[row][col], 16))[2:]
     if not len(bin_val) == 4:
         bin_val = "0" * (4 - len(bin_val)) + bin_val
 
     # Create the path finders to all the possible directions
-    # Add the direction to all the cell where the path finders are
-    # Returns True if the path_finder correspond to the end
+    # Add the direction to all the cells where the path finders are
+    # Returns True if the path_finder corresponds to the end
 
     # North
     if bin_val[3] == "0" and routes[row - 1][col] == -1:
@@ -116,11 +116,11 @@ def get_path_finder(
         start: Cell,
         end: Cell
         ) -> Cell:
-    # unpack the start and the exit into theire coordinates
+    # unpack the start and the exit into their coordinates
     sx, sy = start
     ex, ey = end
 
-    # get the first path_finder in the array and unpack it coord
+    # get the first path_finder in the array and unpack its coordinates
     path_finder = path_finders[0]
     x, y = path_finder
 
@@ -131,20 +131,20 @@ def get_path_finder(
         )
 
     for i in range(1, len(path_finders)):
-        # get the coordinate of the next path_finder
+        # get the coordinates of the next path_finder
         x, y = path_finders[i]
 
-        # calculate it's distance using the same formula as before
+        # calculate its distance using the same formula as before
         next_distance = abs(sx - x) + abs(sy - y) + abs(ex - x) + abs(ey - y)
 
         # test if it is nearer than the previous nearest one
         # if that is the case store the new best path_finder
-        # and it's distance
+        # and its distance
         if next_distance < path_finder_distance:
             path_finder = (x, y)
             path_finder_distance = next_distance
 
-    # Return The nearest path_finder
+    # Return the nearest path_finder
     return path_finder
 
 
@@ -159,7 +159,7 @@ def walk(
     # loop while there still are path finders in the maze
     while (path_finders):
 
-        # Unpack the path_finder to get it's coordinates
+        # Unpack the path_finder to get its coordinates
         row, col = path_finder
 
         # Get the direction the current path_finder goes to
@@ -179,16 +179,16 @@ def walk(
         elif direction == 4:  # East
             next_col += 1
         elif direction != 0:
-            raise Exception("Error will parting the Maze")
+            raise Exception("Error while parsing the Maze")
 
         # Create new path_finder
-        # if One of the new path_finder is on the exit return True
+        # if one of the new path_finder is on the exit return True
         if create_path_finders(maze, path_finder, path_finders, routes, end):
             return True
 
         # Test if there is a new path_finder in the same direction that
         # the actual one goes to, if that is the case set the actual
-        # path_finder to the new coord an continue the loop
+        # path_finder to the new coord and continue the loop
         if ((next_row, next_col) in path_finders and
                 routes[next_row][next_col] == direction):
             path_finder = (next_row, next_col)
@@ -229,14 +229,14 @@ def jump_point_search(
     # loop while there still are path finders in the maze
     while (path_finders):
 
-        # a path finder walk into a direction until it can't or
-        # it finds the end, the return True if it finds it else False
+        # a path finder walks into a direction until it can't or
+        # it finds the end, then return True if it finds it else False
         if walk(
                 get_path_finder(list(path_finders), start, end),
                 maze, path_finders,  routes, end
                 ):
-            # take the array with the dirrection and
-            # Go frome the exit to the start using the inverted direction
+            # take the array with the direction and
+            # Go from the exit to the start using the inverted direction
             # Then return the path that it used to make it
             return get_path(routes, start, end)
 
