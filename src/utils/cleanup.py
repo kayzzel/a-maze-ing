@@ -30,7 +30,8 @@ def clear_all(mlx_data: tuple, maze: any) -> None:
 
     mlx, mlx_ptr, mlx_win = mlx_data
 
-    maze.clean_img()
+    if maze:
+        maze.clean_img()
 
     mlx.mlx_clear_window(mlx_ptr, mlx_win)
     mlx.mlx_destroy_window(mlx_ptr, mlx_win)

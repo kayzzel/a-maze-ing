@@ -2,6 +2,8 @@ from ...models import Maze, Cell
 from .wilson import create_pattern
 from random import Random, randint
 from enum import Enum
+import sys
+import resource
 
 
 DIRS = {
@@ -30,21 +32,10 @@ class GenColor(tuple[int, int, int, int], Enum):
 
 
 def rec_backtrack(
-    maze_sz: tuple[int, int],
+    maze: Maze,
     win_sz: tuple[int, int],
-    mlx_data: tuple,
-    entry_point: tuple[int, int],
-    exit_point: tuple[int, int],
     seed: int | None
-) -> Maze:
-
-    maze: Maze = Maze(
-        maze_sz,
-        win_sz,
-        mlx_data,
-        entry_point,
-        exit_point
-    )
+) -> None:
 
     rnd: Random
 
@@ -60,11 +51,17 @@ def rec_backtrack(
 
         raise ValueError("seed must be positive integer")
 
-    pattern_cells: set[tuple] = create_pattern(maze_sz)
+    entry_point: tuple[int, int] = maze.entry_point
+    exit_point: tuple[int, int] = maze.exit_point
+
+    pattern_cells: set[tuple] = create_pattern((maze.width, maze.height))
 
     visited: list[Cell] = []
 
     directions: list[str] = list(DIRS.keys())
+
+    sys.setrecursionlimit(10 ** 6)
+    resource.setrlimit(resource.RLIMIT_STACK, (2 ** 29, -1))
 
     def backtracking_carving(
         cur_cell: Cell
@@ -75,14 +72,6 @@ def rec_backtrack(
         if cur_cell.coor not in [entry_point, exit_point]:
             cur_cell.bg_color = GenColor.CURRENT
 
-        while not maze.display_gen_step(*cur_cell.coor):
-            print("trying to display current cell...")
-
-        if cur_cell.coor not in [entry_point, exit_point]:
-            cur_cell.bg_color = GenColor.VISITED
-            while not maze.display_gen_step(*cur_cell.coor):
-                print("trying to display visited cell...")
-
         rnd.shuffle(directions)
 
         for direction in directions:
@@ -91,6 +80,9 @@ def rec_backtrack(
             new_y: int = cur_cell.row + DIRS[direction][1]
 
             if is_valid(new_x, new_y, maze, visited, pattern_cells):
+
+                if cur_cell.coor not in [entry_point, exit_point]:
+                    cur_cell.bg_color = GenColor.VISITED
 
                 new_cell: Cell = maze.cells[new_y][new_y]
                 cur_cell.walls[direction] = False
@@ -105,8 +97,6 @@ def rec_backtrack(
 
     maze.animating = False
     maze.generated = True
-
-    return maze
 
 
 def is_valid(

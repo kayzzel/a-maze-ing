@@ -217,7 +217,7 @@ class ColorPalette:
         self.mlx.mlx_destroy_image(self.mlx_ptr, self.img)
 
 
-RAINBOW_PALETTE = [
+RAINBOW_PALETTE: list[list[tuple]] = [
     Colors.RED,
     Colors.ORANGE,
     Colors.YELLOW,

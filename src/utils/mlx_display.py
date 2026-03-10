@@ -96,8 +96,7 @@ def render(
 
     button_menu.display_button_menu()
 
-    if maze:
-        maze.display_on_window()
+    maze.display_on_window()
 
 
 def put_str_to_img(

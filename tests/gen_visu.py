@@ -1,7 +1,5 @@
-from src.models import ButtonMenu
+from src.models import ButtonMenu, Maze
 from src.utils import handle_buttons, global_update
-from src.services import rec_backtrack
-from typing import Callable as callable
 from mlx import Mlx
 
 
@@ -17,11 +15,17 @@ def test_visu() -> None:
 
     mlx.mlx_clear_window(mlx_ptr, mlx_win)
 
-    gen_algo: callable = rec_backtrack
+    maze: Maze = Maze(
+        (25, 20),
+        (1600, 1000),
+        mlx_data,
+        (1, 1),
+        (19, 14)
+    )
 
     button_menu: ButtonMenu = ButtonMenu(
         mlx_data,
-        gen_algo,
+        maze,
         (1600, 1000)
     )
 
@@ -29,7 +33,7 @@ def test_visu() -> None:
         mlx_win,
         handle_buttons,
         (
-            button_menu.maze,
+            maze,
             button_menu,
             mlx_data
         )
@@ -37,7 +41,7 @@ def test_visu() -> None:
     mlx.mlx_loop_hook(
         mlx_ptr,
         global_update,
-        (button_menu.maze, button_menu, mlx_data)
+        (maze, button_menu, mlx_data)
     )
     mlx.mlx_loop(mlx_ptr)
 

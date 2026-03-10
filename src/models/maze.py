@@ -63,6 +63,7 @@ class Maze:
         self.width, self.height = maze_sz
         self.win_sz: tuple[int, int] = win_sz
         self.mlx, self.mlx_ptr, self.mlx_win = mlx_data
+        self.entry_point, self.exit_point = entry_point, exit_point
 
         self.initialize_img()
 
@@ -102,13 +103,15 @@ class Maze:
         self.frame_delay: float = 0.001
         self.generated: bool = False
 
+        self.rainbow_palette: list[list[tuple]] = RAINBOW_PALETTE
+
     def initialize_img(self) -> None:
 
-        self.img_width: int = (
-            self.win_sz[0] // 3 * 2
+        self.img_height: int = (
+            self.win_sz[1] // 2
         )
-        self.cell_sz: int = self.img_width // self.width
-        self.img_height: int = self.cell_sz * self.height
+        self.cell_sz: int = self.img_height // self.height
+        self.img_width: int = self.cell_sz * self.width
 
         self.img = self.mlx.mlx_new_image(
             self.mlx_ptr,
@@ -121,8 +124,8 @@ class Maze:
         clear_img(self.buf, self.img_height, self.sz_line)
 
         self.img_pos: tuple[int, int] = (
-            self.win_sz[0] // 3 // 2,
-            self.win_sz[1] // 5
+            (self.win_sz[0] - self.img_width) // 2,
+            self.win_sz[1] // 10
         )
 
     def start_animation(self) -> None:
@@ -130,7 +133,7 @@ class Maze:
         self.animating = True
         self.frame_count = time.monotonic()
 
-    def display_gen_step(self, x: int, y: int) -> bool:
+    def display_gen_step(self) -> bool:
 
         if not self.animating:
             return False
@@ -524,7 +527,7 @@ class Maze:
 
         # setting the indexes to the entry coordinates
 
-        row, col = self.coor[0]
+        row, col = self.entry_point
         path_coor: list[tuple] = [(row, col)]
 
         # moves the indexes based on the direction (north, south, east, west)
@@ -547,9 +550,9 @@ class Maze:
 
             # checks if the indexes don't go out of the maze
 
-            if (
-                not (0 <= row < len(self.input))
-                or not (0 <= col < len(self.input[0]))
+            if not (
+                0 <= row < self.height
+                and 0 <= col < self.width
             ):
                 print("Invalid path provided!")
                 return []
@@ -558,7 +561,7 @@ class Maze:
 
         # checks if following the directions does lead to the exit coordinates
 
-        if (col, row) != self.coor[1]:
+        if (col, row) != self.exit_point:
             print("Invalid path provided!")
             return []
 
@@ -572,7 +575,7 @@ class Maze:
 
     def clean_img(self) -> None:
 
-        clear_img(self.buf, self.height, self.sz_line)
+        clear_img(self.buf, self.img_height, self.sz_line)
 
         self.mlx.mlx_destroy_image(
             self.mlx_ptr,
