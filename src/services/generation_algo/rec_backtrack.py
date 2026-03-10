@@ -37,6 +37,9 @@ def rec_backtrack(
     seed: int | None
 ) -> None:
 
+    sys.setrecursionlimit(8000)
+    # resource.setrlimit(resource.RLIMIT_STACK, (2 ** 29, -1))
+
     rnd: Random
 
     if seed is None:
@@ -52,64 +55,74 @@ def rec_backtrack(
         raise ValueError("seed must be positive integer")
 
     entry_point: tuple[int, int] = maze.entry_point
-    exit_point: tuple[int, int] = maze.exit_point
 
     pattern_cells: set[tuple] = create_pattern((maze.width, maze.height))
 
-    visited: list[Cell] = []
-
     directions: list[str] = list(DIRS.keys())
-
-    sys.setrecursionlimit(10 ** 6)
-    resource.setrlimit(resource.RLIMIT_STACK, (2 ** 29, -1))
-
-    def backtracking_carving(
-        cur_cell: Cell
-    ) -> None:
-
-        cur_cell.visited = True
-
-        if cur_cell.coor not in [entry_point, exit_point]:
-            cur_cell.bg_color = GenColor.CURRENT
-
-        rnd.shuffle(directions)
-
-        for direction in directions:
-
-            new_x: int = cur_cell.col + DIRS[direction][0]
-            new_y: int = cur_cell.row + DIRS[direction][1]
-
-            if is_valid(new_x, new_y, maze, visited, pattern_cells):
-
-                if cur_cell.coor not in [entry_point, exit_point]:
-                    cur_cell.bg_color = GenColor.VISITED
-
-                new_cell: Cell = maze.cells[new_y][new_y]
-                cur_cell.walls[direction] = False
-                new_cell.walls[OPPOSITE[direction]] = False
-                backtracking_carving(new_cell)
 
     maze.start_animation()
 
     backtracking_carving(
-        maze.cells[entry_point[1]][entry_point[0]]
+        maze.cells[entry_point[1]][entry_point[0]],
+        maze,
+        rnd,
+        directions,
+        pattern_cells
     )
 
     maze.animating = False
     maze.generated = True
 
 
+def backtracking_carving(
+    cur_cell: Cell,
+    maze: Maze,
+    rnd: Random,
+    directions: list[str],
+    pattern_cells: set[tuple]
+) -> None:
+
+    cur_cell.visited = True
+
+    if cur_cell.coor not in [maze.entry_point, maze.exit_point]:
+        cur_cell.bg_color = GenColor.CURRENT
+
+    rnd.shuffle(directions)
+
+    for direction in directions:
+
+        new_x: int = cur_cell.col + DIRS[direction][0]
+        new_y: int = cur_cell.row + DIRS[direction][1]
+
+        if is_valid(new_x, new_y, maze, pattern_cells):
+
+            if cur_cell.coor not in [maze.entry_point, maze.exit_point]:
+                cur_cell.bg_color = GenColor.VISITED
+
+            new_cell: Cell = maze.cells[new_y][new_y]
+            cur_cell.walls[direction] = False
+            new_cell.walls[OPPOSITE[direction]] = False
+            return backtracking_carving(
+                new_cell,
+                maze,
+                rnd,
+                directions,
+                pattern_cells
+            )
+
+    return None
+
+
 def is_valid(
     x: int,
     y: int,
     maze: Maze,
-    visited: list[Cell],
-    pattern_cells: set[tuple],
+    pattern_cells: set[tuple]
 ) -> bool:
 
     return (
         0 <= x < maze.width
         and 0 <= y < maze.height
-        and maze.cells[y][x] not in visited
+        and not maze.cells[y][x].visited
         and (x, y) not in pattern_cells
     )
