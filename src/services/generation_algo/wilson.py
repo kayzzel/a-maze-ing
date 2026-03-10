@@ -84,7 +84,11 @@ def walk(
     return path
 
 
-def wilson(size: tuple[int, int]) -> list[str]:
+def wilson(
+        size: tuple[int, int],
+        start: Cell,
+        end: Cell
+        ) -> list[str]:
     """
     get a size (height, width) and create a maze by using the wilson algorith
     """
@@ -92,7 +96,7 @@ def wilson(size: tuple[int, int]) -> list[str]:
     # unpack the size tuple in height and width
     height, width = size
 
-    pattern_cells: set[Cell] = create_pattern(size)
+    pattern_cells: set[Cell] = create_pattern(size, start, end)
 
     # Maze representation:
     # Each cell maps to a set of cells it is connected to
@@ -226,7 +230,11 @@ def maze_to_hexa(
     return maze_hexa
 
 
-def create_pattern(size: tuple[int, int]) -> set[Cell]:
+def create_pattern(
+        size: tuple[int, int],
+        start: Cell,
+        end: Cell
+        ) -> set[Cell]:
     """
     take the size (height, width) of the maze and create
     the 42 patern centered
@@ -259,5 +267,8 @@ def create_pattern(size: tuple[int, int]) -> set[Cell]:
                 )
 
         pattern_cells[index] = new_cell
+
+    if start[::-1] in pattern_cells or end[::-1] in pattern_cells:
+        return set()
 
     return set(pattern_cells)

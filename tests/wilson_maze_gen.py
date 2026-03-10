@@ -4,11 +4,21 @@ from src.utils.tui_display import print_maze
 
 def main() -> None:
     size: tuple[int, int] = (
-            51,  # height
-            51   # width
+            27,  # height
+            27   # width
             )
 
-    maze = wilson(size)
+    start: tuple[int, int] = (
+            0,
+            0
+            )
+
+    end: tuple[int, int] = (
+            10,
+            11
+            )
+
+    maze = wilson(size, start, end)
 
     print("\n".join(line for line in maze))
 

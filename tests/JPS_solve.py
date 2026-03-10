@@ -15,11 +15,11 @@ def main() -> None:
             )
 
     end: tuple[int, int] = (
-            1,
-            0
+            10,
+            11
             )
 
-    maze = wilson(size)
+    maze = wilson(size, start, end)
     path = jump_point_search(maze, start, end)
 
     print("\n".join(line for line in maze))
