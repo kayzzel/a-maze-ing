@@ -61,16 +61,8 @@ class Maze:
         path: tuple
     ) -> None:
 
-        if not all(
-            (
-                hexa in "0123456789BCDEFbcdefAa"
-                and len(maze_row) == len(maze_input[0])
-            )
-            for maze_row in maze_input
-            for hexa in maze_row
-        ) or not self.check_if_maze_closed(maze_input):
-
-            raise ValueError("Invalid input for the maze's cells!")
+        if not check_maze_input(maze_input):
+            raise ValueError("Invalid maze input!")
 
         self.input: list[str] = maze_input
         self.width, self.height = maze_sz

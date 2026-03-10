@@ -1,4 +1,4 @@
-from src.utils import img_put_px
+from ..utils import img_put_px, compute_walls
 
 
 class Cell:
@@ -44,36 +44,6 @@ class Cell:
         }
 
     """
-
-    takes the hexadecimal value representing the walls
-    converts it into a tuple of boolean values
-
-    """
-    @staticmethod
-    def compute_walls(hexa: str) -> tuple[bool, bool, bool, bool]:
-
-        bin_val: str = bin(int(hexa, 16))[2:]
-
-        if not len(bin_val) == 4:
-
-            bin_val = "0" * (4 - len(bin_val)) + bin_val
-
-            # checks if the converted binary value is valid
-
-            if not all(char in ["0", "1"] for char in bin_val):
-                raise ValueError(
-                    f"Cannot compute walls with invalid value '{hexa}'!"
-                )
-
-        return (
-            bin_val[0] == "1",
-            bin_val[1] == "1",
-            bin_val[2] == "1",
-            bin_val[3] == "1"
-        )
-
-    """
-
     calculates the color needed to draw the cell border
     returns the wall color if there is a wall at that position
     and the background color otherwise

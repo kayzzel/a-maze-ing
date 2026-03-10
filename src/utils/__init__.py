@@ -6,7 +6,7 @@ from .mlx_display import (
 )
 from .events import handle_buttons, global_update
 from .cleanup import clear_all, clear_img
-from .checks import is_in
+from .checks import check_maze_input, compute_walls
 __all__ = [
     "img_put_px",
     "draw_borders",
@@ -16,5 +16,6 @@ __all__ = [
     "render",
     "clear_img",
     "clear_all",
-    "is_in"
+    "check_maze_input",
+    "compute_walls"
 ]
