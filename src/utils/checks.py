@@ -70,3 +70,20 @@ def compute_walls(hexa: str) -> tuple[bool, bool, bool, bool]:
         bin_val[2] == "1",
         bin_val[3] == "1"
     )
+
+
+def is_in(
+    x: int,
+    y: int,
+    start_pos: tuple[int, int],
+    end_pos: tuple[int, int]
+) -> bool:
+
+    if (
+        start_pos[0] <= x < end_pos[0]
+    ) and (
+        start_pos[1] <= y < end_pos[1]
+    ):
+        return True
+
+    return False

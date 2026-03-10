@@ -1,4 +1,4 @@
-from ..models import Maze, Cell
+from ...models import Maze, Cell
 from .wilson import create_pattern
 from random import Random, randint
 from enum import Enum
@@ -20,16 +20,19 @@ OPPOSITE = {
 }
 
 
-class GenColor(Enum):
+class GenColor(tuple[int, int, int, int], Enum):
 
     WALL = (255, 255, 255, 255)
     BG = (0, 0, 0, 255)
     POINT = (255, 0, 0, 255)
     VISITED = (117, 113, 113, 255)
+    CURRENT = (0, 255, 0, 255)
 
 
 def rec_backtrack(
     maze_sz: tuple[int, int],
+    win_sz: tuple[int, int],
+    mlx_data: tuple,
     entry_point: tuple[int, int],
     exit_point: tuple[int, int],
     seed: int | None
@@ -37,13 +40,10 @@ def rec_backtrack(
 
     maze: Maze = Maze(
         maze_sz,
+        win_sz,
+        mlx_data,
         entry_point,
-        exit_point,
-        (
-            GenColor.WALL,
-            GenColor.BG,
-            GenColor.POINT
-        )
+        exit_point
     )
 
     rnd: Random
@@ -68,26 +68,20 @@ def rec_backtrack(
 
     def backtracking_carving(
         cur_cell: Cell
-    ) -> Maze:
-
-        nonlocal maze
-        nonlocal entry_point
-        nonlocal exit_point
-        nonlocal pattern_cells
-        nonlocal visited
-        nonlocal directions
-        nonlocal rnd
+    ) -> None:
 
         cur_cell.visited = True
 
         if cur_cell.coor not in [entry_point, exit_point]:
             cur_cell.bg_color = GenColor.CURRENT
 
-        maze.display_gen_step()
+        while not maze.display_gen_step(*cur_cell.coor):
+            print("trying to display current cell...")
 
         if cur_cell.coor not in [entry_point, exit_point]:
             cur_cell.bg_color = GenColor.VISITED
-            maze.display_gen_step()
+            while not maze.display_gen_step(*cur_cell.coor):
+                print("trying to display visited cell...")
 
         rnd.shuffle(directions)
 
@@ -103,9 +97,15 @@ def rec_backtrack(
                 new_cell.walls[OPPOSITE[direction]] = False
                 backtracking_carving(new_cell)
 
+    maze.start_animation()
+
     backtracking_carving(
         maze.cells[entry_point[1]][entry_point[0]]
     )
+
+    maze.animating = False
+    maze.generated = True
+
     return maze
 
 

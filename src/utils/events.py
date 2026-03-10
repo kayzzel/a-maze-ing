@@ -16,7 +16,8 @@ def global_update(param: tuple) -> None:
 
     button_menu.update_buttons()
 
-    maze.animate_step()
+    if maze:
+        maze.display_gen_step()
 
     render(maze, button_menu, mlx_data)
 
@@ -36,7 +37,7 @@ def handle_buttons(
 ) -> None:
 
     mlx_data: tuple
-    button_menu, maze, mlx_data = param
+    maze, button_menu, mlx_data = param
 
     # checks whether or not the mouse event is a left click
 

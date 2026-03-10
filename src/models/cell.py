@@ -1,4 +1,4 @@
-from ..utils import img_put_px, compute_walls
+from ..utils import img_put_px
 
 
 class Cell:
@@ -32,6 +32,7 @@ class Cell:
     ) -> None:
 
         self.coor: tuple[int, int] = coor
+        self.col, self.row = coor
         self.size: int = size
         self.wall_size: int = size // 8
         self.img: tuple[memoryview, int, int] = img
@@ -42,6 +43,7 @@ class Cell:
             "W": True,
             "E": True
         }
+        self.visited: bool = False
 
     """
     calculates the color needed to draw the cell border
@@ -73,8 +75,8 @@ class Cell:
 
     def draw(self) -> None:
 
-        x: int = (self.coor[0] * self.size)
-        y: int = (self.coor[1] * self.size)
+        x: int = (self.col * self.size)
+        y: int = (self.row * self.size)
 
         for row in range(self.size):
 

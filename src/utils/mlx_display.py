@@ -96,12 +96,8 @@ def render(
 
     button_menu.display_button_menu()
 
-    mlx.mlx_put_image_to_window(
-        mlx_ptr,
-        mlx_win,
-        maze.img,
-        *maze.maze_pos
-    )
+    if maze:
+        maze.display_on_window()
 
 
 def put_str_to_img(

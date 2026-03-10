@@ -53,6 +53,119 @@ class Maze:
 
     def __init__(
         self,
+        maze_sz: tuple[int, int],
+        win_sz: tuple[int, int],
+        mlx_data: tuple,
+        entry_point: tuple[int, int],
+        exit_point: tuple[int, int]
+    ) -> None:
+
+        self.width, self.height = maze_sz
+        self.win_sz: tuple[int, int] = win_sz
+        self.mlx, self.mlx_ptr, self.mlx_win = mlx_data
+
+        self.initialize_img()
+
+        self.wall_color: tuple = (255, 255, 255, 255)
+        self.bg_color: tuple = (0, 0, 0, 255)
+        self.path_color: tuple = (115, 115, 115, 255)
+        self.entry_exit_color: tuple = (255, 0, 0, 255)
+
+        self.cells: list[list[Cell]] = []
+
+        for row in range(maze_sz[1]):
+
+            self.cells.append([])
+
+            for col in range(maze_sz[0]):
+
+                bg_color: tuple = self.bg_color
+
+                if (col, row) in [entry_point, exit_point]:
+
+                    bg_color = self.entry_exit_color
+
+                self.cells[row].append(Cell(
+                    (col, row),
+                    self.cell_sz,
+                    (self.buf, self.sz_line, self.bpp),
+                    (
+                        self.wall_color,
+                        bg_color
+                    )
+                ))
+
+        self.draw()
+
+        self.animating: bool = False
+        self.frame_count: float = 0
+        self.frame_delay: float = 0.001
+        self.generated: bool = False
+
+    def initialize_img(self) -> None:
+
+        self.img_width: int = (
+            self.win_sz[0] // 3 * 2
+        )
+        self.cell_sz: int = self.img_width // self.width
+        self.img_height: int = self.cell_sz * self.height
+
+        self.img = self.mlx.mlx_new_image(
+            self.mlx_ptr,
+            self.img_width,
+            self.img_height
+        )
+        self.buf, self.bpp, self.sz_line, *oth = (
+            self.mlx.mlx_get_data_addr(self.img)
+        )
+        clear_img(self.buf, self.img_height, self.sz_line)
+
+        self.img_pos: tuple[int, int] = (
+            self.win_sz[0] // 3 // 2,
+            self.win_sz[1] // 5
+        )
+
+    def start_animation(self) -> None:
+
+        self.animating = True
+        self.frame_count = time.monotonic()
+
+    def display_gen_step(self, x: int, y: int) -> bool:
+
+        if not self.animating:
+            return False
+
+        if time.monotonic() - self.frame_count < self.frame_delay:
+            return False
+
+        self.frame_count = time.monotonic()
+
+        self.draw()
+
+        return True
+
+    def draw(self) -> None:
+
+        clear_img(self.buf, self.img_height, self.sz_line)
+
+        for row in range(self.height):
+
+            for col in range(self.width):
+
+                self.cells[row][col].draw()
+
+    def display_on_window(self) -> None:
+
+        self.mlx.mlx_put_image_to_window(
+            self.mlx_ptr,
+            self.mlx_win,
+            self.img,
+            *self.img_pos
+        )
+
+    """
+    def __init__(
+        self,
         maze_input: list[str],
         win_sz: tuple[int, int],
         maze_sz: tuple[int, int],
@@ -108,47 +221,13 @@ class Maze:
             len(self.input[0]) // len(self.rainbow_palette)
         )
 
-    """
-
-    checks whether or not the maze is properly closed on all sides
 
     """
-
-    @staticmethod
-    def check_if_maze_closed(maze_input: list[str]) -> bool:
-
-        if not all(hexa_val in Walls.NORTH for hexa_val in maze_input[0]):
-            return False
-
-        if not all(hexa_val in Walls.SOUTH for hexa_val in maze_input[-1]):
-            return False
-
-        if not all(hexa_val in Walls.WEST for hexa_val in [
-            hexa_line[0] for hexa_line in maze_input
-        ]):
-            return False
-
-        if not all(hexa_val in Walls.EAST for hexa_val in [
-            hexa_line[-1] for hexa_line in maze_input
-        ]):
-            return False
-
-        return True
-
-    def display_maze(self) -> None:
-
-        clear_img(self.buf, self.height, self.sz_line)
-
-        for row in range(len(self.input)):
-
-            for col in range(len(self.input[0])):
-
-                self.cells[row][col].draw()
-
     """
 
     starts the animation for displaying the maze/path
 
+    """
     """
     def start_animation(self) -> None:
 
@@ -177,10 +256,12 @@ class Maze:
         self.frame_count = time.monotonic()
 
     """
+    """
 
     a single animation step (one cell)
     called by the global update function each turn
 
+    """
     """
 
     def animate_step(self) -> None:
@@ -270,6 +351,7 @@ class Maze:
                     self.anim_col = 0
                     self.anim_row += 1
 
+    """
     """
 
     toggles path on and off
@@ -368,7 +450,7 @@ class Maze:
                         self.bg_color
                     )
 
-        self.display_maze()
+        self.draw()
 
     def activate_rainbow(self) -> None:
 

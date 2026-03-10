@@ -2,6 +2,7 @@ from .button import Button
 from .maze import Maze
 from .color_palette import ColorPalette
 from ..utils import clear_img, clear_all, is_in
+from typing import Callable as callable
 from enum import Enum
 import random
 
@@ -19,12 +20,12 @@ class ButtonMenu:
     def __init__(
         self,
         mlx_data: tuple,
-        maze: Maze,
+        gen_algo: callable,
         win_sz: tuple[int, int]
     ) -> None:
 
         self.mlx, self.mlx_ptr, self.mlx_win = mlx_data
-        self.maze: Maze = maze
+        self.gen_algo: callable = gen_algo
         self.win_sz: tuple[int, int] = win_sz
 
         self.menus: dict = {
@@ -68,6 +69,8 @@ class ButtonMenu:
 
         self.menus["main"][0].needs_refresh = True
         self.display_button_menu()
+
+        self.maze: Maze | None = None
 
     def update_buttons(self) -> None:
 
@@ -139,7 +142,7 @@ class ButtonMenu:
             self.mlx_ptr,
             self.mlx_win,
             (self.win_sz[0] - (len(self.button_title) * 10)) // 2,
-            self.maze.maze_pos[1] + self.maze.height + 5,
+            self.win_sz[1] // 3 * 2 + 100,
             0xFFFFFF,
             self.button_title
         )
@@ -319,6 +322,9 @@ class ButtonMenu:
 
     def update_colors(self) -> None:
 
+        if not self.maze:
+            return None
+
         new_colors: list[tuple] = [
             self.maze.wall_color,
             self.maze.bg_color,
@@ -381,7 +387,8 @@ class ButtonMenu:
 
             case "random colors":
                 self.cur_menu = "color_change"
-                self.update_colors()
+                if self.maze:
+                    self.update_colors()
 
             case "custom colors":
                 self.cur_menu = "color_palette"
@@ -389,11 +396,13 @@ class ButtonMenu:
 
             case "rainbow mode on/off":
                 self.cur_menu = "color_change"
-                self.maze.activate_rainbow()
+                if self.maze:
+                    self.maze.activate_rainbow()
 
             case "toggle path on/off":
                 self.cur_menu = "path_menu"
-                self.maze.toggle_path_on_off()
+                if self.maze:
+                    self.maze.toggle_path_on_off()
 
             case "ok":
 
@@ -426,7 +435,16 @@ class ButtonMenu:
             "random"
         ]:
             self.cur_menu = "main"
-            self.maze.start_animation()
+            if self.maze:
+                self.maze.clean_img()
+            self.maze = self.gen_algo(
+                (25, 20),
+                (1600, 1000),
+                (self.mlx, self.mlx_ptr, self.mlx_win),
+                (1, 1),
+                (19, 14),
+                None
+            )
 
         elif button_clicked.name in [
             "a*",
