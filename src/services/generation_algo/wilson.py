@@ -102,7 +102,8 @@ def neighbors(
     """
 
     # unpack the size tuple in height and width
-    height, width = size
+    width: int = size[0]
+    height: int = size[1]
     row, col = cell
 
     neighbors_list: list[CellCoords] = []
@@ -165,6 +166,42 @@ def walk(
     return path
 
 
+def carve_path(
+            maze: Maze,
+            path: list[CellCoords],
+            unvisited: set[CellCoords],
+            unvisited_list: list[CellCoords]
+        ) -> None:
+
+    for index in range(len(path) - 1):
+
+        row, col = path[index]
+        next_cell = path[index + 1]
+
+        # Create a bidirectional connection between the two cells
+        if next_cell == (row - 1, col):
+            maze.cells[row][col].walls["N"] = False
+            maze.cells[row - 1][col].walls["S"] = False
+        elif next_cell == (row + 1, col):
+            maze.cells[row][col].walls["S"] = False
+            maze.cells[row + 1][col].walls["N"] = False
+        elif next_cell == (row, col - 1):
+            maze.cells[row][col].walls["W"] = False
+            maze.cells[row][col - 1].walls["E"] = False
+        elif next_cell == (row, col + 1):
+            maze.cells[row][col].walls["E"] = False
+            maze.cells[row][col + 1].walls["W"] = False
+
+        step_cell: Cell = Cell(col, row)
+        step_cell.walls = maze.cells[row][col].walls
+        maze.gen_steps.append(step_cell)
+
+        # Mark the current cell as visited in the maze
+        if (row, col) in unvisited:
+            unvisited.remove((row, col))
+            unvisited_list.remove((row, col))
+
+
 def wilson(
         size: tuple[int, int],
         entry_point: CellCoords,
@@ -191,25 +228,23 @@ def wilson(
     else:
         raise ValueError("seed must be a positive integer")
 
-    return_maze: Maze = Maze(size, entry_point, exit_point)
+    maze: Maze = Maze(size, entry_point, exit_point)
 
     # unpack the size tuple in height and width
-    height, width = size
+    width: int = size[0]
+    height: int = size[1]
 
     pattern_cells: set[CellCoords] = create_pattern(size)
 
-    # Maze representation:
-    # Each cell maps to a set of cells it is connected to
-    # Except the cells int the pattern
-    maze: dict[CellCoords, set[CellCoords]] = {
-        (row, col): set()
+    print(pattern_cells)
+
+    # All cells start as unvisited
+    unvisited: set[CellCoords] = {
+        (row, col)
         for row in range(height)
         for col in range(width)
         if (row, col) not in pattern_cells
     }
-
-    # All cells start as unvisited
-    unvisited: set[CellCoords] = set(maze.keys())
     unvisited_list: list[CellCoords] = list(unvisited)
 
     # Pick a random starting cell and mark it visited
@@ -237,22 +272,10 @@ def wilson(
         path = walk(cell, visited, unvisited, path, size, pattern_cells, rnd)
 
         # Carve the path into the maze
-        for index in range(len(path) - 1):
-
-            current_cell = path[index]
-            next_cell = path[index + 1]
-
-            # Create a bidirectional connection between the two cells
-            maze[current_cell].add(next_cell)
-            maze[next_cell].add(current_cell)
-
-            # Mark the current cell as visited in the maze
-            if current_cell in unvisited:
-                unvisited.remove(current_cell)
-                unvisited_list.remove(current_cell)
+        carve_path(maze, path, unvisited, unvisited_list)
 
     # Return the completed maze graph
-    return return_maze
+    return maze
 
 
 def create_pattern(size: tuple[int, int]) -> set[CellCoords]:
@@ -262,7 +285,7 @@ def create_pattern(size: tuple[int, int]) -> set[CellCoords]:
     """
 
     # unpack the size tuple in height and width
-    height, width = size
+    width, height = size
 
     # create the pattern only if the maze is big enougth (10*10)
     if height < 10 or width < 10:

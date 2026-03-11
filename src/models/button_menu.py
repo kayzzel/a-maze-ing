@@ -3,6 +3,7 @@ from .maze_display import MazeDisplay
 from .color_palette import ColorPalette
 from ..utils import clear_img, clear_all, is_in
 from ..services.generation_algo.rec_backtrack import rec_backtrack
+from ..services.generation_algo.wilson import wilson
 from ..services.solving_algo.a_star import a_star
 from enum import Enum
 import random
@@ -413,7 +414,13 @@ class ButtonMenu:
 
             case "wilson":
                 self.cur_menu = "main"
-                # wilson()
+                self.maze.set_maze(wilson(
+                    self.maze.maze.sz,
+                    self.maze.maze.entry_point,
+                    self.maze.maze.exit_point,
+                    None
+                ))
+                self.maze.start_animation()
 
             case "random":
                 self.cur_menu = "main"
