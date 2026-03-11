@@ -1,6 +1,7 @@
 # from ...models.maze_generator import Maze, Cell
 from .wilson import create_pattern
 from random import Random, randint
+import sys
 
 
 class Cell:
@@ -106,6 +107,8 @@ def rec_backtrack(
 ) -> Maze:
 
     rnd: Random
+
+    sys.setrecursionlimit(8000)
 
     if seed is None:
 

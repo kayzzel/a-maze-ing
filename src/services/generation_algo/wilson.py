@@ -196,6 +196,10 @@ def carve_path(
         step_cell.walls = maze.cells[row][col].walls
         maze.gen_steps.append(step_cell)
 
+        next_step_cell: Cell = Cell(*next_cell[::-1])
+        next_step_cell.walls = maze.cells[next_cell[0]][next_cell[1]].walls
+        maze.gen_steps.append(next_step_cell)
+
         # Mark the current cell as visited in the maze
         if (row, col) in unvisited:
             unvisited.remove((row, col))
@@ -235,8 +239,6 @@ def wilson(
     height: int = size[1]
 
     pattern_cells: set[CellCoords] = create_pattern(size)
-
-    print(pattern_cells)
 
     # All cells start as unvisited
     unvisited: set[CellCoords] = {
