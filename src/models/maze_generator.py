@@ -85,21 +85,35 @@ class Maze:
 
 class MazeGenerator:
 
-    def __init__(self) -> None:
-
-        self.gen_algo: callable = rec_backtrack
-        self.solve_algo: callable = a_star
-
-    def generate_maze(
+    def __init__(
         self,
         maze_sz: tuple[int, int],
         entry_point: tuple[int, int],
         exit_point: tuple[int, int],
         is_perfect: bool,
         seed: int | None
-    ) -> Maze:
+    ) -> None:
 
-        return self.gen_algo(maze_sz, entry_point, exit_point, seed)
+        self.maze_sz: tuple[int, int] = maze_sz
+        self.entry_point: tuple[int, int] = entry_point
+        self.exit_point: tuple[int, int] = exit_point
+        self.is_perfect: bool = is_perfect
+        self.seed: int | None = seed
+        self.gen_algo: callable = rec_backtrack
+        self.solve_algo: callable = a_star
+
+    def initialize_maze(self) -> Maze:
+
+        return Maze(self.maze_sz, self.entry_point, self.exit_point)
+
+    def generate_maze(self) -> Maze:
+
+        return self.gen_algo(
+            self.maze_sz,
+            self.entry_point,
+            self.exit_point,
+            self.seed
+        )
 
     def write_to_output(self, maze: Maze, output_filename: str) -> None:
 

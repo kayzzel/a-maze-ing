@@ -155,6 +155,7 @@ def a_star(
         [],
         explored
     )
+    maze.solving_steps = []
     path_found: list[tuple[int, int]] = []
 
     while (

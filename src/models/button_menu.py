@@ -30,11 +30,16 @@ class ButtonMenu:
         self.win_sz: tuple[int, int] = win_sz
 
         self.menus: dict = {
+            "start_menu": self.generate_buttons([
+                "maze",
+                "settings",
+                "exit window"
+            ]),
             "main": self.generate_buttons([
                 "generate new maze",
                 "path menu",
                 "change colors",
-                "exit window"
+                "back to main menu"
             ]),
             "color_change": self.generate_buttons([
                 "random colors",
@@ -62,7 +67,7 @@ class ButtonMenu:
 
         self.create_ok_button()
 
-        self.cur_menu: str = "main"
+        self.cur_menu: str = "start_menu"
 
         self.button_title: str = "A-Maze-Ing Menu"
 
@@ -369,6 +374,9 @@ class ButtonMenu:
 
         match button_clicked.name:
 
+            case "maze":
+                self.cur_menu = "main"
+
             case "generate new maze":
                 self.cur_menu = "gen_algo_choice"
 
@@ -377,6 +385,12 @@ class ButtonMenu:
 
             case "change colors":
                 self.cur_menu = "color_change"
+
+            case "back to main menu":
+                self.cur_menu = "start_menu"
+
+            case "settings":
+                self.cur_menu = "settings"
 
             case "back to menu":
                 self.cur_menu = "main"
@@ -399,7 +413,7 @@ class ButtonMenu:
 
             case "recursive backtracking":
                 self.cur_menu = "main"
-                self.maze.set_maze(rec_backtrack(
+                self.maze.set_new_maze(rec_backtrack(
                     self.maze.maze.sz,
                     self.maze.maze.entry_point,
                     self.maze.maze.exit_point,
@@ -409,7 +423,7 @@ class ButtonMenu:
 
             case "a*":
                 a_star(self.maze.maze)
-                self.maze.toggle_path_on_off()
+                self.maze.toggle_path_on_off(True)
 
             case "wilson":
                 self.cur_menu = "main"
@@ -457,8 +471,11 @@ class ButtonMenu:
 
         match self.cur_menu:
 
-            case "main":
+            case "start_menu":
                 self.button_title = "A-Maze-Ing Menu"
+
+            case "main":
+                self.button_title = "Maze Menu"
 
             case "color_change":
                 self.button_title = "Choose a color mode option"

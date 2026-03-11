@@ -1,6 +1,6 @@
 ALLOWED_LETTERS: str = (
             "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-            "abcdefghijklmnopqrstuvwkxz"
+            "abcdefghijklmnopqrstuvwkxyz"
             " /*"
         )
 

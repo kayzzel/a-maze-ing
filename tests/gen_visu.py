@@ -15,21 +15,23 @@ def test_visu() -> None:
 
     mlx.mlx_clear_window(mlx_ptr, mlx_win)
 
-    generator: MazeGenerator = MazeGenerator()
+    entry_point: tuple[int, int] = (1, 1)
+    exit_point: tuple[int, int] = (19, 14)
+
+    generator: MazeGenerator = MazeGenerator(
+        (25, 20),
+        entry_point,
+        exit_point,
+        True,
+        None
+    )
 
     maze_display: MazeDisplay = MazeDisplay(
         (600, 600),
         (1600, 1000),
+        generator.initialize_maze(),
         mlx_data
     )
-
-    maze_display.set_maze(generator.generate_maze(
-        (25, 20),
-        (1, 1),
-        (19, 14),
-        True,
-        None
-    ))
 
     button_menu: ButtonMenu = ButtonMenu(
         mlx_data,
