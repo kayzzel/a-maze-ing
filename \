@@ -457,7 +457,7 @@ class ButtonMenu:
                 self.prev_menu = "gen_algo_choice"
                 self.maze.toggle_path = False
                 self.generator.gen_algo = rec_backtrack
-                self.maze.set_new_maze(self.generator.generate_maze())
+                self.maze.set_new_maze(self.generator.generate_new_maze)
                 self.maze.start_animation()
 
             case "a*":
@@ -465,8 +465,7 @@ class ButtonMenu:
                 self.cur_menu = "skip"
                 if self.maze.toggle_path:
                     self.maze.toggle_path_on_off()
-                self.generator.solve_algo = a_star
-                self.generator.solve_algo(self.maze.maze)
+                a_star(self.maze.maze)
                 self.maze.toggle_path_on_off(True)
 
             case "wilson":

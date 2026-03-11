@@ -1,6 +1,12 @@
 from .mlx_display import render
 
 
+KEYS: dict[int, int | str] = {
+    48 + index: index
+    for index in range(10)
+} | {44: ",", 32: " ", 65293: "enter"}
+
+
 """
 
 updates the maze and buttons each turn
@@ -54,3 +60,24 @@ def handle_buttons(
         button_pressed.click_button()
         render(maze, button_menu, mlx_data)
         button_menu.change_menu(button_pressed)
+
+
+def handle_keyboard_input(
+    keycode: int,
+    param: tuple
+) -> None:
+
+    button_menu, mlx_data = param
+
+    if not button_menu.taking_input:
+        return None
+
+    if keycode not in KEYS.keys():
+        return None
+
+    if KEYS[keycode] == "enter":
+        button_menu.handle_settings()
+        return None
+
+    button_menu.user_input.append(KEYS[keycode])
+    # print(f"key: {keycode} - key type: {type(keycode).__name__}\n")

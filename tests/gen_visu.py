@@ -1,5 +1,5 @@
 from src.models import ButtonMenu, MazeGenerator, MazeDisplay
-from src.utils import handle_buttons, global_update
+from src.utils import handle_buttons, handle_keyboard_input, global_update
 from mlx import Mlx
 
 
@@ -44,6 +44,14 @@ def test_visu() -> None:
         handle_buttons,
         (
             maze_display,
+            button_menu,
+            mlx_data
+        )
+    )
+    mlx.mlx_key_hook(
+        mlx_win,
+        handle_keyboard_input,
+        (
             button_menu,
             mlx_data
         )
