@@ -50,6 +50,9 @@ def parse_config(config_filename: str) -> None | MazeData:
 
             for line in config.readlines():
 
+                if line.startswith("#"):
+                    continue
+
                 new_pair: tuple = validate_format(line)
 
                 if new_pair[0] in config_data.keys():
