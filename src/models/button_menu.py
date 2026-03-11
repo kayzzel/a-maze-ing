@@ -1,8 +1,9 @@
 from .button import Button
-from .maze import Maze
+from .maze_display import MazeDisplay
 from .color_palette import ColorPalette
 from ..utils import clear_img, clear_all, is_in
 from ..services.generation_algo.rec_backtrack import rec_backtrack
+from ..services.solving_algo.a_star import a_star
 from enum import Enum
 import random
 
@@ -20,12 +21,12 @@ class ButtonMenu:
     def __init__(
         self,
         mlx_data: tuple,
-        maze: Maze,
+        maze_display: MazeDisplay,
         win_sz: tuple[int, int]
     ) -> None:
 
         self.mlx, self.mlx_ptr, self.mlx_win = mlx_data
-        self.maze: Maze = maze
+        self.maze: MazeDisplay = maze_display
         self.win_sz: tuple[int, int] = win_sz
 
         self.menus: dict = {
@@ -398,11 +399,17 @@ class ButtonMenu:
 
             case "recursive backtracking":
                 self.cur_menu = "main"
-                rec_backtrack(
-                    self.maze,
-                    self.win_sz,
+                self.maze.set_maze(rec_backtrack(
+                    self.maze.maze.sz,
+                    self.maze.maze.entry_point,
+                    self.maze.maze.exit_point,
                     None
-                )
+                ))
+                self.maze.start_animation()
+
+            case "a*":
+                a_star(self.maze.maze)
+                self.maze.toggle_path_on_off()
 
             case "wilson":
                 self.cur_menu = "main"

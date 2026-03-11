@@ -1,5 +1,7 @@
 # need to move algorithms in the same directory
-from .algorithms import rec_backtrack, jump_point_search
+from ..services.generation_algo.rec_backtrack import rec_backtrack
+from ..services.solving_algo.a_star import a_star
+from typing import Callable as callable
 
 
 class Cell:
@@ -31,7 +33,9 @@ class Maze:
         exit_point: tuple[int, int]
     ) -> None:
 
-        self.size: tuple[int, int] = size
+        self.sz: tuple[int, int] = size
+        self.width: int = self.sz[0]
+        self.height: int = self.sz[1]
 
         self.entry_point: tuple[int, int] = entry_point
         self.exit_point: tuple[int, int] = exit_point
@@ -39,9 +43,9 @@ class Maze:
         self.cells: list[list[Cell]] = [
             [
                 Cell(col, row)
-                for col in range(self.maze_sz[0])
+                for col in range(self.width)
             ]
-            for row in range(self.maze_sz[1])
+            for row in range(self.height)
         ]
 
         self.gen_steps: list[Cell] = []
@@ -59,19 +63,22 @@ class Maze:
             "W": 8
         }
 
-        hexa_maze: list[str] = []
+        hexa_maze: list[str] = [
+            "" for _ in range(len(self.cells))
+        ]
 
-        for row in self.cells:
+        for row in range(len(self.cells)):
 
-            for cell in row:
+            for cell in self.cells[row]:
 
                 val: int = 0
 
                 for wall, state in cell.walls.items():
+
                     if state:
                         val |= walls_values[wall]
 
-                hexa_maze[row] += hex(val)[2:]
+                hexa_maze[row] += ("0123456789ABCDEF")[val]
 
         return hexa_maze
 
@@ -81,7 +88,7 @@ class MazeGenerator:
     def __init__(self) -> None:
 
         self.gen_algo: callable = rec_backtrack
-        self.solve_algo: callable = jump_point_search
+        self.solve_algo: callable = a_star
 
     def generate_maze(
         self,
@@ -104,7 +111,7 @@ class MazeGenerator:
                 output.write("\n")
                 output.write(str(maze.entry_point) + "\n")
                 output.write(str(maze.exit_point) + "\n")
-                output.write(maze.path + "\n")
+                output.write(maze.path_dirs + "\n")
 
         except OSError as err:
 

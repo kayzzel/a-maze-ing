@@ -1,6 +1,85 @@
-from ...models import Maze, Cell
+# from ...models.maze_generator import Maze, Cell
 from .wilson import create_pattern
 from random import Random, randint
+
+
+class Cell:
+
+    def __init__(
+        self,
+        x: int,
+        y: int
+    ) -> None:
+
+        self.row: int = y
+        self.col: int = x
+        self.coor: tuple[int, int] = (x, y)
+        self.walls: dict[str, bool] = {
+            "N": True,
+            "S": True,
+            "W": True,
+            "E": True
+        }
+        self.visited: bool = False
+
+
+class Maze:
+
+    def __init__(
+        self,
+        size: tuple[int, int],
+        entry_point: tuple[int, int],
+        exit_point: tuple[int, int]
+    ) -> None:
+
+        self.sz: tuple[int, int] = size
+        self.width: int = self.sz[0]
+        self.height: int = self.sz[1]
+
+        self.entry_point: tuple[int, int] = entry_point
+        self.exit_point: tuple[int, int] = exit_point
+
+        self.cells: list[list[Cell]] = [
+            [
+                Cell(col, row)
+                for col in range(self.width)
+            ]
+            for row in range(self.height)
+        ]
+
+        self.gen_steps: list[Cell] = []
+        self.solving_steps: list[Cell] = []
+
+        self.path: list[tuple]
+        self.path_dirs: str
+
+    def maze_to_hexa(self) -> list[str]:
+
+        walls_values: dict[str, int] = {
+            "N": 1,
+            "E": 2,
+            "S": 4,
+            "W": 8
+        }
+
+        hexa_maze: list[str] = [
+            "" for _ in range(len(self.cells))
+        ]
+
+        for row in range(len(self.cells)):
+
+            for cell in self.cells[row]:
+
+                val: int = 0
+
+                for wall, state in cell.walls.items():
+
+                    if state:
+                        val |= walls_values[wall]
+
+                hexa_maze[row] += ("0123456789ABCDEF")[val]
+
+        return hexa_maze
 
 
 DIRS = {
@@ -42,7 +121,7 @@ def rec_backtrack(
 
     maze: Maze = Maze(maze_sz, entry_point, exit_point)
 
-    pattern_cells: set[tuple] = create_pattern(maze.height, maze.width)
+    pattern_cells: set[tuple] = create_pattern(maze.sz[::-1])
 
     backtracking_carving(
         maze.cells[maze.entry_point[1]][maze.entry_point[0]],
@@ -63,7 +142,14 @@ def backtracking_carving(
 
     cur_cell.visited = True
 
-    maze.gen_steps.append(cur_cell)
+    saved_step: Cell = Cell(
+        cur_cell.col,
+        cur_cell.row
+    )
+    # saved_step.visited = True
+    saved_step.walls = cur_cell.walls
+
+    maze.gen_steps.append(saved_step)
 
     directions: list[str] = list(DIRS.keys())
 
@@ -79,7 +165,6 @@ def backtracking_carving(
             new_cell: Cell = maze.cells[new_y][new_x]
             cur_cell.walls[direction] = False
             new_cell.walls[OPPOSITE[direction]] = False
-            maze.gen_steps.append(new_cell)
             backtracking_carving(
                 new_cell,
                 maze,

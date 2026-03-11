@@ -1,5 +1,84 @@
-from ...models import Maze
+# from ...models import Maze
 import random
+
+
+class Cell:
+
+    def __init__(
+        self,
+        x: int,
+        y: int
+    ) -> None:
+
+        self.row: int = y
+        self.col: int = x
+        self.coor: tuple[int, int] = (x, y)
+        self.walls: dict[str, bool] = {
+            "N": True,
+            "S": True,
+            "W": True,
+            "E": True
+        }
+        self.visited: bool = False
+
+
+class Maze:
+
+    def __init__(
+        self,
+        size: tuple[int, int],
+        entry_point: tuple[int, int],
+        exit_point: tuple[int, int]
+    ) -> None:
+
+        self.sz: tuple[int, int] = size
+        self.width: int = self.sz[0]
+        self.height: int = self.sz[1]
+
+        self.entry_point: tuple[int, int] = entry_point
+        self.exit_point: tuple[int, int] = exit_point
+
+        self.cells: list[list[Cell]] = [
+            [
+                Cell(col, row)
+                for col in range(self.width)
+            ]
+            for row in range(self.height)
+        ]
+
+        self.gen_steps: list[Cell] = []
+        self.solving_steps: list[Cell] = []
+
+        self.path: list[tuple]
+        self.path_dirs: str
+
+    def maze_to_hexa(self) -> list[str]:
+
+        walls_values: dict[str, int] = {
+            "N": 1,
+            "E": 2,
+            "S": 4,
+            "W": 8
+        }
+
+        hexa_maze: list[str] = [
+            "" for _ in range(len(self.cells))
+        ]
+
+        for row in range(len(self.cells)):
+
+            for cell in self.cells[row]:
+
+                val: int = 0
+
+                for wall, state in cell.walls.items():
+
+                    if state:
+                        val |= walls_values[wall]
+
+                hexa_maze[row] += ("0123456789ABCDEF")[val]
+
+        return hexa_maze
 
 
 WALL_DIRS: dict[str, tuple[int, int]] = {
@@ -14,13 +93,13 @@ class PathCell:
 
     def __init__(
         self,
-        walls: dict[str, int],
+        walls: dict[str, bool],
         coor: tuple[int, int],
         entry_coor: tuple[int, int],
         exit_coor: tuple[int, int]
     ) -> None:
 
-        self.walls: dict[str, int] = walls
+        self.walls: dict[str, bool] = walls
         self.row: int
         self.col: int
         self.row, self.col = coor
@@ -64,11 +143,11 @@ def a_star(
             cells[row].append(PathCell(
                 maze.cells[row][col].walls,
                 (row, col),
-                maze.entry_coor,
-                maze.exit_coor
+                maze.entry_point,
+                maze.exit_point
             ))
 
-    cur_cell: PathCell = cells[maze.entry_coor[1]][maze.entry_coor[0]]
+    cur_cell: PathCell = cells[maze.entry_point[1]][maze.entry_point[0]]
     explored: list[PathCell] = [cur_cell]
     to_explore: list[PathCell] = find_valid_neighbors(
         cells,
@@ -76,14 +155,14 @@ def a_star(
         [],
         explored
     )
-    path_found: list[PathCell] = []
+    path_found: list[tuple[int, int]] = []
 
     while (
         not path_found
         and len(explored) < maze.height * maze.width
     ):
 
-        maze.solve_steps.append(maze.cells[cur_cell.row][cur_cell.col])
+        maze.solving_steps.append(maze.cells[cur_cell.row][cur_cell.col])
 
         next_cell: PathCell | None = find_next_cell(to_explore)
 
@@ -94,11 +173,11 @@ def a_star(
 
         explored.append(next_cell)
 
-        if (next_cell.col, next_cell.row) == maze.exit_coor:
+        if (next_cell.col, next_cell.row) == maze.exit_point:
 
             path_found = retrace_steps(
                 next_cell,
-                maze.entry_coor
+                maze.entry_point
             )
             break
 
@@ -118,12 +197,12 @@ def a_star(
 
     maze.path = path_found
 
-    path_to_return: str | None = compute_path(path_found, maze.entry_coor)
+    path_to_return: str | None = compute_path(path_found, maze.entry_point)
 
     if not path_to_return:
         print("Something went wrong while computing the path")
 
-    maze.path_dirs = path_to_return
+    maze.path_dirs = str(path_to_return)
 
     return path_to_return
 
@@ -206,15 +285,15 @@ def find_next_cell(to_explore: list[PathCell]) -> PathCell | None:
 def retrace_steps(
     destination: PathCell,
     entry_coor: tuple[int, int]
-) -> list[PathCell]:
+) -> list[tuple[int, int]]:
 
     cell: PathCell = destination
 
-    path: list[PathCell] = []
+    path: list[tuple[int, int]] = []
 
     while (cell.col, cell.row) != entry_coor:
 
-        path.append(cell)
+        path.append((cell.col, cell.row))
         cell = cell.parent
 
     path.reverse()
@@ -223,7 +302,7 @@ def retrace_steps(
 
 
 def compute_path(
-    path: list[PathCell],
+    path: list[tuple[int, int]],
     entry_coor: tuple[int, int]
 ) -> str | None:
 
@@ -233,16 +312,16 @@ def compute_path(
 
     directions: str = ""
 
-    for cell in path:
+    for col, row in path:
 
         for wall, dirs in WALL_DIRS.items():
 
             if (
-                cur_row == cell.row + dirs[0]
-                and cur_col == cell.col + dirs[1]
+                cur_row == row + dirs[0]
+                and cur_col == col + dirs[1]
             ):
                 directions += wall
 
-        cur_row, cur_col = cell.row, cell.col
+        cur_row, cur_col = row, col
 
     return directions
