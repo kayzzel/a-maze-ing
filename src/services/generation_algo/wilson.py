@@ -268,7 +268,9 @@ def create_pattern(
 
         pattern_cells[index] = new_cell
 
+    # If the start or the end is in the patern it return an empty set
     if start[::-1] in pattern_cells or end[::-1] in pattern_cells:
         return set()
 
+    #  return the patern so that it could be integrated in the maze
     return set(pattern_cells)
