@@ -192,13 +192,9 @@ def carve_path(
             maze.cells[row][col].walls["E"] = False
             maze.cells[row][col + 1].walls["W"] = False
 
-        step_cell: Cell = Cell(col, row)
-        step_cell.walls = maze.cells[row][col].walls
-        maze.gen_steps.append(step_cell)
+        maze.gen_steps.append(maze.cells[row][col])
 
-        next_step_cell: Cell = Cell(*next_cell[::-1])
-        next_step_cell.walls = maze.cells[next_cell[0]][next_cell[1]].walls
-        maze.gen_steps.append(next_step_cell)
+        maze.gen_steps.append(maze.cells[next_cell[0]][next_cell[1]])
 
         # Mark the current cell as visited in the maze
         if (row, col) in unvisited:
