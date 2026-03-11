@@ -142,14 +142,16 @@ def backtracking_carving(
 
     cur_cell.visited = True
 
+    """
     saved_step: Cell = Cell(
         cur_cell.col,
         cur_cell.row
     )
     # saved_step.visited = True
     saved_step.walls = cur_cell.walls
+    """
 
-    maze.gen_steps.append(saved_step)
+    maze.gen_steps.append(cur_cell)
 
     directions: list[str] = list(DIRS.keys())
 

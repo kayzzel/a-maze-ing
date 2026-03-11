@@ -92,6 +92,10 @@ class ButtonMenu:
 
                 button.update()
 
+        if self.cur_menu == "skip" and not self.maze.animating:
+            self.menus["skip"][0].needs_refresh = True
+            self.change_menu(self.menus["skip"][0])
+
     def needs_refresh(self) -> bool:
 
         for menu in self.menus.values():
@@ -443,6 +447,8 @@ class ButtonMenu:
             case "a*":
                 self.cur_menu = "skip"
                 self.prev_menu = "path_menu"
+                if self.maze.toggle_path:
+                    self.maze.toggle_path_on_off()
                 a_star(self.maze.maze)
                 self.maze.toggle_path_on_off(True)
 

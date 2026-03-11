@@ -14,9 +14,9 @@ def global_update(param: tuple) -> None:
     mlx_data: tuple
     maze, button_menu, mlx_data = param
 
-    button_menu.update_buttons()
-
     maze.display_anim_step()
+
+    button_menu.update_buttons()
 
     render(maze, button_menu, mlx_data)
 

@@ -163,7 +163,7 @@ def a_star(
         and len(explored) < maze.height * maze.width
     ):
 
-        maze.solving_steps.append(maze.cells[cur_cell.row][cur_cell.col])
+        maze.solving_steps.append(cur_cell)
 
         next_cell: PathCell | None = find_next_cell(to_explore)
 
