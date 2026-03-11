@@ -1,11 +1,90 @@
 from random import Random, randint
 
 
+class Cell:
+
+    def __init__(
+        self,
+        x: int,
+        y: int
+    ) -> None:
+
+        self.row: int = y
+        self.col: int = x
+        self.coor: tuple[int, int] = (x, y)
+        self.walls: dict[str, bool] = {
+            "N": True,
+            "S": True,
+            "W": True,
+            "E": True
+        }
+        self.visited: bool = False
+
+
+class Maze:
+
+    def __init__(
+        self,
+        size: tuple[int, int],
+        entry_point: tuple[int, int],
+        exit_point: tuple[int, int]
+    ) -> None:
+
+        self.sz: tuple[int, int] = size
+        self.width: int = self.sz[0]
+        self.height: int = self.sz[1]
+
+        self.entry_point: tuple[int, int] = entry_point
+        self.exit_point: tuple[int, int] = exit_point
+
+        self.cells: list[list[Cell]] = [
+            [
+                Cell(col, row)
+                for col in range(self.width)
+            ]
+            for row in range(self.height)
+        ]
+
+        self.gen_steps: list[Cell] = []
+        self.solving_steps: list[Cell] = []
+
+        self.path: list[tuple]
+        self.path_dirs: str
+
+    def maze_to_hexa(self) -> list[str]:
+
+        walls_values: dict[str, int] = {
+            "N": 1,
+            "E": 2,
+            "S": 4,
+            "W": 8
+        }
+
+        hexa_maze: list[str] = [
+            "" for _ in range(len(self.cells))
+        ]
+
+        for row in range(len(self.cells)):
+
+            for cell in self.cells[row]:
+
+                val: int = 0
+
+                for wall, state in cell.walls.items():
+
+                    if state:
+                        val |= walls_values[wall]
+
+                hexa_maze[row] += ("0123456789ABCDEF")[val]
+
+        return hexa_maze
+
+
 # define the type of a cell
-Cell = tuple[int, int]
+CellCoords = tuple[int, int]
 
 # defines all the directions
-DIRS: list[Cell] = [
+DIRECTIONS: list[CellCoords] = [
         (-1, 0),  # North
         (1, 0),   # South
         (0, -1),  # East
@@ -14,10 +93,10 @@ DIRS: list[Cell] = [
 
 
 def neighbors(
-        cell: Cell,
+        cell: CellCoords,
         size: tuple[int, int],
-        pattern_cells: set[Cell]
-        ) -> list[Cell]:
+        pattern_cells: set[CellCoords]
+        ) -> list[CellCoords]:
     """
     get a cell and return the list of all it's available neighbors
     """
@@ -26,14 +105,14 @@ def neighbors(
     height, width = size
     row, col = cell
 
-    neighbors_list: list[Cell] = []
-    # DIRS likely contains directions such as:
+    neighbors_list: list[CellCoords] = []
+    # DIRECTIONS likely contains directions such as:
     # [(1,0), (-1,0), (0,1), (0,-1)]
-    for dir_row, dir_col in DIRS:
+    for dir_row, dir_col in DIRECTIONS:
 
         # Compute neighbor coordinates
         new_row, new_col = row + dir_row, col + dir_col
-        neighbor: Cell = (new_row, new_col)
+        neighbor: CellCoords = (new_row, new_col)
 
         # Check the neighbor is inside the grid
         if (0 <= new_row < height and 0 <= new_col < width
@@ -46,14 +125,14 @@ def neighbors(
 
 
 def walk(
-        cell: Cell,
-        visited: dict[Cell, int],
-        unvisited: set[Cell],
-        path: list[Cell],
+        cell: CellCoords,
+        visited: dict[CellCoords, int],
+        unvisited: set[CellCoords],
+        path: list[CellCoords],
         size: tuple[int, int],
-        pattern_cells: set[Cell],
+        pattern_cells: set[CellCoords],
         rnd: Random
-        ) -> list[Cell]:
+        ) -> list[CellCoords]:
     """
     Perform a random walk until we reach a visited maze cell
     """
@@ -88,8 +167,10 @@ def walk(
 
 def wilson(
         size: tuple[int, int],
+        entry_point: CellCoords,
+        exit_point: CellCoords,
         seed: int | None
-        ) -> list[str]:
+        ) -> Maze:
     """
     get a size (height, width) and create a maze by using the wilson algorith
     """
@@ -110,15 +191,17 @@ def wilson(
     else:
         raise ValueError("seed must be a positive integer")
 
+    return_maze: Maze = Maze(size, entry_point, exit_point)
+
     # unpack the size tuple in height and width
     height, width = size
 
-    pattern_cells: set[Cell] = create_pattern(size)
+    pattern_cells: set[CellCoords] = create_pattern(size)
 
     # Maze representation:
     # Each cell maps to a set of cells it is connected to
     # Except the cells int the pattern
-    maze: dict[Cell, set[Cell]] = {
+    maze: dict[CellCoords, set[CellCoords]] = {
         (row, col): set()
         for row in range(height)
         for col in range(width)
@@ -126,13 +209,13 @@ def wilson(
     }
 
     # All cells start as unvisited
-    unvisited: set[Cell] = set(maze.keys())
-    unvisited_list: list[Cell] = list(unvisited)
+    unvisited: set[CellCoords] = set(maze.keys())
+    unvisited_list: list[CellCoords] = list(unvisited)
 
     # Pick a random starting cell and mark it visited
     # This becomes the initial tree of the maze
     # uses the seeded random for the choice
-    first: Cell = rnd.choice(list(unvisited))
+    first: CellCoords = rnd.choice(list(unvisited))
     unvisited.remove(first)
     unvisited_list.remove(first)
 
@@ -141,16 +224,16 @@ def wilson(
 
         # Pick a random unvisited cell to start a random walk
         # uses the seeded random for the choice
-        cell: Cell = rnd.choice(unvisited_list)
+        cell: CellCoords = rnd.choice(unvisited_list)
 
         # Path of the current random walk
-        path: list[Cell] = [cell]
+        path: list[CellCoords] = [cell]
 
         # Track visited cells in the current walk
         # value = index of that cell in the path
-        visited: dict[Cell, int] = {cell: 0}
+        visited: dict[CellCoords, int] = {cell: 0}
 
-        # Perform a r0andom walk until we reach a visited maze cell
+        # Perform a random walk until we reach a visited maze cell
         path = walk(cell, visited, unvisited, path, size, pattern_cells, rnd)
 
         # Carve the path into the maze
@@ -169,87 +252,10 @@ def wilson(
                 unvisited_list.remove(current_cell)
 
     # Return the completed maze graph
-    return maze_to_hexa(maze, size, pattern_cells)
+    return return_maze
 
 
-def maze_to_hexa(
-        maze: dict[Cell, set[Cell]],
-        size: tuple[int, int],
-        pattern_cells: set[Cell]
-            ) -> list[str]:
-    """
-    Convert a maze represented as adjacency lists into a hexadecimal grid.
-
-    Each cell is encoded with one hex digit describing which walls are closed:
-        bit 0 (1) -> North wall closed
-        bit 1 (2) -> East wall closed
-        bit 2 (4) -> South wall closed
-        bit 3 (8) -> West wall closed
-
-    Result a list of strings, where each character corresponds to one cell.
-    """
-
-    def cell_to_hexa(
-            cell: Cell,
-            links: set[Cell]
-                ) -> str:
-        """
-        Compute the hexadecimal encoding for a single cell.
-
-        `links` contains all neighboring cells connected to `cell`.
-        If a neighbor in a direction is NOT in links, the wall is closed.
-        """
-
-        # unpack the celltuple in row and col
-        row, col = cell
-
-        # Bitmask value representing closed walls
-        value: int = 0
-
-        # Directions with their corresponding bit values
-        directions = [
-            ((-1, 0), 1),  # North
-            ((0, 1), 2),   # East
-            ((1, 0), 4),   # South
-            ((0, -1), 8),  # West
-        ]
-
-        # Check each direction to see if the wall is closed
-        for (dir_row, dir_col), bit in directions:
-
-            # If the neighbor is not connected, the wall is closed
-            if (row + dir_row, col + dir_col) not in links:
-                value |= bit
-
-        # Convert the bitmask to a hexadecimal character
-        return hex(value)[2:]
-
-    # unpack the size tuple in height and width
-    height, width = size
-
-    # Initialize the resulting maze as a list of strings (one per row)
-    maze_hexa: list[str] = ["" for _ in range(height)]
-
-    # Iterate over every cell in the grid
-    for row in range(height):
-        for col in range(width):
-
-            cell: Cell = (row, col)
-
-            if cell in pattern_cells:
-                maze_hexa[row] += 'f'
-                continue
-
-            # Cells connected to this one (open passages)
-            nexts: set[Cell] = maze[cell]
-
-            # Append the hexadecimal encoding of the cell
-            maze_hexa[row] += cell_to_hexa(cell, nexts)
-
-    return maze_hexa
-
-
-def create_pattern(size: tuple[int, int]) -> set[Cell]:
+def create_pattern(size: tuple[int, int]) -> set[CellCoords]:
     """
     take the size (height, width) of the maze and create
     the 42 patern centered
@@ -267,7 +273,7 @@ def create_pattern(size: tuple[int, int]) -> set[Cell]:
     start_col: int = width // 2 - 3
 
     # create the patern to the up left corner
-    pattern_cells: list[Cell] = [
+    pattern_cells: list[CellCoords] = [
         (0, 0), (1, 0), (2, 0), (2, 1), (2, 2), (3, 2), (4, 2),    # 4
         (0, 4), (0, 5), (0, 6), (1, 6), (2, 6), (2, 5), (2, 4),    # 2
         (3, 4), (4, 4), (4, 5), (4, 6)
@@ -276,7 +282,7 @@ def create_pattern(size: tuple[int, int]) -> set[Cell]:
     # add the padding to the patern
     for index in range(len(pattern_cells)):
 
-        new_cell: Cell = (
+        new_cell: CellCoords = (
                 pattern_cells[index][0] + start_row,
                 pattern_cells[index][1] + start_col
                 )
