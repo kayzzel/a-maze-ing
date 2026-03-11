@@ -29,13 +29,13 @@ def test_visu() -> None:
     maze_display: MazeDisplay = MazeDisplay(
         (600, 600),
         (1600, 1000),
-        generator.initialize_maze(),
         mlx_data
     )
 
     button_menu: ButtonMenu = ButtonMenu(
         mlx_data,
         maze_display,
+        generator,
         (1600, 1000)
     )
 

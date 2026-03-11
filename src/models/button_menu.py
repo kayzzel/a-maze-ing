@@ -1,5 +1,6 @@
 from .button import Button
 from .maze_display import MazeDisplay
+from .maze_generator import MazeGenerator
 from .color_palette import ColorPalette
 from ..utils import clear_img, clear_all, is_in
 from ..services.generation_algo.rec_backtrack import rec_backtrack
@@ -22,11 +23,13 @@ class ButtonMenu:
         self,
         mlx_data: tuple,
         maze_display: MazeDisplay,
+        generator: MazeGenerator,
         win_sz: tuple[int, int]
     ) -> None:
 
         self.mlx, self.mlx_ptr, self.mlx_win = mlx_data
         self.maze: MazeDisplay = maze_display
+        self.generator: MazeGenerator = generator
         self.win_sz: tuple[int, int] = win_sz
 
         self.menus: dict = {
@@ -50,14 +53,16 @@ class ButtonMenu:
             "gen_algo_choice": self.generate_buttons([
                 "wilson",
                 "recursive backtracking",
-                "random"
+                "random",
+                "back to menu"
             ]),
             "path_menu": self.generate_buttons([
                 "a*",
                 "jump point search",
                 "toggle path on/off",
                 "back to menu"
-            ])
+            ]),
+            "skip": self.generate_buttons(["skip"])
         }
 
         self.color_palette: ColorPalette = ColorPalette(
@@ -68,6 +73,7 @@ class ButtonMenu:
         self.create_ok_button()
 
         self.cur_menu: str = "start_menu"
+        self.prev_menu: str = ""
 
         self.button_title: str = "A-Maze-Ing Menu"
 
@@ -194,6 +200,10 @@ class ButtonMenu:
             self.win_sz[0] // len(button_names) - 100
         )
         button_height: int = self.win_sz[1] // 8
+
+        if button_names[0] == "skip" and button_width > 200:
+            button_width = 200
+
         horizontal_offset: int = (
             self.win_sz[0] - len(button_names) * button_width
         ) // (len(button_names) + 1)
@@ -374,8 +384,15 @@ class ButtonMenu:
 
         match button_clicked.name:
 
+            case "skip":
+                self.cur_menu = self.prev_menu
+                self.maze.stop_animation()
+
             case "maze":
                 self.cur_menu = "main"
+                self.maze.set_new_maze(
+                    self.generator.initialize_maze()
+                )
 
             case "generate new maze":
                 self.cur_menu = "gen_algo_choice"
@@ -388,6 +405,7 @@ class ButtonMenu:
 
             case "back to main menu":
                 self.cur_menu = "start_menu"
+                self.maze.generated = False
 
             case "settings":
                 self.cur_menu = "settings"
@@ -412,7 +430,8 @@ class ButtonMenu:
                 self.maze.toggle_path_on_off()
 
             case "recursive backtracking":
-                self.cur_menu = "main"
+                self.cur_menu = "skip"
+                self.prev_menu = "gen_algo_choice"
                 self.maze.set_new_maze(rec_backtrack(
                     self.maze.maze.sz,
                     self.maze.maze.entry_point,
@@ -422,6 +441,8 @@ class ButtonMenu:
                 self.maze.start_animation()
 
             case "a*":
+                self.cur_menu = "skip"
+                self.prev_menu = "path_menu"
                 a_star(self.maze.maze)
                 self.maze.toggle_path_on_off(True)
 
@@ -465,6 +486,9 @@ class ButtonMenu:
             self.cur_menu = "path_menu"
             # start pathfinding animation
 
+        if self.maze.animating:
+            self.cur_menu = "skip"
+
         self.update_button_title()
 
     def update_button_title(self) -> None:
@@ -482,6 +506,9 @@ class ButtonMenu:
 
             case "gen_algo_choice":
                 self.button_title = "Choose a generation algorithm"
+
+            case "skip":
+                self.button_title = ""
 
             case "color_palette":
 

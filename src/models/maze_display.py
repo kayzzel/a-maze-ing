@@ -47,7 +47,6 @@ class MazeDisplay:
         self,
         img_sz: tuple[int, int],
         win_sz: tuple[int, int],
-        maze: Maze,
         mlx_data: tuple
     ) -> None:
 
@@ -63,7 +62,6 @@ class MazeDisplay:
         self.entry_exit_color: tuple = (0, 255, 0, 255)
 
         self.initialize_img()
-        self.set_new_maze(maze)
 
         self.generated: bool = False
         self.animating: bool = False
@@ -81,6 +79,8 @@ class MazeDisplay:
         clear_img(self.buf, self.img_height, self.sz_line)
 
         self.maze: Maze = maze
+
+        self.generated = False
 
         self.cells: list[list[DisplayCell]] = []
 
@@ -154,21 +154,29 @@ class MazeDisplay:
         # clear_img(self.buf, self.img_height, self.sz_line)
         self.frame_count = time.time()
 
+    def stop_animation(self) -> None:
+
+        self.generated = True
+        self.animating = False
+
+        if self.animating_path:
+            self.toggle_path_on_off()
+
+        self.animating_path = False
+        self.change_colors([
+            self.wall_color,
+            self.bg_color,
+            self.path_color,
+            self.entry_exit_color
+        ])
+
     def display_anim_step(self) -> None:
 
         if not self.animating:
             return None
 
         if self.anim_step == len(self.steps):
-            self.generated = True
-            self.animating = False
-            self.animating_path = False
-            self.change_colors([
-                self.wall_color,
-                self.bg_color,
-                self.path_color,
-                self.entry_exit_color
-            ])
+            self.stop_animation()
             return None
 
         if time.time() - self.frame_count < self.frame_delay:
