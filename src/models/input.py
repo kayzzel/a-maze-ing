@@ -57,7 +57,7 @@ class Input:
 
         self.input_title = (
             f"Enter value for {self.cur_setting.name} "
-            "parameter"
+            "parameter:"
         )
         self.title_pos: tuple[int, int] = (
             (self.img_sz[0] - len(self.input_title) * 12) // 2,
