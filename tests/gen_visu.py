@@ -22,7 +22,7 @@ def test_visu() -> None:
         (25, 20),
         entry_point,
         exit_point,
-        True,
+        False,
         None
     )
 
