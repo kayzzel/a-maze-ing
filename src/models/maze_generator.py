@@ -51,6 +51,8 @@ class Maze:
         self.path: list[tuple]
         self.path_dirs: str
 
+        self.pattern_cells: set[tuple[int, int]] = ()
+
     def maze_to_hexa(self) -> list[str]:
 
         walls_values: dict[str, int] = {
@@ -94,11 +96,11 @@ class MazeGenerator:
         from ..services.generation_algo.rec_backtrack import rec_backtrack
         from ..services.solving_algo.a_star import a_star
 
-        self.maze_sz: tuple[int, int] = maze_sz
-        self.entry_point: tuple[int, int] = entry_point
-        self.exit_point: tuple[int, int] = exit_point
-        self.is_perfect: bool = is_perfect
-        self.seed: int | None = seed
+        self.set_maze_sz(maze_sz)
+        self.set_entry_exit_point(entry_point, "entry")
+        self.set_entry_exit_point(exit_point, "exit")
+        self.set_perfect(is_perfect)
+        self.set_seed(seed)
 
         self.gen_algo: Callable[
                     [

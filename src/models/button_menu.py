@@ -487,7 +487,13 @@ class ButtonMenu:
 
             case "back to main menu":
                 self.cur_menu = "start_menu"
+                self.maze.stop_animation()
                 self.maze.generated = False
+                clear_img(
+                    self.maze.buf,
+                    self.maze.img_height,
+                    self.maze.sz_line
+                )
                 self.input.reset()
 
             case "settings":

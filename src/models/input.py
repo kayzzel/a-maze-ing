@@ -1,5 +1,6 @@
 from .button import Button
-from ..utils import put_str_to_img, clear_img
+from ..utils.mlx_display import put_str_to_img
+from ..utils.cleanup import clear_img
 
 
 class Input:

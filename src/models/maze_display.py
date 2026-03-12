@@ -101,6 +101,10 @@ class MazeDisplay:
 
                     bg_color = self.entry_exit_color
 
+                if (row, col) in maze.pattern_cells:
+
+                    bg_color = self.wall_color
+
                 self.cells[row].append(DisplayCell(
                     (col, row),
                     self.cell_sz,
@@ -242,195 +246,6 @@ class MazeDisplay:
         )
 
     """
-    def __init__(
-        self,
-        maze_input: list[str],
-        win_sz: tuple[int, int],
-        maze_sz: tuple[int, int],
-        mlx_data: tuple,
-        colors: list[tuple[int, int, int, int]],
-        path: tuple
-    ) -> None:
-
-        if not check_maze_input(maze_input):
-            raise ValueError("Invalid maze input!")
-
-        self.input: list[str] = maze_input
-        self.width, self.height = maze_sz
-        self.maze_pos: tuple[int, int] = (
-            (win_sz[0] - self.width) // 2,
-            (win_sz[1] - self.height - 200) // 2
-        )
-        self.mlx, self.mlx_ptr, self.mlx_win = mlx_data
-        self.toggle_path: bool = False
-        self.generated: bool = False
-        self.path_displayed: bool = False
-        self.coor: tuple = path[1]
-        self.path: list[tuple] = self.parse_path(path[0])
-        self.img = self.mlx.mlx_new_image(
-            self.mlx_ptr,
-            self.width,
-            self.height
-        )
-        self.buf, self.bpp, self.sz_line, *oth = (
-            self.mlx.mlx_get_data_addr(self.img)
-        )
-        clear_img(self.buf, self.height, self.sz_line)
-        self.cells: list[list] = [
-            [None for _ in range(len(self.input[0]))]
-            for _ in range(len(self.input))
-        ]
-        self.wall_color: tuple = colors[0]
-        self.bg_color: tuple = colors[1]
-        self.path_color: tuple = colors[2]
-        self.entry_exit_color: tuple = colors[3]
-        self.cur_bg_color: tuple = self.bg_color
-        self.animating: bool = False
-        self.anim_row: int = 0
-        self.anim_col: int = 0
-        self.frame_delay: float = 0.0000001
-        self.frame_count: float = 0
-        self.animating_speed: int = len(maze_input) // 10
-        self.rainbow_mode: bool = False
-        self.rainbow_palette: list[
-            list[tuple[int, int, int, int]]
-        ] = RAINBOW_PALETTE
-        self.rainbow_delimiter: int = (
-            len(self.input[0]) // len(self.rainbow_palette)
-        )
-
-
-    """
-    """
-
-    starts the animation for displaying the maze/path
-
-    """
-    """
-    def start_animation(self) -> None:
-
-        # clearing the entire maze
-        # only if the path is not displayed or needs to be
-
-        if not self.toggle_path or self.path_displayed:
-
-            clear_img(self.buf, self.height, self.sz_line)
-            self.toggle_path = False
-            self.path_displayed = False
-            self.generated = False
-            self.cur_bg_color = self.bg_color
-            self.frame_delay = 0.0000001
-            self.animating_speed = len(self.input) // 10
-            self.cells = [
-                [None for _ in range(len(self.input[0]))]
-                for _ in range(len(self.input))
-            ]
-
-        # reinitializing the animation parameters to zero
-
-        self.anim_row = 0
-        self.anim_col = 0
-        self.animating = True
-        self.frame_count = time.monotonic()
-
-    """
-    """
-
-    a single animation step (one cell)
-    called by the global update function each turn
-
-    """
-    """
-
-    def animate_step(self) -> None:
-
-        if not self.animating:
-            return None
-
-        # doesn't draw the cell if not yet arrived at the frame delay
-
-        if time.monotonic() - self.frame_count < self.frame_delay:
-            return None
-
-        # resets the frame count for next cell
-
-        self.frame_count = time.monotonic()
-
-        if self.rainbow_mode and self.generated:
-            self.rainbow_step()
-            return None
-
-        # checks if at the end of the maze
-
-        for _ in range(self.animating_speed):
-
-            if self.anim_row >= len(self.input):
-                self.animating = False
-                self.generated = True
-                return None
-
-            # checks if the path needs to be displayed
-
-            if self.toggle_path and self.path:
-
-                # checks if arrived at the end of the path
-
-                if self.cur_path_pos >= len(self.path):
-                    self.generated = True
-                    self.path_displayed = True
-                    return None
-
-                # gets the cell coordinates from the path
-
-                self.anim_row, self.anim_col = self.path[
-                    self.cur_path_pos
-                ]
-
-                # going to the next cell in the path
-
-                self.cur_path_pos += 1
-
-            # initializing the cell
-
-            if (self.anim_col, self.anim_row) in self.coor:
-
-                self.cells[self.anim_row][self.anim_col] = Cell(
-                    self.input[self.anim_row][self.anim_col],
-                    (self.anim_col, self.anim_row),
-                    self.width // len(self.input[0]),
-                    (self.buf, self.sz_line, self.bpp),
-                    (
-                        self.wall_color,
-                        self.entry_exit_color
-                    )
-                )
-
-            else:
-
-                self.cells[self.anim_row][self.anim_col] = Cell(
-                    self.input[self.anim_row][self.anim_col],
-                    (self.anim_col, self.anim_row),
-                    self.width // len(self.input[0]),
-                    (self.buf, self.sz_line, self.bpp),
-                    (
-                        self.wall_color,
-                        self.cur_bg_color
-                    )
-                )
-
-            self.cells[self.anim_row][self.anim_col].draw()
-
-            # going to the next cell
-
-            if not self.toggle_path:
-
-                self.anim_col += 1
-                if self.anim_col >= len(self.input[0]):
-                    self.anim_col = 0
-                    self.anim_row += 1
-
-    """
-    """
 
     toggles path on and off
     animates the path display if it has not yet been displayed
@@ -497,6 +312,8 @@ class MazeDisplay:
         self.path_color = new_colors[2]
         self.entry_exit_color = new_colors[3]
 
+        clear_img(self.buf, self.img_height, self.sz_line)
+
         # changes the colors of each cell in the maze then redraws it
 
         for row in range(self.maze.height):
@@ -515,6 +332,9 @@ class MazeDisplay:
 
                 elif self.toggle_path and (col, row) in self.maze.path:
                     bg_color = self.path_color
+
+                elif (row, col) in self.maze.pattern_cells:
+                    bg_color = self.wall_color
 
                 cur_cell.wall_color = self.wall_color
                 cur_cell.bg_color = bg_color
@@ -569,6 +389,9 @@ class MazeDisplay:
                 ]:
                     bg_color = 3
 
+                elif (cell.row, cell.col) in self.maze.pattern_cells:
+                    bg_color = 0
+
                 cell.wall_color = self.rainbow_palette[
                     rainbow_palette_index
                 ][0]
@@ -584,62 +407,6 @@ class MazeDisplay:
         self.rainbow_palette.remove(self.rainbow_palette[-1])
         self.rainbow_palette = [last_color] + self.rainbow_palette
 
-    """
-
-    parses the list of letters indicating directions
-    returns a list of cell coordinates in the correct order
-
-    """
-    """
-
-    def parse_path(self, path: str) -> list[tuple]:
-
-        if not path:
-            return []
-
-        # setting the indexes to the entry coordinates
-
-        row, col = self.entry_point
-        path_coor: list[tuple] = [(row, col)]
-
-        # moves the indexes based on the direction (north, south, east, west)
-
-        for p in path:
-
-            match p:
-
-                case "N":
-                    row -= 1
-                case "S":
-                    row += 1
-                case "W":
-                    col -= 1
-                case "E":
-                    col += 1
-                case _:
-                    print("Invalid path provided!")
-                    return []
-
-            # checks if the indexes don't go out of the maze
-
-            if not (
-                0 <= row < self.height
-                and 0 <= col < self.width
-            ):
-                print("Invalid path provided!")
-                return []
-
-            path_coor.append((row, col))
-
-        # checks if following the directions does lead to the exit coordinates
-
-        if (col, row) != self.exit_point:
-            print("Invalid path provided!")
-            return []
-
-        return path_coor
-
-    """
     """
 
     clears the maze image then destroys it (cleanup)
