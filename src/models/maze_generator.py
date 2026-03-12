@@ -1,5 +1,5 @@
 # need to move algorithms in the same directory
-from typing import Callable as callable
+from typing import Callable
 
 
 class Cell:
@@ -99,8 +99,17 @@ class MazeGenerator:
         self.exit_point: tuple[int, int] = exit_point
         self.is_perfect: bool = is_perfect
         self.seed: int | None = seed
-        self.gen_algo: callable = rec_backtrack
-        self.solve_algo: callable = a_star
+
+        self.gen_algo: Callable[
+                    [
+                        tuple[int, int],
+                        tuple[int, int],
+                        tuple[int, int],
+                        int | None
+                    ], Maze
+                ] = rec_backtrack
+
+        self.solve_algo: Callable[[Maze], str | None] = a_star
 
     def initialize_maze(self) -> Maze:
 
@@ -140,6 +149,6 @@ class MazeGenerator:
 
         return None
 
-    def calculate_path(self, maze: Maze) -> str:
+    def calculate_path(self, maze: Maze) -> str | None:
 
         return self.solve_algo(maze)
