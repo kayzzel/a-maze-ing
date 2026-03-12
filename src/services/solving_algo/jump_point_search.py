@@ -1,29 +1,4 @@
-# steps
-#
-# Create a new array with the same dimensions as the maze filled with None
-# to have the cell already explored and its direction
-# 0 -> still; 1 -> North; 2 -> South; 3 -> West; 4 -> East
-#
-# Start from the start coordinates
-# and set it to True
-# create new pathfinder for each way possible
-#
-# calculate the cost to go to the end (heuristic calcul)
-# and add the distance from the start
-#
-# With the one with the less cost go in the same direction while you can
-# (open wall in front and cell not explored)
-# and create a new pathfinder at each wall that is open
-# set all the cells that have already been explored at their direction
-# in the new array
-#
-# Repeat the 2 previous steps until the end is found
-#
-# When the end is found go back to the start using the directions in the array
-# for each direction add the letter for the opposite direction
-# Reverse the string containing the direction and return it
-
-from src.services.generation_algo.wilson import CellCoords
+from src.utils.generation_utils import CellCoords
 
 
 class Cell:
