@@ -121,7 +121,9 @@ def rec_backtrack(
 
     maze: Maze = Maze(maze_sz, entry_point, exit_point)
 
-    pattern_cells: set[tuple] = create_pattern(maze.sz[::-1])
+    pattern_cells: set[tuple] = create_pattern(
+            maze.sz[::-1], maze.entry_point, maze.exit_point
+        )
 
     backtracking_carving(
         maze.cells[maze.entry_point[1]][maze.entry_point[0]],

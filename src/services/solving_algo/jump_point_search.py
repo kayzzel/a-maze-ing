@@ -23,19 +23,103 @@
 # for each direction add the letter for the opposite direction
 # Reverse the string containing the direction and return it
 
-from src.services.generation_algo.wilson import Cell
+from src.services.generation_algo.wilson import Cell as CellCoords
+
+
+class Cell:
+
+    def __init__(
+        self,
+        x: int,
+        y: int
+    ) -> None:
+
+        self.row: int = y
+        self.col: int = x
+        self.coor: tuple[int, int] = (x, y)
+        self.walls: dict[str, bool] = {
+            "N": True,
+            "S": True,
+            "W": True,
+            "E": True
+        }
+        self.visited: bool = False
+
+
+class Maze:
+
+    def __init__(
+        self,
+        size: tuple[int, int],
+        entry_point: tuple[int, int],
+        exit_point: tuple[int, int]
+    ) -> None:
+
+        self.sz: tuple[int, int] = size
+        self.width: int = self.sz[0]
+        self.height: int = self.sz[1]
+
+        self.entry_point: tuple[int, int] = entry_point
+        self.exit_point: tuple[int, int] = exit_point
+
+        self.cells: list[list[Cell]] = [
+            [
+                Cell(col, row)
+                for col in range(self.width)
+            ]
+            for row in range(self.height)
+        ]
+
+        self.gen_steps: list[Cell] = []
+        self.solving_steps: list[Cell] = []
+
+        self.path: list[tuple]
+        self.path_dirs: str
+
+    def maze_to_hexa(self) -> list[str]:
+
+        walls_values: dict[str, int] = {
+            "N": 1,
+            "E": 2,
+            "S": 4,
+            "W": 8
+        }
+
+        hexa_maze: list[str] = [
+            "" for _ in range(len(self.cells))
+        ]
+
+        for row in range(len(self.cells)):
+
+            for cell in self.cells[row]:
+
+                val: int = 0
+
+                for wall, state in cell.walls.items():
+
+                    if state:
+                        val |= walls_values[wall]
+
+                hexa_maze[row] += ("0123456789ABCDEF")[val]
+
+        return hexa_maze
 
 
 def get_path(
+        maze: Maze,
         routes: list[list[int]],
-        start: Cell,
-        end: Cell
         ) -> str:
+
+    start: CellCoords = maze.entry_point
+    end: CellCoords = maze.exit_point
+
+    maze.path = []
+
     # Initialize the reverse path from the start to the end
     path: str = ""
 
     # Start to create the path from the end to the start with the directions
-    cell: Cell = end[::-1]
+    cell: CellCoords = end[::-1]
 
     # Loop from the end to the start and add the direction of each cell
     # The next cell is the cell invert of the direction inside the routes
@@ -54,55 +138,61 @@ def get_path(
             path += "E"
         else:
             raise Exception("Error while parsing the Maze")
+        maze.path.append(cell[::-1])
 
+    maze.path = maze.path[-2::-1]
+    maze.path_dirs = path[::-1]
     # return the reverse path into the right order
     return path[::-1]
 
 
 def create_path_finders(
-        maze: list[str],
-        cell: Cell,
-        path_finders: set[Cell],
+        maze: Maze,
+        cell: CellCoords,
+        path_finders: set[CellCoords],
         routes: list[list[int]],
-        end: Cell
         ) -> bool:
+    end: CellCoords = maze.exit_point
+
     # Unpacking the cell into row and col to have the coordinates
     row, col = cell
 
     # Converting the value of the cell in the maze in bin to have the walls
-    bin_val: str = bin(int(maze[row][col], 16))[2:]
-    if not len(bin_val) == 4:
-        bin_val = "0" * (4 - len(bin_val)) + bin_val
+    walls: dict[str, bool] = maze.cells[row][col].walls
 
     # Create the path finders to all the possible directions
     # Add the direction to all the cells where the path finders are
     # Returns True if the path_finder corresponds to the end
 
     # North
-    if bin_val[3] == "0" and routes[row - 1][col] == -1:
+    if not walls["N"] and routes[row - 1][col] == -1:
         path_finders.add((row - 1, col))
         routes[row - 1][col] = 1
+        maze.solving_steps.append(maze.cells[row - 1][col])
         if (col, row - 1) == end:
             return True
 
     # South
-    if bin_val[1] == "0" and routes[row + 1][col] == -1:
+    if not walls["S"] and routes[row + 1][col] == -1:
         path_finders.add((row + 1, col))
         routes[row + 1][col] = 2
+        maze.solving_steps.append(maze.cells[row + 1][col])
         if (col, row + 1) == end:
             return True
 
     # West
-    if bin_val[0] == "0" and routes[row][col - 1] == -1:
+    if not walls["W"] and routes[row][col - 1] == -1:
         path_finders.add((row, col - 1))
         routes[row][col - 1] = 3
+        maze.solving_steps.append(maze.cells[row][col - 1])
         if (col - 1, row) == end:
             return True
 
     # East
-    if bin_val[2] == "0" and routes[row][col + 1] == -1:
+    if not walls["E"] and routes[row][col + 1] == -1:
         path_finders.add((row, col + 1))
         routes[row][col + 1] = 4
+        maze.solving_steps.append(maze.cells[row][col + 1])
         if (col + 1, row) == end:
             return True
 
@@ -112,10 +202,10 @@ def create_path_finders(
 
 
 def get_path_finder(
-        path_finders: list[Cell],
-        start: Cell,
-        end: Cell
-        ) -> Cell:
+        path_finders: list[CellCoords],
+        start: CellCoords,
+        end: CellCoords
+        ) -> CellCoords:
     # unpack the start and the exit into their coordinates
     sx, sy = start
     ex, ey = end
@@ -149,11 +239,10 @@ def get_path_finder(
 
 
 def walk(
-        path_finder: Cell,
-        maze: list[str],
-        path_finders: set[Cell],
+        path_finder: CellCoords,
+        maze: Maze,
+        path_finders: set[CellCoords],
         routes: list[list[int]],
-        end: Cell
         ) -> bool:
 
     # loop while there still are path finders in the maze
@@ -183,7 +272,7 @@ def walk(
 
         # Create new path_finder
         # if one of the new path_finder is on the exit return True
-        if create_path_finders(maze, path_finder, path_finders, routes, end):
+        if create_path_finders(maze, path_finder, path_finders, routes):
             return True
 
         # Test if there is a new path_finder in the same direction that
@@ -202,18 +291,21 @@ def walk(
 
 
 def jump_point_search(
-        maze: list[str],
-        start: Cell,
-        end: Cell,
+        maze: Maze
         ) -> str | None:
+
+    start: CellCoords = maze.entry_point
+    end: CellCoords = maze.exit_point
+
+    maze.solving_steps = []
 
     # Returns an empty path if the entry and exit are the same cell
     if start == end:
         return ""
 
     # Get the width and the height from the given maze
-    height: int = len(maze)
-    width: int = len(maze[0])
+    height: int = maze.height
+    width: int = maze.width
 
     # Create an array that will contain the directions the path finders took
     routes: list[list[int]] = [
@@ -221,7 +313,7 @@ def jump_point_search(
         ]
 
     # Create a list af all the path finders
-    path_finders: set[Cell] = {(start[1], start[0])}
+    path_finders: set[CellCoords] = {(start[1], start[0])}
 
     # Create all the possible path finders from the start
     routes[start[1]][start[0]] = 0
@@ -233,12 +325,12 @@ def jump_point_search(
         # it finds the end, then return True if it finds it else False
         if walk(
                 get_path_finder(list(path_finders), start, end),
-                maze, path_finders,  routes, end
+                maze, path_finders,  routes
                 ):
             # take the array with the direction and
             # Go from the exit to the start using the inverted direction
             # Then return the path that it used to make it
-            return get_path(routes, start, end)
+            return get_path(maze, routes)
 
     # If no path is found it returns None
     return None
