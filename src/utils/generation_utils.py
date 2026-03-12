@@ -1,3 +1,6 @@
+from random import Random, randint
+
+
 # define the type of a cell
 CellCoords = tuple[int, int]
 
@@ -46,3 +49,7 @@ def create_pattern(
 
     #  return the patern so that it could be integrated in the maze
     return set(pattern_cells)
+
+
+def maze_to_imperfect(maze: Maze) -> None:
+    pass
