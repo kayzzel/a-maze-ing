@@ -4,7 +4,7 @@ from .mlx_display import render
 KEYS: dict[int, int | str] = {
     48 + index: index
     for index in range(10)
-} | {44: ",", 32: " ", 65293: "enter"}
+} | {44: ",", 32: " ", 65293: "enter", 97: "a"}
 
 
 """
@@ -69,15 +69,16 @@ def handle_keyboard_input(
 
     button_menu, mlx_data = param
 
-    if not button_menu.taking_input:
-        return None
-
-    if keycode not in KEYS.keys():
+    if not button_menu.input.taking_input:
         return None
 
     if KEYS[keycode] == "enter":
         button_menu.handle_settings()
         return None
 
-    button_menu.user_input.append(KEYS[keycode])
-    # print(f"key: {keycode} - key type: {type(keycode).__name__}\n")
+    if KEYS[keycode] == "del":
+        button_menu.input.user_input.pop()
+        return None
+
+    button_menu.input.user_input.append(KEYS[keycode])
+    print(f"key: {keycode} - key type: {type(keycode).__name__}\n")
