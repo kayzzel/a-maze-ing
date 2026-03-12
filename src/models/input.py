@@ -42,6 +42,8 @@ class Input:
             self.img
         )
 
+        clear_img(self.buf, self.img_sz[1], self.sz_line)
+
     def update(self) -> None:
 
         if not (
@@ -50,7 +52,9 @@ class Input:
         ):
             return None
 
+        self.mlx.mlx_clear_window(self.mlx_ptr, self.mlx_win)
         clear_img(self.buf, self.img_sz[1], self.sz_line)
+
         self.input_title = (
             f"Enter value for {self.cur_setting.name} "
             "parameter"
@@ -75,7 +79,7 @@ class Input:
             ])
             self.input_pos: tuple[int, int] = (
                 (self.img_sz[0] - len(self.input_string) * 12) // 2,
-                self.img_sz[1] - 15
+                self.img_sz[1] - 25
             )
             put_str_to_img(
                 self.input_string,

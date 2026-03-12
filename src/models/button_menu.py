@@ -99,7 +99,6 @@ class ButtonMenu:
     def update_buttons(self) -> None:
 
         self.ok_button.update()
-        self.input.update()
 
         for menu in self.menus.values():
 
@@ -108,8 +107,10 @@ class ButtonMenu:
                 button.update()
 
         if self.cur_menu == "skip" and not self.maze.animating:
-            self.menus["skip"][0].needs_refresh = True
+
             self.change_menu(self.menus["skip"][0])
+            self.menus["skip"][0].needs_refresh = True
+            self.display_button_menu()
 
     def needs_refresh(self) -> bool:
 
@@ -130,8 +131,7 @@ class ButtonMenu:
 
         self.mlx.mlx_clear_window(self.mlx_ptr, self.mlx_win)
 
-        if not self.input.taking_input:
-            self.display_button_title()
+        self.display_button_title()
 
         if self.cur_menu == "color_palette":
 
@@ -153,6 +153,7 @@ class ButtonMenu:
 
         if self.input.taking_input:
 
+            self.input.update()
             self.input.display_img_on_window()
             return None
 
@@ -174,14 +175,16 @@ class ButtonMenu:
 
     def display_button_title(self) -> None:
 
-        self.mlx.mlx_string_put(
-            self.mlx_ptr,
-            self.mlx_win,
-            (self.win_sz[0] - (len(self.button_title) * 10)) // 2,
-            self.maze.img_pos[1] + self.maze.img_height + 25,
-            0xFFFFFF,
-            self.button_title
-        )
+        if self.button_title:
+
+            self.mlx.mlx_string_put(
+                self.mlx_ptr,
+                self.mlx_win,
+                (self.win_sz[0] - (len(self.button_title) * 10)) // 2,
+                self.maze.img_pos[1] + self.maze.img_height + 25,
+                0xFFFFFF,
+                self.button_title
+            )
 
     def create_ok_button(self) -> None:
 
@@ -484,8 +487,7 @@ class ButtonMenu:
             case "back to main menu":
                 self.cur_menu = "start_menu"
                 self.maze.generated = False
-                self.input.taking_input = False
-                self.input.cur_setting = None
+                self.input.reset()
 
             case "settings":
                 self.cur_menu = "settings"
@@ -526,8 +528,8 @@ class ButtonMenu:
                 self.maze.start_animation()
 
             case "a*":
-                self.prev_menu = "path_menu"
                 self.cur_menu = "skip"
+                self.prev_menu = "path_menu"
                 if self.maze.toggle_path:
                     self.maze.toggle_path_on_off()
                 self.generator.solve_algo = a_star
@@ -711,6 +713,9 @@ class ButtonMenu:
             return None
 
         self.input.reset()
+        self.cur_menu = "settings"
+        self.menus["settings"][0].needs_refresh = True
+        self.display_button_menu()
 
     def clear_all_buttons(self) -> None:
 
