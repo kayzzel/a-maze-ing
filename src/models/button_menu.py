@@ -5,6 +5,7 @@ from .color_palette import ColorPalette
 from ..utils import clear_img, clear_all, is_in
 from ..services.generation_algo.rec_backtrack import rec_backtrack
 from ..services.solving_algo.a_star import a_star
+from ..services.solving_algo.jump_point_search import jump_point_search
 from enum import Enum
 import random
 
@@ -467,6 +468,14 @@ class ButtonMenu:
                     self.maze.toggle_path_on_off()
                 self.generator.solve_algo = a_star
                 self.generator.solve_algo(self.maze.maze)
+                self.maze.toggle_path_on_off(True)
+
+            case "jump point search":
+                self.cur_menu = "skip"
+                self.prev_menu = "path_menu"
+                if self.maze.toggle_path:
+                    self.maze.toggle_path_on_off()
+                jump_point_search(self.maze.maze)
                 self.maze.toggle_path_on_off(True)
 
             case "wilson":

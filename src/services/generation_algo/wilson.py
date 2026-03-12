@@ -113,7 +113,7 @@ def wilson(
     # unpack the size tuple in height and width
     height, width = size
 
-    pattern_cells: set[Cell] = create_pattern(size)
+    pattern_cells: set[Cell] = create_pattern(size, start, end)
 
     # Maze representation:
     # Each cell maps to a set of cells it is connected to
@@ -222,7 +222,7 @@ def maze_to_hexa(
                 value |= bit
 
         # Convert the bitmask to a hexadecimal character
-        return hex(value)[2:]
+        return "0123456789ABCDEF"[value]
 
     # unpack the size tuple in height and width
     height, width = size
@@ -237,7 +237,7 @@ def maze_to_hexa(
             cell: Cell = (row, col)
 
             if cell in pattern_cells:
-                maze_hexa[row] += 'f'
+                maze_hexa[row] += 'F'
                 continue
 
             # Cells connected to this one (open passages)
@@ -249,7 +249,11 @@ def maze_to_hexa(
     return maze_hexa
 
 
-def create_pattern(size: tuple[int, int]) -> set[Cell]:
+def create_pattern(
+        size: tuple[int, int],
+        start: Cell,
+        end: Cell
+        ) -> set[Cell]:
     """
     take the size (height, width) of the maze and create
     the 42 patern centered
@@ -283,4 +287,9 @@ def create_pattern(size: tuple[int, int]) -> set[Cell]:
 
         pattern_cells[index] = new_cell
 
+    # If the start or the end is in the patern it return an empty set
+    if start[::-1] in pattern_cells or end[::-1] in pattern_cells:
+        return set()
+
+    #  return the patern so that it could be integrated in the maze
     return set(pattern_cells)
