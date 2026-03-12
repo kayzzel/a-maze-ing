@@ -1,8 +1,7 @@
-from ..utils import img_put_px
-from .maze_generator import Cell
+from ..utils.mlx_display import img_put_px
+
 
 class DisplayCell:
-
 
     """
 

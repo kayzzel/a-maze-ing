@@ -3,7 +3,8 @@ from .input import Input
 from .maze_display import MazeDisplay
 from .maze_generator import MazeGenerator
 from .color_palette import ColorPalette
-from ..utils import clear_img, clear_all, is_in
+from ..utils.cleanup import clear_img, clear_all
+from ..utils.checks import is_in
 from ..services.generation_algo.rec_backtrack import rec_backtrack
 from ..services.generation_algo.wilson import wilson
 from ..services.solving_algo.a_star import a_star
@@ -35,7 +36,7 @@ class ButtonMenu:
         self.generator: MazeGenerator = generator
         self.win_sz: tuple[int, int] = win_sz
 
-        self.menus: dict = {
+        self.menus: dict[str, list[Button]] = {
             "start_menu": self.generate_buttons([
                 "maze",
                 "settings",

@@ -1,84 +1,5 @@
-# from ...models import Maze
+from ...models import Maze, Cell
 import random
-
-
-class Cell:
-
-    def __init__(
-        self,
-        x: int,
-        y: int
-    ) -> None:
-
-        self.row: int = y
-        self.col: int = x
-        self.coor: tuple[int, int] = (x, y)
-        self.walls: dict[str, bool] = {
-            "N": True,
-            "S": True,
-            "W": True,
-            "E": True
-        }
-        self.visited: bool = False
-
-
-class Maze:
-
-    def __init__(
-        self,
-        size: tuple[int, int],
-        entry_point: tuple[int, int],
-        exit_point: tuple[int, int]
-    ) -> None:
-
-        self.sz: tuple[int, int] = size
-        self.width: int = self.sz[0]
-        self.height: int = self.sz[1]
-
-        self.entry_point: tuple[int, int] = entry_point
-        self.exit_point: tuple[int, int] = exit_point
-
-        self.cells: list[list[Cell]] = [
-            [
-                Cell(col, row)
-                for col in range(self.width)
-            ]
-            for row in range(self.height)
-        ]
-
-        self.gen_steps: list[Cell] = []
-        self.solving_steps: list[Cell] = []
-
-        self.path: list[tuple]
-        self.path_dirs: str
-
-    def maze_to_hexa(self) -> list[str]:
-
-        walls_values: dict[str, int] = {
-            "N": 1,
-            "E": 2,
-            "S": 4,
-            "W": 8
-        }
-
-        hexa_maze: list[str] = [
-            "" for _ in range(len(self.cells))
-        ]
-
-        for row in range(len(self.cells)):
-
-            for cell in self.cells[row]:
-
-                val: int = 0
-
-                for wall, state in cell.walls.items():
-
-                    if state:
-                        val |= walls_values[wall]
-
-                hexa_maze[row] += ("0123456789ABCDEF")[val]
-
-        return hexa_maze
 
 
 WALL_DIRS: dict[str, tuple[int, int]] = {
@@ -163,7 +84,9 @@ def a_star(
         and len(explored) < maze.height * maze.width
     ):
 
-        maze.solving_steps.append(cur_cell)
+        cell: Cell = Cell(cur_cell.col, cur_cell.row)
+        cell.walls = cur_cell.walls
+        maze.solving_steps.append(cell)
 
         next_cell: PathCell | None = find_next_cell(to_explore)
 

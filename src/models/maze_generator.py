@@ -1,8 +1,5 @@
 # need to move algorithms in the same directory
-from ..services.generation_algo.rec_backtrack import rec_backtrack
-from ..services.solving_algo.a_star import a_star
-from ..utils.generation_utils import maze_to_imperfect
-from typing import Callable as callable
+from typing import Callable
 
 
 class Cell:
@@ -37,7 +34,6 @@ class Maze:
         self.sz: tuple[int, int] = size
         self.width: int = self.sz[0]
         self.height: int = self.sz[1]
-
         self.entry_point: tuple[int, int] = entry_point
         self.exit_point: tuple[int, int] = exit_point
 
@@ -95,13 +91,25 @@ class MazeGenerator:
         seed: int | None
     ) -> None:
 
-        self.set_maze_sz(maze_sz)
-        self.set_entry_exit_point(entry_point, "entry")
-        self.set_entry_exit_point(exit_point, "exit")
-        self.set_perfect(is_perfect)
-        self.set_seed(seed)
-        self.gen_algo: callable = rec_backtrack
-        self.solve_algo: callable = a_star
+        from ..services.generation_algo.rec_backtrack import rec_backtrack
+        from ..services.solving_algo.a_star import a_star
+
+        self.maze_sz: tuple[int, int] = maze_sz
+        self.entry_point: tuple[int, int] = entry_point
+        self.exit_point: tuple[int, int] = exit_point
+        self.is_perfect: bool = is_perfect
+        self.seed: int | None = seed
+
+        self.gen_algo: Callable[
+                    [
+                        tuple[int, int],
+                        tuple[int, int],
+                        tuple[int, int],
+                        int | None
+                    ], Maze
+                ] = rec_backtrack
+
+        self.solve_algo: Callable[[Maze], str | None] = a_star
 
     def set_maze_sz(self, sz: tuple[int, int]) -> None:
 
@@ -176,6 +184,8 @@ class MazeGenerator:
 
     def generate_maze(self) -> Maze:
 
+        from ..utils.generation_utils import maze_to_imperfect
+
         maze: Maze = self.gen_algo(
             self.__maze_sz,
             self.__entry_point,
@@ -206,6 +216,6 @@ class MazeGenerator:
 
         return None
 
-    def calculate_path(self, maze: Maze) -> str:
+    def calculate_path(self, maze: Maze) -> str | None:
 
         return self.solve_algo(maze)

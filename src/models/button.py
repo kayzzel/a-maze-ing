@@ -1,5 +1,6 @@
 import time
-from ..utils import clear_img, img_put_px, draw_borders, put_str_to_img
+from ..utils.cleanup import clear_img
+from ..utils.mlx_display import img_put_px, draw_borders, put_str_to_img
 
 # the width and depth of the button border
 
@@ -170,22 +171,6 @@ class Button:
             img_data[1],
             img_data[2],
             (255, 255, 255, 255)
-        )
-
-    def display_name(self, mlx, mlx_ptr, mlx_win) -> None:
-
-        name_offset: int = (
-            0 if not self.is_pressed
-            else 2
-        )
-
-        mlx.mlx_string_put(
-            mlx_ptr,
-            mlx_win,
-            self.name_pos[0] - name_offset,
-            self.name_pos[1] - name_offset,
-            0xFFFFFF,
-            self.name
         )
 
     """

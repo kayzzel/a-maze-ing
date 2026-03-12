@@ -1,7 +1,7 @@
 from .display_cell import DisplayCell
-from ..utils import clear_img
-from .color_palette import RAINBOW_PALETTE
-from .maze_generator import MazeGenerator, Maze
+from ..utils.cleanup import clear_img
+from .color_palette import RAINBOW_PALETTE, Colors
+from .maze_generator import Maze
 import time
 
 
@@ -71,7 +71,7 @@ class MazeDisplay:
         self.frame_delay: float = 0
         self.toggle_path: bool = False
 
-        self.rainbow_palette: list[list[tuple]] = RAINBOW_PALETTE
+        self.rainbow_palette: list[Colors] = RAINBOW_PALETTE
         self.rainbow_mode: bool = False
 
     def set_new_maze(self, maze: Maze) -> None:
@@ -580,7 +580,7 @@ class MazeDisplay:
 
                 cur_color_index += 1
 
-        last_color: list[tuple[int, int, int, int]] = self.rainbow_palette[-1]
+        last_color: Colors = self.rainbow_palette[-1]
         self.rainbow_palette.remove(self.rainbow_palette[-1])
         self.rainbow_palette = [last_color] + self.rainbow_palette
 

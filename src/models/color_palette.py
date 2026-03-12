@@ -1,83 +1,92 @@
 from enum import Enum
-from ..utils import img_put_px, clear_img, draw_borders
+from ..utils.cleanup import clear_img
+from ..utils.mlx_display import img_put_px, draw_borders
+
+
+Color_type = tuple[
+        tuple[int, int, int, int],
+        tuple[int, int, int, int],
+        tuple[int, int, int, int],
+        tuple[int, int, int, int],
+        ]
+
+
+class Colors(Color_type, Enum):
+
+    RED = (
+        (79, 20, 14, 255),
+        (115, 29, 20, 255),
+        (176, 50, 33, 255),
+        (212, 88, 76, 255)
+    )
+    ORANGE = (
+        (102, 49, 16, 255),
+        (138, 64, 22, 255),
+        (181, 81, 24, 255),
+        (227, 126, 70, 255)
+    )
+    YELLOW = (
+        (94, 74, 10, 255),
+        (130, 104, 18, 255),
+        (171, 136, 21, 255),
+        (214, 181, 71, 255)
+    )
+    GREEN_1 = (
+        (38, 56, 10, 255),
+        (68, 99, 19, 255),
+        (104, 145, 28, 255),
+        (163, 201, 85, 255)
+    )
+    GREEN_2 = (
+        (12, 69, 21, 255),
+        (20, 122, 35, 255),
+        (28, 173, 51, 255),
+        (74, 224, 98, 255)
+    )
+    BLUE_1 = (
+        (15, 84, 78, 255),
+        (23, 128, 119, 255),
+        (33, 173, 163, 255),
+        (76, 224, 213, 255)
+    )
+    BLUE_2 = (
+        (15, 51, 84, 255),
+        (25, 80, 128, 255),
+        (38, 114, 181, 255),
+        (91, 166, 227, 255)
+    )
+    VIOLET = (
+        (40, 12, 74, 255),
+        (73, 21, 122, 255),
+        (105, 31, 173, 255),
+        (174, 128, 217, 255)
+    )
+    PINK = (
+        (99, 21, 56, 255),
+        (148, 33, 83, 255),
+        (184, 50, 108, 255),
+        (222, 100, 152, 255)
+    )
+    GREY = (
+        (0, 0, 0, 255),
+        (61, 58, 58, 255),
+        (138, 129, 129, 255),
+        (255, 255, 255, 255)
+    )
 
 
 class Color:
 
     def __init__(
         self,
-        colors: list[tuple[int, int, int, int]]
+        colors: Colors
     ) -> None:
 
         self.dark: tuple = colors[0]
         self.medium: tuple = colors[1]
         self.bright: tuple = colors[2]
         self.light: tuple = colors[3]
-        self.nuances: list[tuple] = colors
-
-
-class Colors(list[tuple[int, int, int, int]], Enum):
-
-    RED = [
-        (79, 20, 14, 255),
-        (115, 29, 20, 255),
-        (176, 50, 33, 255),
-        (212, 88, 76, 255)
-    ]
-    ORANGE = [
-        (102, 49, 16, 255),
-        (138, 64, 22, 255),
-        (181, 81, 24, 255),
-        (227, 126, 70, 255)
-    ]
-    YELLOW = [
-        (94, 74, 10, 255),
-        (130, 104, 18, 255),
-        (171, 136, 21, 255),
-        (214, 181, 71, 255)
-    ]
-    GREEN_1 = [
-        (38, 56, 10, 255),
-        (68, 99, 19, 255),
-        (104, 145, 28, 255),
-        (163, 201, 85, 255)
-    ]
-    GREEN_2 = [
-        (12, 69, 21, 255),
-        (20, 122, 35, 255),
-        (28, 173, 51, 255),
-        (74, 224, 98, 255)
-    ],
-    BLUE_1 = [
-        (15, 84, 78, 255),
-        (23, 128, 119, 255),
-        (33, 173, 163, 255),
-        (76, 224, 213, 255)
-    ]
-    BLUE_2 = [
-        (15, 51, 84, 255),
-        (25, 80, 128, 255),
-        (38, 114, 181, 255),
-        (91, 166, 227, 255)
-    ]
-    VIOLET = [
-        (40, 12, 74, 255),
-        (73, 21, 122, 255),
-        (105, 31, 173, 255),
-        (174, 128, 217, 255)
-    ]
-    PINK = [
-        (99, 21, 56, 255),
-        (148, 33, 83, 255),
-        (184, 50, 108, 255),
-        (222, 100, 152, 255)
-    ]
-    GREY = [
-        (0, 0, 0, 255),
-        (61, 58, 58, 255),
-        (138, 129, 129, 255),
-        (255, 255, 255, 255)
-    ]
+        self.nuances: Colors = colors
 
 
 class ColorPalette:
@@ -217,7 +226,7 @@ class ColorPalette:
         self.mlx.mlx_destroy_image(self.mlx_ptr, self.img)
 
 
-RAINBOW_PALETTE: list[list[tuple]] = [
+RAINBOW_PALETTE: list[Colors] = [
     Colors.RED,
     Colors.ORANGE,
     Colors.YELLOW,
