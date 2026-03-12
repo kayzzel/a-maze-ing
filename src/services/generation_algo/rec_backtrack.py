@@ -108,6 +108,8 @@ def rec_backtrack(
 
     rnd: Random
 
+    sys.setrecursionlimit(8000)
+
     if seed is None:
 
         rnd = Random(randint(0, 10000000000))
