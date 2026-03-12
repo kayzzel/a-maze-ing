@@ -462,6 +462,14 @@ class ButtonMenu:
                 self.maze.set_new_maze(self.generator.generate_maze())
                 self.maze.start_animation()
 
+            case "wilson":
+                self.cur_menu = "skip"
+                self.prev_menu = "gen_algo_choice"
+                self.maze.toggle_path = False
+                self.generator.gen_algo = wilson
+                self.maze.set_new_maze(self.generator.generate_maze())
+                self.maze.start_animation()
+
             case "a*":
                 self.prev_menu = "path_menu"
                 self.cur_menu = "skip"
@@ -478,16 +486,6 @@ class ButtonMenu:
                     self.maze.toggle_path_on_off()
                 jump_point_search(self.maze.maze)
                 self.maze.toggle_path_on_off(True)
-
-            case "wilson":
-                self.cur_menu = "main"
-                self.maze.set_maze(wilson(
-                    self.maze.maze.sz,
-                    self.maze.maze.entry_point,
-                    self.maze.maze.exit_point,
-                    None
-                ))
-                self.maze.start_animation()
 
             case "random":
                 self.cur_menu = "main"

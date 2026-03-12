@@ -234,7 +234,9 @@ def wilson(
     width: int = size[0]
     height: int = size[1]
 
-    pattern_cells: set[Cell] = create_pattern(size, start, end)
+    pattern_cells: set[CellCoords] = create_pattern(
+            size, entry_point, exit_point
+        )
 
     # All cells start as unvisited
     unvisited: set[CellCoords] = {
@@ -276,7 +278,11 @@ def wilson(
     return maze
 
 
-def create_pattern(size: tuple[int, int]) -> set[CellCoords]:
+def create_pattern(
+        size: tuple[int, int],
+        start: CellCoords,
+        end: CellCoords
+        ) -> set[CellCoords]:
     """
     take the size (height, width) of the maze and create
     the 42 patern centered

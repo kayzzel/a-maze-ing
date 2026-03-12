@@ -23,7 +23,7 @@
 # for each direction add the letter for the opposite direction
 # Reverse the string containing the direction and return it
 
-from src.services.generation_algo.wilson import Cell as CellCoords
+from src.services.generation_algo.wilson import CellCoords
 
 
 class Cell:
