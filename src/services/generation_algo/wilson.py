@@ -1,85 +1,6 @@
 from random import Random, randint
-from src.utils.generation_utils import CellCoords, create_pattern
-
-
-class Cell:
-
-    def __init__(
-        self,
-        x: int,
-        y: int
-    ) -> None:
-
-        self.row: int = y
-        self.col: int = x
-        self.coor: tuple[int, int] = (x, y)
-        self.walls: dict[str, bool] = {
-            "N": True,
-            "S": True,
-            "W": True,
-            "E": True
-        }
-        self.visited: bool = False
-
-
-class Maze:
-
-    def __init__(
-        self,
-        size: tuple[int, int],
-        entry_point: tuple[int, int],
-        exit_point: tuple[int, int]
-    ) -> None:
-
-        self.sz: tuple[int, int] = size
-        self.width: int = self.sz[0]
-        self.height: int = self.sz[1]
-
-        self.entry_point: tuple[int, int] = entry_point
-        self.exit_point: tuple[int, int] = exit_point
-
-        self.cells: list[list[Cell]] = [
-            [
-                Cell(col, row)
-                for col in range(self.width)
-            ]
-            for row in range(self.height)
-        ]
-
-        self.gen_steps: list[Cell] = []
-        self.solving_steps: list[Cell] = []
-
-        self.path: list[tuple]
-        self.path_dirs: str
-
-    def maze_to_hexa(self) -> list[str]:
-
-        walls_values: dict[str, int] = {
-            "N": 1,
-            "E": 2,
-            "S": 4,
-            "W": 8
-        }
-
-        hexa_maze: list[str] = [
-            "" for _ in range(len(self.cells))
-        ]
-
-        for row in range(len(self.cells)):
-
-            for cell in self.cells[row]:
-
-                val: int = 0
-
-                for wall, state in cell.walls.items():
-
-                    if state:
-                        val |= walls_values[wall]
-
-                hexa_maze[row] += ("0123456789ABCDEF")[val]
-
-        return hexa_maze
-
+from ...models.maze_generator import Maze
+from ...utils.generation_utils import CellCoords, create_pattern
 
 
 # defines all the directions
@@ -275,5 +196,3 @@ def wilson(
 
     # Return the completed maze graph
     return maze
-
-

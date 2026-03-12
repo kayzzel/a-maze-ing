@@ -2,7 +2,6 @@ from src.models import Maze, ButtonMenu
 from src.utils import (
     handle_buttons,
     global_update,
-    render
 )
 from mlx import Mlx
 import sys

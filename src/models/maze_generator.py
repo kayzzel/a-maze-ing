@@ -1,7 +1,4 @@
 # need to move algorithms in the same directory
-from ..services.generation_algo.rec_backtrack import rec_backtrack
-from ..services.solving_algo.a_star import a_star
-from ..utils.generation_utils import maze_to_imperfect
 from typing import Callable as callable
 
 
@@ -37,7 +34,6 @@ class Maze:
         self.sz: tuple[int, int] = size
         self.width: int = self.sz[0]
         self.height: int = self.sz[1]
-
         self.entry_point: tuple[int, int] = entry_point
         self.exit_point: tuple[int, int] = exit_point
 
@@ -95,6 +91,9 @@ class MazeGenerator:
         seed: int | None
     ) -> None:
 
+        from ..services.generation_algo.rec_backtrack import rec_backtrack
+        from ..services.solving_algo.a_star import a_star
+
         self.maze_sz: tuple[int, int] = maze_sz
         self.entry_point: tuple[int, int] = entry_point
         self.exit_point: tuple[int, int] = exit_point
@@ -108,6 +107,8 @@ class MazeGenerator:
         return Maze(self.maze_sz, self.entry_point, self.exit_point)
 
     def generate_maze(self) -> Maze:
+
+        from ..utils.generation_utils import maze_to_imperfect
 
         maze: Maze = self.gen_algo(
             self.maze_sz,

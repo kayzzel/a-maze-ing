@@ -1,7 +1,7 @@
 from .display_cell import DisplayCell
 from ..utils import clear_img
 from .color_palette import RAINBOW_PALETTE
-from .maze_generator import MazeGenerator, Maze
+from .maze_generator import Maze
 import time
 
 
