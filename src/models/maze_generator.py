@@ -51,7 +51,7 @@ class Maze:
         self.path: list[tuple]
         self.path_dirs: str
 
-        self.pattern_cells: set[tuple[int, int]] = ()
+        self.pattern_cells: set[tuple[int, int]] = set()
 
     def maze_to_hexa(self) -> list[str]:
 

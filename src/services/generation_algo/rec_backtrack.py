@@ -43,11 +43,11 @@ def rec_backtrack(
 
         raise ValueError("seed must be positive integer")
 
-    sys.setrecursionlimit(8000)
+    sys.setrecursionlimit(15000)
 
     maze: Maze = Maze(maze_sz, entry_point, exit_point)
 
-    maze.pattern_cells: set[tuple] = create_pattern(
+    maze.pattern_cells = create_pattern(
             maze.sz, maze.entry_point, maze.exit_point
         )
 
@@ -67,15 +67,6 @@ def backtracking_carving(
 ) -> None:
 
     cur_cell.visited = True
-
-    """
-    saved_step: Cell = Cell(
-        cur_cell.col,
-        cur_cell.row
-    )
-    # saved_step.visited = True
-    saved_step.walls = cur_cell.walls
-    """
 
     maze.gen_steps.append(cur_cell)
 

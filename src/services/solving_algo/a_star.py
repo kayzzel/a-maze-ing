@@ -47,12 +47,6 @@ def a_star(
     maze: Maze
 ) -> str | None:
 
-    """
-    if not check_maze_input(maze_input):
-        print("Invalid maze input!")
-        return None
-    """
-
     cells: list[list[PathCell]] = []
 
     for row in range(maze.height):

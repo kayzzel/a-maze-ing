@@ -101,7 +101,7 @@ class MazeDisplay:
 
                     bg_color = self.entry_exit_color
 
-                if (row, col) in maze.pattern_cells:
+                if (row, col) in self.maze.pattern_cells:
 
                     bg_color = self.wall_color
 
@@ -155,7 +155,6 @@ class MazeDisplay:
             self.cur_bg_color = (115, 115, 115, 255)
             self.steps = self.maze.gen_steps
 
-        # clear_img(self.buf, self.img_height, self.sz_line)
         self.frame_count = time.time()
 
     def stop_animation(self) -> None:
@@ -352,7 +351,7 @@ class MazeDisplay:
         )
 
         if not self.rainbow_mode or self.rainbow_delimiter < 1:
-            self.animating = False
+            self.stop_animation()
             self.change_colors([
                 self.wall_color,
                 self.bg_color,

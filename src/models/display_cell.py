@@ -35,7 +35,7 @@ class DisplayCell:
         self.coor: tuple[int, int] = coor
         self.col, self.row = coor
         self.sz: int = size
-        self.wall_sz: int = self.sz // 8
+        self.wall_sz: int = self.sz // 8 if self.sz // 8 > 0 else 1
         self.img: tuple[memoryview, int, int] = img
         self.wall_color, self.bg_color = colors
         self.walls: dict[str, bool] = walls

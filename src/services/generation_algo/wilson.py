@@ -157,7 +157,7 @@ def wilson(
             size, entry_point, exit_point
         )
 
-    maze.pattern_cells: set[CellCoords] = pattern_cells
+    maze.pattern_cells = pattern_cells
 
     # All cells start as unvisited
     unvisited: set[CellCoords] = {

@@ -132,7 +132,7 @@ class ButtonMenu:
 
         self.mlx.mlx_clear_window(self.mlx_ptr, self.mlx_win)
 
-        self.display_button_title()
+        # self.display_button_title()
 
         if self.cur_menu == "color_palette":
 
@@ -225,8 +225,8 @@ class ButtonMenu:
             button_width: int = (
                 (self.win_sz[0] - len(lines[line])) // 2
             )
-            if button_width > 300:
-                button_width = 300
+            if button_width > 400:
+                button_width = 400
 
             horizontal_offset: int = (
                 self.win_sz[0] - len(lines[line]) * button_width
@@ -269,7 +269,8 @@ class ButtonMenu:
             self.win_sz[1] // 8 + 100
         )
         button_image_pos: tuple[int, int] = (
-            (0, self.win_sz[1] - (self.win_sz[1] // 8 + 100))
+            0,
+            self.maze.img_pos[1] + self.maze.img_height + 100
         )
 
         buttons: list[Button] = []
@@ -280,8 +281,14 @@ class ButtonMenu:
         )
         button_height: int = self.win_sz[1] // 8
 
-        if button_names[0] == "skip" and button_width > 200:
-            button_width = 200
+        if button_width > 300:
+            button_width = 300
+
+        if button_height > 150:
+            button_height = 150
+
+        if button_names[0] == "skip" and button_width > 400:
+            button_width = 400
 
         horizontal_offset: int = (
             self.win_sz[0] - len(button_names) * button_width
@@ -487,13 +494,14 @@ class ButtonMenu:
 
             case "back to main menu":
                 self.cur_menu = "start_menu"
-                self.maze.stop_animation()
-                self.maze.generated = False
-                clear_img(
-                    self.maze.buf,
-                    self.maze.img_height,
-                    self.maze.sz_line
-                )
+                if self.maze.generated:
+                    self.maze.stop_animation()
+                    self.maze.generated = False
+                    clear_img(
+                        self.maze.buf,
+                        self.maze.img_height,
+                        self.maze.sz_line
+                    )
                 self.input.reset()
 
             case "settings":
@@ -522,6 +530,8 @@ class ButtonMenu:
                 self.cur_menu = "skip"
                 self.prev_menu = "gen_algo_choice"
                 self.maze.toggle_path = False
+                if self.maze.rainbow_mode:
+                    self.maze.activate_rainbow()
                 self.generator.gen_algo = rec_backtrack
                 self.maze.set_new_maze(self.generator.generate_maze())
                 self.maze.start_animation()
@@ -530,6 +540,8 @@ class ButtonMenu:
                 self.cur_menu = "skip"
                 self.prev_menu = "gen_algo_choice"
                 self.maze.toggle_path = False
+                if self.maze.rainbow_mode:
+                    self.maze.activate_rainbow()
                 self.generator.gen_algo = wilson
                 self.maze.set_new_maze(self.generator.generate_maze())
                 self.maze.start_animation()
@@ -539,6 +551,8 @@ class ButtonMenu:
                 self.prev_menu = "path_menu"
                 if self.maze.toggle_path:
                     self.maze.toggle_path_on_off()
+                if self.maze.rainbow_mode:
+                    self.maze.activate_rainbow()
                 self.generator.solve_algo = a_star
                 self.generator.solve_algo(self.maze.maze)
                 self.maze.toggle_path_on_off(True)
@@ -548,11 +562,22 @@ class ButtonMenu:
                 self.prev_menu = "path_menu"
                 if self.maze.toggle_path:
                     self.maze.toggle_path_on_off()
+                if self.maze.rainbow_mode:
+                    self.maze.activate_rainbow()
                 jump_point_search(self.maze.maze)
                 self.maze.toggle_path_on_off(True)
 
             case "random":
-                self.cur_menu = "main"
+                self.cur_menu = "skip"
+                self.prev_menu = "gen_algo_choice"
+                self.maze.toggle_path = False
+                if self.maze.rainbow_mode:
+                    self.maze.activate_rainbow()
+                self.generator.gen_algo = random.choice([
+                    wilson, rec_backtrack
+                ])
+                self.maze.set_new_maze(self.generator.generate_maze())
+                self.maze.start_animation()
                 # random.choice([rec_backtrack, wilson])()
 
             case "ok":
