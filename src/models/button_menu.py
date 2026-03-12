@@ -34,7 +34,7 @@ class ButtonMenu:
         self.generator: MazeGenerator = generator
         self.win_sz: tuple[int, int] = win_sz
 
-        self.menus: dict = {
+        self.menus: dict[str, list[Button]] = {
             "start_menu": self.generate_buttons([
                 "maze",
                 "settings",

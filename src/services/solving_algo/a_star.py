@@ -1,4 +1,4 @@
-from ...models import Maze
+from ...models import Maze, Cell
 import random
 
 
@@ -84,7 +84,9 @@ def a_star(
         and len(explored) < maze.height * maze.width
     ):
 
-        maze.solving_steps.append(cur_cell)
+        cell: Cell = Cell(cur_cell.col, cur_cell.row)
+        cell.walls = cur_cell.walls
+        maze.solving_steps.append(cell)
 
         next_cell: PathCell | None = find_next_cell(to_explore)
 
