@@ -2,7 +2,8 @@ from .button import Button
 from .maze_display import MazeDisplay
 from .maze_generator import MazeGenerator
 from .color_palette import ColorPalette
-from ..utils import clear_img, clear_all, is_in
+from ..utils.cleanup import clear_img, clear_all
+from ..utils.checks import is_in
 from ..services.generation_algo.rec_backtrack import rec_backtrack
 from ..services.generation_algo.wilson import wilson
 from ..services.solving_algo.a_star import a_star

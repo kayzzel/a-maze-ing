@@ -1,4 +1,8 @@
-from typing import Any
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ..models.button_menu import ButtonMenu
+    from ..models.maze_display import MazeDisplay
 from .letters import LETTERS, ALLOWED_LETTERS
 
 
@@ -87,8 +91,8 @@ renders both the maze and the buttons
 
 
 def render(
-    maze: Any,
-    button_menu,
+    maze: "MazeDisplay",
+    button_menu: "ButtonMenu",
     mlx_data: tuple
 ) -> None:
 
@@ -106,7 +110,7 @@ def put_str_to_img(
         size_line: int,
         bpp: int,
         color: tuple[int, int, int, int],
-        ):
+        ) -> None:
 
     if not all(letter in ALLOWED_LETTERS for letter in string):
         raise ValueError(

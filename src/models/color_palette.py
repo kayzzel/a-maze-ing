@@ -1,5 +1,6 @@
 from enum import Enum
-from ..utils import img_put_px, clear_img, draw_borders
+from ..utils.cleanup import clear_img
+from ..utils.mlx_display import img_put_px, draw_borders
 
 
 Color_type = tuple[

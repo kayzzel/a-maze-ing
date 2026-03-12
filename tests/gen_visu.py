@@ -1,5 +1,6 @@
 from src.models import ButtonMenu, MazeGenerator, MazeDisplay
-from src.utils import handle_buttons, handle_keyboard_input, global_update
+from src.utils.events import handle_buttons, handle_keyboard_input
+from src.utils.events import global_update
 from mlx import Mlx
 
 

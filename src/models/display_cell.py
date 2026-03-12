@@ -1,4 +1,4 @@
-from ..utils import img_put_px
+from ..utils.mlx_display import img_put_px
 
 
 class DisplayCell:

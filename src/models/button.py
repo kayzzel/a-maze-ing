@@ -1,5 +1,6 @@
 import time
-from ..utils import clear_img, img_put_px, draw_borders, put_str_to_img
+from ..utils.cleanup import clear_img
+from ..utils.mlx_display import img_put_px, draw_borders, put_str_to_img
 
 # the width and depth of the button border
 

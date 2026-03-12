@@ -1,5 +1,5 @@
 from .display_cell import DisplayCell
-from ..utils import clear_img
+from ..utils.cleanup import clear_img
 from .color_palette import RAINBOW_PALETTE, Colors
 from .maze_generator import Maze
 import time
