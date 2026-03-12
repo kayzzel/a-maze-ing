@@ -126,15 +126,14 @@ def rec_backtrack(
 
     maze: Maze = Maze(maze_sz, entry_point, exit_point)
 
-    pattern_cells: set[tuple] = create_pattern(
+    maze.pattern_cells: set[tuple] = create_pattern(
             maze.sz, maze.entry_point, maze.exit_point
         )
 
     backtracking_carving(
         maze.cells[maze.entry_point[1]][maze.entry_point[0]],
         maze,
-        rnd,
-        pattern_cells
+        rnd
     )
 
     return maze
@@ -143,8 +142,7 @@ def rec_backtrack(
 def backtracking_carving(
     cur_cell: Cell,
     maze: Maze,
-    rnd: Random,
-    pattern_cells: set[tuple]
+    rnd: Random
 ) -> None:
 
     cur_cell.visited = True
@@ -169,7 +167,7 @@ def backtracking_carving(
         new_x: int = cur_cell.col + DIRS[direction][0]
         new_y: int = cur_cell.row + DIRS[direction][1]
 
-        if is_valid(new_x, new_y, maze, pattern_cells):
+        if is_valid(new_x, new_y, maze):
 
             new_cell: Cell = maze.cells[new_y][new_x]
             cur_cell.walls[direction] = False
@@ -177,8 +175,7 @@ def backtracking_carving(
             backtracking_carving(
                 new_cell,
                 maze,
-                rnd,
-                pattern_cells
+                rnd
             )
 
     return None
@@ -187,13 +184,12 @@ def backtracking_carving(
 def is_valid(
     x: int,
     y: int,
-    maze: Maze,
-    pattern_cells: set[tuple]
+    maze: Maze
 ) -> bool:
 
     return (
         0 <= x < maze.width
         and 0 <= y < maze.height
         and not maze.cells[y][x].visited
-        and (y, x) not in pattern_cells
+        and (y, x) not in maze.pattern_cells
     )

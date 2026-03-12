@@ -81,7 +81,6 @@ class Maze:
         return hexa_maze
 
 
-
 # defines all the directions
 DIRECTIONS: list[CellCoords] = [
         (-1, 0),  # North
@@ -236,6 +235,8 @@ def wilson(
     pattern_cells: set[CellCoords] = create_pattern(
             size, entry_point, exit_point
         )
+
+    maze.pattern_cells: set[CellCoords] = pattern_cells
 
     # All cells start as unvisited
     unvisited: set[CellCoords] = {
