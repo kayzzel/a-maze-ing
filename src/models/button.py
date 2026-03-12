@@ -173,22 +173,6 @@ class Button:
             (255, 255, 255, 255)
         )
 
-    def display_name(self, mlx, mlx_ptr, mlx_win) -> None:
-
-        name_offset: int = (
-            0 if not self.is_pressed
-            else 2
-        )
-
-        mlx.mlx_string_put(
-            mlx_ptr,
-            mlx_win,
-            self.name_pos[0] - name_offset,
-            self.name_pos[1] - name_offset,
-            0xFFFFFF,
-            self.name
-        )
-
     """
 
     updates the button state and offset for the correct click display
