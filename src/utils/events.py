@@ -78,17 +78,21 @@ def handle_keyboard_input(
     if not button_menu.input.taking_input:
         return None
 
-    if KEYS[keycode] == "enter":
-        button_menu.handle_settings()
-        return None
-
-    if KEYS[keycode] == "del":
-        if not button_menu.input.user_input:
+    try:
+        if KEYS[keycode] == "enter":
+            button_menu.handle_settings()
             return None
-        button_menu.input.user_input.pop()
 
-    else:
-        button_menu.input.user_input.append(KEYS[keycode])
+        if KEYS[keycode] == "del":
+            if not button_menu.input.user_input:
+                return None
+            button_menu.input.user_input.pop()
+
+        else:
+            button_menu.input.user_input.append(KEYS[keycode])
+
+    except KeyError as err:
+        print(err)
 
     button_menu.input.update()
     button_menu.input.display_img_on_window()

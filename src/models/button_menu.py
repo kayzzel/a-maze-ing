@@ -315,6 +315,8 @@ class ButtonMenu:
         if setting is None:
             return None
 
+        setting.click_button()
+
         if "width" in setting.name:
             setting.name = (
                 "maze width : "
@@ -354,9 +356,9 @@ class ButtonMenu:
 
         clear_img(buf, height, sz_line)
 
-        for setting in self.menus["settings"]:
+        for setting_button in self.menus["settings"]:
 
-            setting.draw(
+            setting_button.draw(
                 self.menus["settings"][0].not_clicked["img_data"],
                 0
             )
@@ -625,14 +627,10 @@ class ButtonMenu:
 
             case "back to main menu":
                 self.cur_menu = "start_menu"
-                if self.maze.generated:
-                    self.maze.stop_animation()
-                    self.maze.generated = False
-                    clear_img(
-                        self.maze.buf,
-                        self.maze.img_height,
-                        self.maze.sz_line
-                    )
+                if self.maze.toggle_path:
+                    self.maze.toggle_path_on_off()
+                if self.maze.rainbow_mode:
+                    self.maze.activate_rainbow()
                 self.input.reset()
 
             case "settings":
@@ -646,7 +644,6 @@ class ButtonMenu:
                 self.update_colors()
 
             case "custom colors":
-                self.cur_menu = "color_palette"
                 self.color_type = ColorType.WALL
 
             case "rainbow mode on/off":
@@ -655,6 +652,8 @@ class ButtonMenu:
 
             case "toggle path on/off":
                 self.cur_menu = "path_menu"
+                if not self.maze.toggle_path:
+                    self.generator.solve_algo(self.maze.maze)
                 self.maze.toggle_path_on_off()
 
             case "recursive backtracking":
@@ -739,7 +738,7 @@ class ButtonMenu:
         if "perfect" in button_clicked.name:
 
             self.generator.set_perfect(not self.generator.get_perfect())
-            self.refresh_setting(self.input.cur_setting)
+            self.refresh_setting(button_clicked)
 
         elif button_clicked.name in [
             button.name
@@ -798,7 +797,10 @@ class ButtonMenu:
             return None
 
         try:
-            if self.input.cur_setting.name in ["maze width", "maze height"]:
+            if (
+                "maze width" in self.input.cur_setting.name
+                or "maze height" in self.input.cur_setting.name
+            ):
 
                 if not all(
                     isinstance(nb, int)
@@ -811,7 +813,7 @@ class ButtonMenu:
                 for value in self.input.user_input:
                     val = val * 10 + value
 
-                if self.input.cur_setting.name == "maze width":
+                if "width" in self.input.cur_setting.name:
                     new_sz: tuple[int, int] = (
                         val,
                         self.generator.get_maze_sz()[1]
@@ -824,7 +826,10 @@ class ButtonMenu:
 
                 self.generator.set_maze_sz(new_sz)
 
-            elif self.input.cur_setting.name in ["entry point", "exit point"]:
+            elif (
+                "entry point" in self.input.cur_setting.name
+                or "exit point" in self.input.cur_setting.name
+            ):
 
                 if not all(
                     value in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ","]
@@ -850,29 +855,46 @@ class ButtonMenu:
                     elif value == "," and comma_encountered:
                         raise ValueError
 
+                print(
+                    self.input.cur_setting.name.split(
+                        " :", 1
+                    )[0].replace(" point", "")
+                )
                 self.generator.set_entry_exit_point(
                     (new_x, new_y),
-                    self.input.cur_setting.name.replace(" point", "")
+                    self.input.cur_setting.name.split(
+                        " :", 1
+                    )[0].replace(" point", "")
                 )
 
-            elif self.input.cur_setting.name == "seed":
+            elif "seed" in self.input.cur_setting.name:
 
                 if not all(
                     isinstance(nb, int)
                     for nb in self.input.user_input
                 ):
-                    raise ValueError
+                    if not all(
+                        isinstance(letter, str)
+                        for letter in self.input.user_input
+                    ):
+                        raise ValueError
+                    elif "".join(self.input.user_input) == "none":
+                        val = None
+                    else:
+                        raise ValueError
 
-                val = 0
+                else:
+                    val = 0
 
-                for value in self.input.user_input:
-                    val = val * 10 + value
+                    for value in self.input.user_input:
+                        val = val * 10 + value
 
                 self.generator.set_seed(val)
 
         except ValueError:
             self.input.user_input = list("Invalid input, please try again")
             self.input.update()
+            self.input.display_img_on_window()
             self.input.user_input = []
             self.input.taking_input = True
             return None
@@ -880,8 +902,7 @@ class ButtonMenu:
         self.cur_menu = "settings"
         self.refresh_setting(self.input.cur_setting)
         self.input.reset()
-        self.menus["settings"][0].needs_refresh = True
-        self.display_button_menu()
+        self.input.display_img_on_window()
 
     def clear_all_buttons(self) -> None:
 

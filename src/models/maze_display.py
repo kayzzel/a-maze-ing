@@ -274,16 +274,18 @@ class MazeDisplay:
 
         # redrawing the maze to display/remove the path
 
-        for path_col, path_row in self.maze.path:
+        if not self.rainbow_mode:
 
-            if (path_col, path_row) not in [
-                self.maze.entry_point,
-                self.maze.exit_point
-            ]:
+            for path_col, path_row in self.maze.path:
 
-                self.cells[path_row][path_col].wall_color = self.wall_color
-                self.cells[path_row][path_col].bg_color = self.cur_bg_color
-                self.cells[path_row][path_col].draw_cell()
+                if (path_col, path_row) not in [
+                    self.maze.entry_point,
+                    self.maze.exit_point
+                ]:
+
+                    self.cells[path_row][path_col].wall_color = self.wall_color
+                    self.cells[path_row][path_col].bg_color = self.cur_bg_color
+                    self.cells[path_row][path_col].draw_cell()
 
         # uncomment the floowing line
         # if you want to animate the path display every time it is toggled on
