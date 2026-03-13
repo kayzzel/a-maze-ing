@@ -13,7 +13,7 @@ def validate_format(line: str) -> tuple:
         )
 
     if not match.group(1) in [
-        "WIDTH", "HEIGHT", "ENTRY", "EXIT", "OUTPUT_FILE", "PERFECT"
+        "WIDTH", "HEIGHT", "ENTRY", "EXIT", "OUTPUT_FILE", "PERFECT", "SEED"
     ]:
 
         raise ValueError(
@@ -22,7 +22,7 @@ def validate_format(line: str) -> tuple:
 
     if match.group(1) in ["WIDTH", "HEIGHT"]:
 
-        value: int | str | list | tuple | bool = int(match.group(2))
+        value: int | str | list | tuple | bool | None = int(match.group(2))
 
     elif match.group(1) in ["ENTRY", "EXIT"]:
 
@@ -32,6 +32,14 @@ def validate_format(line: str) -> tuple:
     elif match.group(1) == "PERFECT":
 
         value = bool(match.group(2))
+
+    elif match.group(1) == "SEED":
+
+        if match.group(2) == "None":
+            value = None
+
+        else:
+            value = int(match.group(2))
 
     else:
 
@@ -67,10 +75,11 @@ def parse_config(config_filename: str) -> None | MazeData:
         return MazeData(
             width=config_data["width"],
             height=config_data["height"],
-            entry_coor=config_data["entry"],
-            exit_coor=config_data["exit"],
+            entry_point=config_data["entry"],
+            exit_point=config_data["exit"],
             output_filename=config_data["output_file"],
-            perfect=config_data["perfect"]
+            perfect=config_data["perfect"],
+            seed=config_data["seed"]
         )
 
     except ValidationError as err:

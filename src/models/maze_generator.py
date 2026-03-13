@@ -135,7 +135,7 @@ class MazeGenerator:
 
         for val in point:
 
-            if not isinstance(val, int) or val <= 0:
+            if not isinstance(val, int):
                 raise ValueError(
                     f"invalid {point_type} coordinates for the maze"
                 )
@@ -156,6 +156,12 @@ class MazeGenerator:
             self.__exit_point: tuple[int, int] = point
 
         print(f"successfully changed {point_type} coordinates to {point}")
+
+    def get_entry_exit_point(self) -> tuple[
+        tuple[int, int],
+        tuple[int, int]
+    ]:
+        return (self.__entry_point, self.__exit_point)
 
     def set_perfect(self, perfection: bool) -> None:
 
@@ -179,6 +185,10 @@ class MazeGenerator:
 
         self.__seed: int | None = seed
         print(f"sucessfully changed the seed to {seed}")
+
+    def get_seed(self) -> int | None:
+
+        return self.__seed
 
     def initialize_maze(self) -> Maze:
 

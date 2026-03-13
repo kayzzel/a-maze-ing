@@ -6,17 +6,18 @@ class MazeData(BaseModel):
 
     width: int = Field(ge=5, le=50)
     height: int = Field(ge=5, le=50)
-    entry_coor: tuple[int, int]
-    exit_coor: tuple[int, int]
+    entry_point: tuple[int, int]
+    exit_point: tuple[int, int]
     output_filename: str
     perfect: bool
+    seed: int | None = Field(default=None)
 
     @model_validator(mode="after")
     def validate_coordinates(self) -> self:
-        for coor in [self.entry_coor, self.exit_coor]:
+        for coor in [self.entry_point, self.exit_point]:
             if not 0 <= coor[0] < self.width or not 0 <= coor[1] < self.height:
                 raise ValueError("Invalid coordinates!")
-        if self.entry_coor == self.exit_coor:
+        if self.entry_point == self.exit_point:
             raise ValueError("Entry and exit coordinates are the same!")
         return self
 
@@ -35,7 +36,8 @@ class MazeData(BaseModel):
             "entry_coor",
             "exit_coor",
             "output_filename",
-            "perfect"
+            "perfect",
+            "seed"
         ]:
             print(f"-> {attr.upper()}: {getattr(self, attr)}")
         print("")

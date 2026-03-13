@@ -68,13 +68,13 @@ class ButtonMenu:
             ]),
             "skip": self.generate_buttons(["skip"]),
             "settings": self.generate_setting_buttons([
-                "maze width",
-                "maze height",
-                "perfect",
+                f"maze width = {self.generator.get_maze_sz()[0]}",
+                f"maze height = {self.generator.get_maze_sz()[1]}",
+                f"perfect = {self.generator.get_perfect()}",
                 "back to main menu",
-                "seed",
-                "entry point",
-                "exit point"
+                f"seed = {self.generator.get_seed()}",
+                f"entry point = {self.generator.get_entry_exit_point()[0]}",
+                f"exit point = {self.generator.get_entry_exit_point()[1]}"
             ])
         }
 
@@ -255,6 +255,43 @@ class ButtonMenu:
         self.render_button_images(setting_buttons)
 
         return setting_buttons
+
+    def refresh_setting(self, setting: Button) -> None:
+
+        if "width" in setting.name:
+            setting.name = (
+                "maze width: "
+                f"{self.generator.get_maze_sz()[0]}"
+            )
+
+        elif "height" in setting.name:
+            setting.name = (
+                "maze height: "
+                f"{self.generator.get_maze_sz()[1]}"
+            )
+
+        elif "entry" in setting.name:
+            setting.name = (
+                "entry point: "
+                f"{self.generator.get_entry_exit_point()[0]}"
+            )
+
+        elif "exit" in setting.name:
+            setting.name = (
+                "exit point: "
+                f"{self.generator.get_entry_exit_point()[1]}"
+            )
+
+        elif "perfect" in setting.name:
+            setting.name = (
+                "perfect: "
+                f"{self.generator.get_perfect()}"
+            )
+
+        elif "seed" in setting.name:
+            setting.name = f"seed: {self.generator.get_seed()}"
+
+        self.render_button_images(self.menus["settings"])
 
     """
 
@@ -605,14 +642,14 @@ class ButtonMenu:
                     self.maze
                 )
 
-        if button_clicked.name == "perfect":
+        if "perfect" in button_clicked.name:
 
             self.generator.set_perfect(not self.generator.get_perfect())
 
-        if button_clicked.name in [
+        elif button_clicked.name in [
             button.name
             for button in self.menus["settings"]
-            if button.name not in ["perfect", "back to main menu"]
+            if button.name != "back to main menu"
         ]:
             self.input.taking_input = True
             self.input.cur_setting = button_clicked
@@ -744,8 +781,9 @@ class ButtonMenu:
             self.input.taking_input = True
             return None
 
-        self.input.reset()
         self.cur_menu = "settings"
+        self.refresh_setting(self.input.cur_setting)
+        self.input.reset()
         self.menus["settings"][0].needs_refresh = True
         self.display_button_menu()
 

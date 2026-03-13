@@ -16,8 +16,8 @@ class PathCell:
         self,
         walls: dict[str, bool],
         coor: tuple[int, int],
-        entry_coor: tuple[int, int],
-        exit_coor: tuple[int, int]
+        entry_point: tuple[int, int],
+        exit_point: tuple[int, int]
     ) -> None:
 
         self.walls: dict[str, bool] = walls
@@ -27,8 +27,8 @@ class PathCell:
 
         self.distance_from_entry: int = 0
         self.distance_from_exit: int = (
-            abs(self.row - exit_coor[1])
-            + abs(self.col - exit_coor[0])
+            abs(self.row - exit_point[1])
+            + abs(self.col - exit_point[0])
         )
 
         self.parent: "PathCell"
@@ -202,14 +202,14 @@ def find_next_cell(to_explore: list[PathCell]) -> PathCell | None:
 
 def retrace_steps(
     destination: PathCell,
-    entry_coor: tuple[int, int]
+    entry_point: tuple[int, int]
 ) -> list[tuple[int, int]]:
 
     cell: PathCell = destination
 
     path: list[tuple[int, int]] = []
 
-    while (cell.col, cell.row) != entry_coor:
+    while (cell.col, cell.row) != entry_point:
 
         path.append((cell.col, cell.row))
         cell = cell.parent
@@ -221,12 +221,12 @@ def retrace_steps(
 
 def compute_path(
     path: list[tuple[int, int]],
-    entry_coor: tuple[int, int]
+    entry_point: tuple[int, int]
 ) -> str | None:
 
     cur_row: int
     cur_col: int
-    cur_col, cur_row = entry_coor
+    cur_col, cur_row = entry_point
 
     directions: str = ""
 

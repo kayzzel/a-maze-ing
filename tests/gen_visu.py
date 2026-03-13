@@ -1,10 +1,23 @@
-from src.models import ButtonMenu, MazeGenerator, MazeDisplay
+from src.models import ButtonMenu, MazeGenerator, MazeDisplay, MazeData
 from src.utils.events import handle_buttons, handle_keyboard_input
 from src.utils.events import global_update
+from src.services import parse_config
 from mlx import Mlx
+import sys
 
 
 def test_visu() -> None:
+
+    filename: str = "config.txt"
+
+    if len(sys.argv) > 1:
+        filename = sys.argv[1]
+
+    maze_data: MazeData | None = parse_config(filename)
+
+    if maze_data is None:
+        print("error occured while parsing config file")
+        return None
 
     mlx = Mlx()
 
@@ -16,15 +29,12 @@ def test_visu() -> None:
 
     mlx.mlx_clear_window(mlx_ptr, mlx_win)
 
-    entry_point: tuple[int, int] = (1, 1)
-    exit_point: tuple[int, int] = (19, 14)
-
     generator: MazeGenerator = MazeGenerator(
-        (25, 20),
-        entry_point,
-        exit_point,
-        False,
-        None
+        (maze_data.width, maze_data.height),
+        maze_data.entry_point,
+        maze_data.exit_point,
+        maze_data.perfect,
+        maze_data.seed
     )
 
     maze_display: MazeDisplay = MazeDisplay(
