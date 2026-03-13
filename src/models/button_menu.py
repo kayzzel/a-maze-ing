@@ -5,6 +5,7 @@ from .maze_generator import MazeGenerator
 from .color_palette import ColorPalette
 from ..utils.cleanup import clear_img, clear_all
 from ..utils.checks import is_in
+from ..utils.display import put_str_to_img
 from ..services.generation_algo.rec_backtrack import rec_backtrack
 from ..services.generation_algo.wilson import wilson
 from ..services.solving_algo.a_star import a_star
@@ -19,6 +20,59 @@ class ColorType(str, Enum):
     BG = "Background Color"
     PATH = "Path Color"
     ENTRY_EXIT = "Entry/Exit Color"
+
+
+class ButtonTitle:
+
+    def __init__(
+        self,
+        title: str,
+        img_sz: tuple[int, int],
+        img_pos: tuple[int, int],
+        mlx_data: tuple
+    ) -> None:
+
+        self.mlx, self.mlx_ptr, self.mlx_win = mlx_data
+        self.img_sz: tuple[int, int] = img_sz
+        self.img_pos: tuple[int, int] = img_pos
+
+        self.img = self.mlx.mlx_new_image(
+            self.mlx_ptr,
+            *img_sz
+        )
+
+        self.buf, self.bpp, self.sz_line, _ = self.mlx.mlx_get_data_addr(
+            self.img
+        )
+
+        clear_img(self.buf, self.img_sz[1], self.sz_line)
+
+        self.draw(title)
+
+    def draw(self, title: str) -> None:
+
+        clear_img(self.buf, self.img_sz[1], self.sz_line)
+
+        put_str_to_img(
+            title,
+            self.buf,
+            (
+                (self.img_sz[0] - (len(title) * 12)) // 2,
+                0
+            ),
+            self.sz_line,
+            self.bpp,
+            (255, 255, 255, 255)
+        )
+
+    def display(self) -> None:
+
+        self.mlx.mlx_put_image_to_window(
+            self.mlx_ptr,
+            self.mlx_win,
+            self.img,
+            *self.img_pos
+        )
 
 
 class ButtonMenu:
@@ -88,7 +142,7 @@ class ButtonMenu:
         self.cur_menu: str = "start_menu"
         self.prev_menu: str = ""
 
-        self.button_title: str = "A-Maze-Ing Menu"
+        self.initialize_button_title()
 
         self.color_type: ColorType
 
@@ -96,6 +150,18 @@ class ButtonMenu:
 
         self.menus["main"][0].needs_refresh = True
         self.display_button_menu()
+
+    def initialize_button_title(self) -> None:
+
+        self.button_title: ButtonTitle = ButtonTitle(
+            "A-Maze-Ing Menu",
+            (self.win_sz[0], 30),
+            (
+                0,
+                self.maze.img_pos[1] + self.maze.img_height + 30
+            ),
+            (self.mlx, self.mlx_ptr, self.mlx_win)
+        )
 
     def update_buttons(self) -> None:
 
@@ -132,7 +198,7 @@ class ButtonMenu:
 
         self.mlx.mlx_clear_window(self.mlx_ptr, self.mlx_win)
 
-        # self.display_button_title()
+        self.button_title.display()
 
         if self.cur_menu == "color_palette":
 
@@ -173,19 +239,6 @@ class ButtonMenu:
             img_to_display["img"],
             *menu_to_display[0].img_pos
         )
-
-    def display_button_title(self) -> None:
-
-        if self.button_title:
-
-            self.mlx.mlx_string_put(
-                self.mlx_ptr,
-                self.mlx_win,
-                (self.win_sz[0] - (len(self.button_title) * 10)) // 2,
-                self.maze.img_pos[1] + self.maze.img_height + 25,
-                0xFFFFFF,
-                self.button_title
-            )
 
     def create_ok_button(self) -> None:
 
@@ -671,26 +724,26 @@ class ButtonMenu:
         match self.cur_menu:
 
             case "start_menu":
-                self.button_title = "A-Maze-Ing Menu"
+                self.button_title.draw("A-Maze-Ing Menu")
 
             case "settings":
-                self.button_title = ""
+                self.button_title.draw("")
 
             case "main":
-                self.button_title = "Maze Menu"
+                self.button_title.draw("Maze Menu")
 
             case "color_change":
-                self.button_title = "Choose a color mode option"
+                self.button_title.draw("Choose a color mode option")
 
             case "gen_algo_choice":
-                self.button_title = "Choose a generation algorithm"
+                self.button_title.draw("Choose a generation algorithm")
 
             case "skip":
-                self.button_title = ""
+                self.button_title.draw("")
 
             case "color_palette":
 
-                self.button_title = self.color_type
+                self.button_title.draw(self.color_type)
 
     def handle_settings(self) -> None:
 
