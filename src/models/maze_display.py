@@ -1,6 +1,11 @@
 from .display_cell import DisplayCell
 from ..utils.cleanup import clear_img
-from .color_palette import RAINBOW_PALETTE, Colors
+from .color_palette import (
+    RAINBOW_PALETTE,
+    RAINBOW_PALETTE_EXPANDED,
+    Colors,
+    ColorsExpanded
+)
 from .maze_generator import Maze
 import time
 
@@ -71,7 +76,7 @@ class MazeDisplay:
         self.frame_delay: float = 0
         self.toggle_path: bool = False
 
-        self.rainbow_palette: list[Colors] = RAINBOW_PALETTE
+        self.rainbow_palette: list[Colors | ColorsExpanded]
         self.rainbow_mode: bool = False
 
     def set_new_maze(self, maze: Maze) -> None:
@@ -142,7 +147,7 @@ class MazeDisplay:
         self.anim_step = 0
 
         if self.rainbow_mode:
-            self.frame_delay = 0.00000000000001
+            self.frame_delay = 0.00000000000000000001
 
         elif self.animating_path:
             self.frame_delay = 10 / len(self.maze.gen_steps) / 60
@@ -348,11 +353,10 @@ class MazeDisplay:
 
         self.rainbow_mode = not (self.rainbow_mode)
 
-        self.rainbow_delimiter: int = (
-            self.maze.width // len(self.rainbow_palette)
-        )
-
-        if not self.rainbow_mode or self.rainbow_delimiter < 1:
+        if (
+            not self.rainbow_mode
+            or self.maze.width // len(RAINBOW_PALETTE) < 1
+        ):
             self.stop_animation()
             self.change_colors([
                 self.wall_color,
@@ -361,6 +365,16 @@ class MazeDisplay:
                 self.entry_exit_color
             ])
             return None
+
+        if self.maze.width // len(RAINBOW_PALETTE_EXPANDED) >= 1:
+            self.rainbow_palette = RAINBOW_PALETTE_EXPANDED
+
+        else:
+            self.rainbow_palette = RAINBOW_PALETTE
+
+        self.rainbow_delimiter = (
+            self.maze.width // len(self.rainbow_palette)
+        )
 
         self.start_animation()
 
@@ -404,7 +418,7 @@ class MazeDisplay:
 
                 cur_color_index += 1
 
-        last_color: Colors = self.rainbow_palette[-1]
+        last_color: Colors | ColorsExpanded = self.rainbow_palette[-1]
         self.rainbow_palette.remove(self.rainbow_palette[-1])
         self.rainbow_palette = [last_color] + self.rainbow_palette
 

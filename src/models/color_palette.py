@@ -4,11 +4,11 @@ from ..utils.mlx_display import img_put_px, draw_borders
 
 
 Color_type = tuple[
-        tuple[int, int, int, int],
-        tuple[int, int, int, int],
-        tuple[int, int, int, int],
-        tuple[int, int, int, int],
-        ]
+    tuple[int, int, int, int],
+    tuple[int, int, int, int],
+    tuple[int, int, int, int],
+    tuple[int, int, int, int],
+]
 
 
 class Colors(Color_type, Enum):
@@ -226,7 +226,101 @@ class ColorPalette:
         self.mlx.mlx_destroy_image(self.mlx_ptr, self.img)
 
 
-RAINBOW_PALETTE: list[Colors] = [
+class ColorsExpanded(Color_type, Enum):
+
+    RED_1 = (
+        (51, 10, 10, 255),
+        (107, 27, 27, 255),
+        (145, 42, 42, 255),
+        (184, 77, 77, 255)
+    )
+    RED_2 = (
+        (84, 29, 19, 255),
+        (112, 41, 28, 255),
+        (148, 58, 41, 255),
+        (189, 88, 70, 255)
+    )
+    ORANGE_1 = (
+        (102, 42, 16, 255),
+        (138, 56, 21, 255),
+        (184, 71, 22, 255),
+        (227, 82, 20, 255)
+    )
+    ORANGE_2 = (
+        (102, 57, 22, 255),
+        (143, 79, 30, 255),
+        (201, 94, 24, 255),
+        (235, 121, 49, 255)
+    )
+    YELLOW_1 = (
+        (89, 57, 11, 255),
+        (128, 83, 14, 255),
+        (184, 119, 15, 255),
+        (235, 153, 21, 255)
+    )
+    YELLOW_2 = (
+        (89, 69, 12, 255),
+        (128, 99, 14, 255),
+        (173, 134, 16, 255),
+        (224, 176, 22, 255)
+    )
+    GREEN_1 = (
+        (61, 69, 8, 255),
+        (93, 107, 11, 255),
+        (131, 156, 14, 255),
+        (177, 212, 17, 255)
+    )
+    GREEN_2 = (
+        (38, 84, 8, 255),
+        (53, 128, 10, 255),
+        (70, 171, 14, 255),
+        (124, 219, 79, 255)
+    )
+    GREEN_3 = (
+        (9, 71, 34, 255),
+        (16, 117, 56, 255),
+        (28, 166, 79, 255),
+        (78, 207, 125, 255)
+    )
+    BLUE_1 = (
+        (13, 79, 58, 255),
+        (17, 120, 88, 255),
+        (25, 168, 126, 255),
+        (48, 217, 167, 255)
+    )
+    BLUE_2 = (
+        (10, 62, 74, 255),
+        (17, 101, 122, 255),
+        (30, 139, 168, 255),
+        (67, 178, 209, 255)
+    )
+    BLUE_3 = (
+        (13, 34, 79, 255),
+        (24, 54, 125, 255),
+        (46, 82, 176, 255),
+        (90, 128, 224, 255)
+    )
+    VIOLET_1 = (
+        (38, 24, 92, 255),
+        (60, 40, 130, 255),
+        (87, 63, 176, 255),
+        (133, 112, 219, 255)
+    )
+    VIOLET_2 = (
+        (49, 19, 79, 255),
+        (79, 36, 120, 255),
+        (113, 60, 158, 255),
+        (162, 115, 199, 255)
+    )
+    VIOLET_3 = (
+        (66, 13, 71, 255),
+        (102, 25, 112, 255),
+        (143, 47, 161, 255),
+        (188, 80, 212, 255)
+    )
+
+
+RAINBOW_PALETTE: list[Colors | ColorsExpanded] = [
     Colors.RED,
     Colors.ORANGE,
     Colors.YELLOW,
@@ -235,4 +329,23 @@ RAINBOW_PALETTE: list[Colors] = [
     Colors.BLUE_1,
     Colors.BLUE_2,
     Colors.VIOLET
+]
+
+
+RAINBOW_PALETTE_EXPANDED: list[Colors | ColorsExpanded] = [
+    ColorsExpanded.RED_1,
+    ColorsExpanded.RED_2,
+    ColorsExpanded.ORANGE_1,
+    ColorsExpanded.ORANGE_2,
+    ColorsExpanded.YELLOW_1,
+    ColorsExpanded.YELLOW_2,
+    ColorsExpanded.GREEN_1,
+    ColorsExpanded.GREEN_2,
+    ColorsExpanded.GREEN_3,
+    ColorsExpanded.BLUE_1,
+    ColorsExpanded.BLUE_2,
+    ColorsExpanded.BLUE_3,
+    ColorsExpanded.VIOLET_1,
+    ColorsExpanded.VIOLET_2,
+    ColorsExpanded.VIOLET_3
 ]

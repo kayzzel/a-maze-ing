@@ -1,4 +1,4 @@
-from src.models import ButtonMenu, MazeGenerator, MazeDisplay, MazeData, Maze
+from src.models import ButtonMenu, MazeGenerator, MazeDisplay, MazeData
 from src.utils.events import handle_buttons, handle_keyboard_input
 from src.utils.events import global_update
 from src.services import parse_config

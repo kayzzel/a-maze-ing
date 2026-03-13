@@ -634,6 +634,7 @@ class ButtonMenu:
                     self.maze.toggle_path_on_off()
                 if self.maze.rainbow_mode:
                     self.maze.activate_rainbow()
+                self.maze.generated = False
                 self.input.reset()
 
             case "back to menu":
