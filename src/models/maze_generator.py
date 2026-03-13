@@ -210,23 +210,25 @@ class MazeGenerator:
 
         return maze
 
-    def write_to_output(self, maze: Maze, output_filename: str) -> None:
+    def write_to_output(self, maze: Maze, output_filename: str) -> bool:
 
         try:
 
-            with open(output_filename) as output:
+            with open(output_filename, "w") as output:
 
                 output.write("\n".join(maze.maze_to_hexa()))
-                output.write("\n")
+                output.write("\n\n")
                 output.write(str(maze.entry_point) + "\n")
                 output.write(str(maze.exit_point) + "\n")
+                self.calculate_path(maze)
                 output.write(maze.path_dirs + "\n")
 
         except OSError as err:
 
             print(err)
+            return False
 
-        return None
+        return True
 
     def calculate_path(self, maze: Maze) -> str | None:
 
