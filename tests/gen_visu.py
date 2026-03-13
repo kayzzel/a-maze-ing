@@ -23,7 +23,7 @@ def test_visu() -> None:
 
     mlx_ptr = mlx.mlx_init()
 
-    mlx_win = mlx.mlx_new_window(mlx_ptr, 1920, 1920, "MAZE GENERATION")
+    mlx_win = mlx.mlx_new_window(mlx_ptr, 1920, 1080, "MAZE GENERATION")
 
     mlx_data: tuple = (mlx, mlx_ptr, mlx_win)
 
@@ -38,8 +38,8 @@ def test_visu() -> None:
     )
 
     maze_display: MazeDisplay = MazeDisplay(
-        (1400, 1400),
-        (1920, 1920),
+        (600, 600),
+        (1920, 1080),
         mlx_data
     )
 
@@ -47,7 +47,7 @@ def test_visu() -> None:
         mlx_data,
         maze_display,
         generator,
-        (1920, 1920)
+        (1920, 1080)
     )
 
     mlx.mlx_mouse_hook(

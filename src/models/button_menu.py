@@ -5,7 +5,7 @@ from .maze_generator import MazeGenerator
 from .color_palette import ColorPalette
 from ..utils.cleanup import clear_img, clear_all
 from ..utils.checks import is_in
-from ..utils.display import put_str_to_img
+from ..utils.mlx_display import put_str_to_img
 from ..services.generation_algo.rec_backtrack import rec_backtrack
 from ..services.generation_algo.wilson import wilson
 from ..services.solving_algo.a_star import a_star
@@ -122,13 +122,13 @@ class ButtonMenu:
             ]),
             "skip": self.generate_buttons(["skip"]),
             "settings": self.generate_setting_buttons([
-                f"maze width = {self.generator.get_maze_sz()[0]}",
-                f"maze height = {self.generator.get_maze_sz()[1]}",
-                f"perfect = {self.generator.get_perfect()}",
+                f"maze width : {self.generator.get_maze_sz()[0]}",
+                f"maze height : {self.generator.get_maze_sz()[1]}",
+                f"perfect : {self.generator.get_perfect()}",
                 "back to main menu",
-                f"seed = {self.generator.get_seed()}",
-                f"entry point = {self.generator.get_entry_exit_point()[0]}",
-                f"exit point = {self.generator.get_entry_exit_point()[1]}"
+                f"seed : {self.generator.get_seed()}",
+                f"entry point : {self.generator.get_entry_exit_point()[0]}",
+                f"exit point : {self.generator.get_entry_exit_point()[1]}"
             ])
         }
 
@@ -154,7 +154,7 @@ class ButtonMenu:
     def initialize_button_title(self) -> None:
 
         self.button_title: ButtonTitle = ButtonTitle(
-            "A-Maze-Ing Menu",
+            "A Maze Ing Menu",
             (self.win_sz[0], 30),
             (
                 0,
@@ -198,7 +198,8 @@ class ButtonMenu:
 
         self.mlx.mlx_clear_window(self.mlx_ptr, self.mlx_win)
 
-        self.button_title.display()
+        if not self.cur_menu == "settings":
+            self.button_title.display()
 
         if self.cur_menu == "color_palette":
 
@@ -311,40 +312,80 @@ class ButtonMenu:
 
     def refresh_setting(self, setting: Button) -> None:
 
+        if setting is None:
+            return None
+
         if "width" in setting.name:
             setting.name = (
-                "maze width: "
+                "maze width : "
                 f"{self.generator.get_maze_sz()[0]}"
             )
 
         elif "height" in setting.name:
             setting.name = (
-                "maze height: "
+                "maze height : "
                 f"{self.generator.get_maze_sz()[1]}"
             )
 
         elif "entry" in setting.name:
             setting.name = (
-                "entry point: "
+                "entry point : "
                 f"{self.generator.get_entry_exit_point()[0]}"
             )
 
         elif "exit" in setting.name:
             setting.name = (
-                "exit point: "
+                "exit point : "
                 f"{self.generator.get_entry_exit_point()[1]}"
             )
 
         elif "perfect" in setting.name:
             setting.name = (
-                "perfect: "
+                "perfect : "
                 f"{self.generator.get_perfect()}"
             )
 
         elif "seed" in setting.name:
-            setting.name = f"seed: {self.generator.get_seed()}"
+            setting.name = f"seed : {self.generator.get_seed()}"
 
-        self.render_button_images(self.menus["settings"])
+        buf = self.menus["settings"][0].not_clicked["img_data"][0]
+        height = self.menus["settings"][0].img_sz[1]
+        sz_line = self.menus["settings"][0].not_clicked["img_data"][1]
+
+        clear_img(buf, height, sz_line)
+
+        for setting in self.menus["settings"]:
+
+            setting.draw(
+                self.menus["settings"][0].not_clicked["img_data"],
+                0
+            )
+
+        # rendering all the pressed button images
+
+        for s in range(len(self.menus["settings"])):
+
+            # initializing a new image for each button
+
+            buf = self.menus["settings"][s].clicked["img_data"][0]
+            height = self.menus["settings"][s].img_sz[1]
+            sz_line = self.menus["settings"][s].clicked["img_data"][1]
+            clear_img(buf, height, sz_line)
+
+            for setting_nb in range(len(self.menus["settings"])):
+
+                # setting the offset to draw the button
+                # at the correct position on the image
+
+                offset: int = 0
+
+                if setting_nb == s:
+                    offset = 2
+
+                self.menus["settings"][setting_nb].draw(
+                    self.menus["settings"][setting_nb].clicked["img_data"],
+                    offset
+                )
 
     """
 
@@ -698,6 +739,7 @@ class ButtonMenu:
         if "perfect" in button_clicked.name:
 
             self.generator.set_perfect(not self.generator.get_perfect())
+            self.refresh_setting(self.input.cur_setting)
 
         elif button_clicked.name in [
             button.name
@@ -724,7 +766,7 @@ class ButtonMenu:
         match self.cur_menu:
 
             case "start_menu":
-                self.button_title.draw("A-Maze-Ing Menu")
+                self.button_title.draw("A Maze Ing Menu")
 
             case "settings":
                 self.button_title.draw("")
@@ -829,7 +871,8 @@ class ButtonMenu:
                 self.generator.set_seed(val)
 
         except ValueError:
-            self.input.input_title = "Invalid input, please try again"
+            self.input.user_input = list("Invalid input, please try again")
+            self.input.update()
             self.input.user_input = []
             self.input.taking_input = True
             return None

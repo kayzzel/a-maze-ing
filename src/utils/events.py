@@ -1,10 +1,16 @@
 from .mlx_display import render
 
 
+LETTERS: str = "abcdefghijklmnopqrstuvwxyz"
+
+
 KEYS: dict[int, int | str] = {
     48 + index: index
     for index in range(10)
-    } | {44: ",", 32: " ", 65293: "enter", 65288: "del"}
+} | {44: ",", 32: " ", 65293: "enter", 65288: "del"} | {
+    97 + index: LETTERS[index]
+    for index in range(len(LETTERS))
+}
 
 
 """

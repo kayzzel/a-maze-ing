@@ -57,7 +57,7 @@ class Input:
         clear_img(self.buf, self.img_sz[1], self.sz_line)
 
         self.input_title = (
-            f"Enter value for {self.cur_setting.name} "
+            f"Enter value for {self.cur_setting.name.split(' :', 1)[0]} "
             "parameter:"
         )
         self.title_pos: tuple[int, int] = (
@@ -80,7 +80,7 @@ class Input:
             ])
             self.input_pos: tuple[int, int] = (
                 (self.img_sz[0] - len(self.input_string) * 12) // 2,
-                self.img_sz[1] - 25
+                self.img_sz[1] - 30
             )
             put_str_to_img(
                 self.input_string,
