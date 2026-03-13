@@ -541,6 +541,9 @@ class ButtonMenu:
 
             return None
 
+        if not self.cur_menu:
+            return None
+
         for button in self.menus[self.cur_menu]:
 
             if is_in(
@@ -632,9 +635,6 @@ class ButtonMenu:
                 if self.maze.rainbow_mode:
                     self.maze.activate_rainbow()
                 self.input.reset()
-
-            case "settings":
-                self.cur_menu = "settings"
 
             case "back to menu":
                 self.cur_menu = "main"
@@ -747,6 +747,7 @@ class ButtonMenu:
         ]:
             self.input.taking_input = True
             self.input.cur_setting = button_clicked
+            self.cur_menu = ""
 
         if button_clicked.name in [
             "a*",
@@ -902,7 +903,6 @@ class ButtonMenu:
         self.cur_menu = "settings"
         self.refresh_setting(self.input.cur_setting)
         self.input.reset()
-        self.input.display_img_on_window()
 
     def clear_all_buttons(self) -> None:
 

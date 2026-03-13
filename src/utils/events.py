@@ -7,7 +7,7 @@ LETTERS: str = "abcdefghijklmnopqrstuvwxyz"
 KEYS: dict[int, int | str] = {
     48 + index: index
     for index in range(10)
-} | {44: ",", 32: " ", 65293: "enter", 65288: "del"} | {
+} | {44: ",", 32: " ", 65293: "enter", 65288: "del", 65307: "esc"} | {
     97 + index: LETTERS[index]
     for index in range(len(LETTERS))
 }
@@ -83,10 +83,16 @@ def handle_keyboard_input(
             button_menu.handle_settings()
             return None
 
-        if KEYS[keycode] == "del":
+        elif KEYS[keycode] == "del":
             if not button_menu.input.user_input:
                 return None
             button_menu.input.user_input.pop()
+
+        elif KEYS[keycode] == "esc":
+            button_menu.cur_menu = "settings"
+            button_menu.refresh_setting(button_menu.input.cur_setting)
+            button_menu.input.reset()
+            return None
 
         else:
             button_menu.input.user_input.append(KEYS[keycode])
