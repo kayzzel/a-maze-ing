@@ -6,10 +6,24 @@ def get_path(
         maze: Maze,
         routes: list[list[int]],
         ) -> str:
+    """
+        Description:
+    create the route from the start to the exit using the directions
+    the path_finders made in the maze
 
+        Parameters:
+    maze -> the maze with all the cells and infos
+    routes -> a list of all the direction the path_finders took
+
+        Returns value:
+    a string of the directions from the start to the end (NWSE)
+    """
+
+    # Get the start and exit from the maze
     start: CellCoords = maze.entry_point
     end: CellCoords = maze.exit_point
 
+    # Reset the path inside the maze
     maze.path = []
 
     # Initialize the reverse path from the start to the end
@@ -49,6 +63,21 @@ def create_path_finders(
         path_finders: set[CellCoords],
         routes: list[list[int]],
         ) -> bool:
+    """
+        Description:
+    create path_finder to all the open directions
+
+        Parameters:
+    maze -> the maze with all the cells and infos
+    cell -> the coordinates of the cell we have to create path_finders around
+    path_finders -> list of all the path_finders
+    routes -> a list of all the direction the path_finders took
+
+        Returns value:
+    a bool that is True if the end has been found during the walk else False
+    """
+
+    # Get the coordinate from the exit in the maze
     end: CellCoords = maze.exit_point
 
     # Unpacking the cell into row and col to have the coordinates
@@ -103,6 +132,20 @@ def get_path_finder(
         start: CellCoords,
         end: CellCoords
         ) -> CellCoords:
+    """
+        Description:
+    calculate the distance of all the path_finder from the start + the end
+    using the manhattan distance formula
+    and return the one with the sortest distance
+
+        Parameters:
+    path_finder -> list of all the path_finders
+    start -> coordinate of the start (x, y)
+    end -> coordinate of the exit(x, y)
+
+        Returns value:
+    return the coordinates of the path_finders with the shortest distance
+    """
     # unpack the start and the exit into their coordinates
     sx, sy = start
     ex, ey = end
@@ -117,7 +160,9 @@ def get_path_finder(
             abs(sx - x) + abs(sy - y) + abs(ex - x) + abs(ey - y)
         )
 
+    # loops for all the path_finders
     for i in range(1, len(path_finders)):
+
         # get the coordinates of the next path_finder
         x, y = path_finders[i]
 
@@ -141,6 +186,20 @@ def walk(
         path_finders: set[CellCoords],
         routes: list[list[int]],
         ) -> bool:
+    """
+        Description:
+    walk into the same direction until it is blocked or it find the exit
+    create path finder at each intersection
+
+        Parameters:
+    path_finder -> the coord of the best path_finder found
+    maze -> the maze
+    path_finders -> set of all the path_finders
+    routes -> list the directions
+
+        Return value:
+    a bool that is True if the end has been found during the walk else False
+    """
 
     # loop while there still are path finders in the maze
     while (path_finders):
@@ -164,6 +223,7 @@ def walk(
             next_col -= 1
         elif direction == 4:  # East
             next_col += 1
+        # If the direction is not set raise an error
         elif direction != 0:
             raise Exception("Error while parsing the Maze")
 
