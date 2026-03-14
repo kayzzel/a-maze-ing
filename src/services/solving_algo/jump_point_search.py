@@ -190,17 +190,35 @@ def walk(
 def jump_point_search(
         maze: Maze
         ) -> str | None:
+    """
+        Description:
+    get a maze and find the shortest path from the entry_point
+    to the exit_point using the jump_point_search algorithm with
+    a manhattan distance algorithm
 
+        Parameters:
+    maze -> a maze containing all the relevant information
+            that are needed to solve it
+
+        Return Value:
+    return the string of the direction from the start to the exit
+    if there is a path else return None
+    """
+
+    # Get the start and exit from the given maze
     start: CellCoords = maze.entry_point
     end: CellCoords = maze.exit_point
 
+    # Reseting the solving steps in case there already are some in
     maze.solving_steps = []
 
     # Returns an empty path if the entry and exit are the same cell
     if start == end:
+        maze.path_dirs = ""
+        maze.path = []
         return ""
 
-    # Get the width and the height from the given maze
+    # Get the width and height from the given maze
     height: int = maze.height
     width: int = maze.width
 
