@@ -646,6 +646,7 @@ class ButtonMenu:
 
             case "custom colors":
                 self.color_type = ColorType.WALL
+                self.cur_menu = "color_palette"
 
             case "rainbow mode on/off":
                 self.cur_menu = "color_change"
@@ -749,13 +750,6 @@ class ButtonMenu:
             self.input.taking_input = True
             self.input.cur_setting = button_clicked
             self.cur_menu = ""
-
-        if button_clicked.name in [
-            "a*",
-            "jump point search"
-        ]:
-            self.cur_menu = "path_menu"
-            # start pathfinding animation
 
         if self.maze.animating and not self.maze.rainbow_mode:
             self.cur_menu = "skip"
