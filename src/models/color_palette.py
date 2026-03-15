@@ -12,6 +12,17 @@ Color_type = tuple[
 
 
 class Colors(Color_type, Enum):
+    """
+        Description:
+    An enumeration of all available color families. Each member holds
+    four RGBA tuples representing shades from darkest to lightest,
+    used to populate the color palette and drive the rainbow mode
+
+        Attributes:
+    RED, ORANGE, YELLOW, GREEN_1, GREEN_2, BLUE_1, BLUE_2,
+    VIOLET, PINK, GREY -> each holds four (R, G, B, A) tuples
+                          ordered from dark to light
+    """
 
     RED = (
         (79, 20, 14, 255),
@@ -76,6 +87,21 @@ class Colors(Color_type, Enum):
 
 
 class Color:
+    """
+        Description:
+    A wrapper around a Colors enum member that exposes its four
+    shades as named attributes for convenient access
+
+        Parameters:
+    colors -> a Colors enum member containing four RGBA shades
+
+        Attributes:
+    dark -> the darkest shade of the color
+    medium -> the medium-dark shade of the color
+    bright -> the medium-light shade of the color
+    light -> the lightest shade of the color
+    nuances -> the original Colors enum member holding all four shades
+    """
 
     def __init__(
         self,
@@ -90,9 +116,34 @@ class Color:
 
 
 class ColorPalette:
+    """
+        Description:
+    A visual color picker widget that renders a grid of color swatches
+    onto an MLX image. Each column represents a color family and each
+    row a shade, from darkest to lightest. The user can click a swatch
+    to select a color
+
+        Parameters:
+    mlx_data -> a tuple containing (mlx, mlx_ptr, mlx_win) for the MLX instance
+    win_sz -> the size of the window as (width, height)
+
+        Attributes:
+    colors -> the list of Color instances displayed in the palette
+    mlx, mlx_ptr, mlx_win -> the MLX rendering context
+    width -> the pixel width of the palette image
+    height -> the pixel height of the palette image
+    win_pos -> the (x, y) position of the palette in the window
+    end_pos -> the (x, y) bottom-right corner of the palette in the window
+    img -> the MLX image used to render the palette
+    buf, bpp, sz_line -> the raw image buffer and its parameters
+    column_width -> the pixel width of each color column
+    row_height -> the pixel height of each shade row
+    color_picked -> the RGBA tuple of the most recently selected color
+    """
 
     def __init__(self, mlx_data: tuple, win_sz: tuple) -> None:
 
+        # Build the list of Color wrappers for every color family
         self.colors: list[Color] = [
             Color(Colors.RED),
             Color(Colors.ORANGE),
@@ -108,9 +159,11 @@ class ColorPalette:
 
         self.mlx, self.mlx_ptr, self.mlx_win = mlx_data
 
+        # Size the palette relative to the window, leaving room for borders
         self.width: int = win_sz[0] // 2 + 4
         self.height: int = win_sz[1] // 5 + 4
 
+        # Position the palette near the bottom-left of the window
         self.win_pos: tuple[int, int] = (
             200,
             win_sz[1] - self.height - 50
@@ -120,6 +173,7 @@ class ColorPalette:
             self.win_pos[1] + self.height
         )
 
+        # Allocate the MLX image and get its buffer
         self.img = self.mlx.mlx_new_image(
             self.mlx_ptr,
             self.width,
@@ -132,6 +186,7 @@ class ColorPalette:
 
         clear_img(self.buf, self.height, self.sz_line)
 
+        # Draw a 2-pixel white border around the palette
         draw_borders(
             (0, 0),
             (self.width, self.height),
@@ -140,19 +195,29 @@ class ColorPalette:
             (255, 255, 255, 255)
         )
 
+        # Compute the cell dimensions from the drawable area inside the border
         self.column_width: int = (self.width - 4) // len(self.colors)
         self.row_height: int = (self.height - 4) // len(self.colors[0].nuances)
 
         self.draw_color_palette()
 
+        # Default selected color is black
         self.color_picked: tuple[int, int, int, int] = (0, 0, 0, 255)
 
     def draw_color_palette(self) -> None:
+        """
+            Description:
+        Render all color swatches onto the palette image. Iterates over
+        each shade row and each color column, drawing a filled rectangle
+        for every swatch
+        """
 
+        # Start below the top border
         start_row: int = 2
 
         for nuance in range(4):
 
+            # Start to the right of the left border
             start_col: int = 2
 
             for color in self.colors:
@@ -168,6 +233,16 @@ class ColorPalette:
             start_row += self.row_height
 
     def draw_color(self, x: int, y: int, color: tuple) -> None:
+        """
+            Description:
+        Fill a single color swatch rectangle on the palette image by
+        setting every pixel within the cell to the given color
+
+            Parameters:
+        x -> the left pixel coordinate of the swatch
+        y -> the top pixel coordinate of the swatch
+        color -> the RGBA tuple to fill the swatch with
+        """
 
         for row in range(y, y + self.row_height):
 
@@ -183,13 +258,25 @@ class ColorPalette:
                 )
 
     def get_color_clicked(self, x: int, y: int) -> None:
+        """
+            Description:
+        Determine which color swatch was clicked based on the given window
+        coordinates and store it in color_picked. Does nothing if the click
+        falls outside the drawable area inside the palette border
 
+            Parameters:
+        x -> the x coordinate of the click in the window
+        y -> the y coordinate of the click in the window
+        """
+
+        # Reject clicks outside the inner drawable area of the palette
         if not (self.win_pos[0] + 2 <= x < self.win_pos[0] + self.width - 2):
             return None
 
         if not (self.win_pos[1] + 2 <= y < self.win_pos[1] + self.height - 2):
             return None
 
+        # Start below the top border
         start_row: int = self.win_pos[1] + 2
 
         for nuance in range(4):
@@ -201,6 +288,7 @@ class ColorPalette:
 
                 end_col: int = start_col + self.column_width
 
+                # Check if the click falls within this swatch's bounds
                 if start_col <= x < end_col and start_row <= y < end_row:
 
                     self.color_picked = self.colors[color].nuances[nuance]
@@ -211,6 +299,10 @@ class ColorPalette:
             start_row += self.row_height
 
     def display_img(self) -> None:
+        """
+            Description:
+        Render the palette image onto the window at its configured position
+        """
 
         self.mlx.mlx_put_image_to_window(
             self.mlx_ptr,
@@ -220,12 +312,18 @@ class ColorPalette:
         )
 
     def clean_img(self) -> None:
+        """
+            Description:
+        Clear the palette image buffer and destroy the MLX image to free
+        the associated memory. Should be called before closing the window
+        """
 
         clear_img(self.buf, self.height, self.sz_line)
 
         self.mlx.mlx_destroy_image(self.mlx_ptr, self.img)
 
 
+# The ordered sequence of color families used to cycle through in rainbow mode
 RAINBOW_PALETTE: list[Colors] = [
     Colors.RED,
     Colors.ORANGE,
