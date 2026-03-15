@@ -148,6 +148,10 @@ class ButtonMenu:
 
         self.input: Input = Input(win_sz, mlx_data)
 
+        self.start_menu_img, _, _ = self.mlx.mlx_xpm_file_to_image(
+                self.mlx_ptr, "./src/images/start_menu.xpm"
+                )
+
         self.menus["main"][0].needs_refresh = True
         self.display_button_menu()
 
@@ -200,6 +204,14 @@ class ButtonMenu:
 
         if not self.cur_menu == "settings":
             self.button_title.display()
+
+        if self.cur_menu == "start_menu" and self.start_menu_img:
+            self.mlx.mlx_put_image_to_window(
+                self.mlx_ptr, self.mlx_win,
+                self.start_menu_img,
+                (self.win_sz[0] - 800) // 2,
+                self.win_sz[1] // 10
+            )
 
         if self.cur_menu == "color_palette":
 
@@ -900,6 +912,9 @@ class ButtonMenu:
         self.input.reset()
 
     def clear_all_buttons(self) -> None:
+
+        if self.start_menu_img:
+            self.mlx.mlx_destroy_image(self.mlx_ptr, self.start_menu_img)
 
         for menu in self.menus.values():
 
