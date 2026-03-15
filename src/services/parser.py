@@ -9,7 +9,7 @@ def validate_format(line: str) -> tuple:
     if not (match := re.match("([A-Z_]+)=([a-zA-Z0-9.,]+)", line)):
 
         raise ValueError(
-            f"Invalid format in configuration file!\nline: {line}"
+            f"Invalid format in configuration file!\nLine: {line}"
         )
 
     if not match.group(1) in [

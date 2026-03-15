@@ -118,10 +118,10 @@ class MazeGenerator:
         for val in sz:
 
             if not isinstance(val, int) or val <= 0:
-                raise ValueError("invalid size for the maze")
+                raise ValueError("Invalid size {sz} for the maze")
 
         self.__maze_sz: tuple[int, int] = sz
-        print(f"successfully modified maze size to {sz}")
+        print(f"Successfully modified maze size to {sz}")
 
     def get_maze_sz(self) -> tuple[int, int]:
 
@@ -137,7 +137,7 @@ class MazeGenerator:
 
             if not isinstance(val, int):
                 raise ValueError(
-                    f"invalid {point_type} coordinates for the maze"
+                    f"Invalid {point_type} coordinates for the maze"
                 )
 
         if not (
@@ -145,8 +145,8 @@ class MazeGenerator:
             and 0 <= point[1] < self.__maze_sz[1]
         ):
             raise ValueError(
-                f"invalid {point_type} coordinates for the maze\n"
-                "coordinates are outside of the maze's bounds"
+                f"Invalid {point_type} coordinates for the maze\n"
+                "Coordinates are outside of the maze's bounds"
             )
 
         if point_type == "entry":
@@ -155,7 +155,7 @@ class MazeGenerator:
         elif point_type == "exit":
             self.__exit_point: tuple[int, int] = point
 
-        print(f"successfully changed {point_type} coordinates to {point}")
+        print(f"Successfully changed {point_type} coordinates to {point}")
 
     def get_entry_exit_point(self) -> tuple[
         tuple[int, int],
@@ -166,10 +166,13 @@ class MazeGenerator:
     def set_perfect(self, perfection: bool) -> None:
 
         if not isinstance(perfection, bool):
-            raise ValueError("invalid value for the perfection parameter")
+            raise ValueError(
+                f"Invalid value {perfection} "
+                "for the perfection parameter"
+            )
 
         self.__is_perfect: bool = perfection
-        print(f"successfully changed the maze's perfection to {perfection}")
+        print(f"Successfully changed the maze's perfection to {perfection}")
 
     def get_perfect(self) -> bool:
 
@@ -178,13 +181,13 @@ class MazeGenerator:
     def set_seed(self, seed: int | None) -> None:
 
         if not isinstance(seed, int) and seed is not None:
-            raise ValueError("invalid value for the seed")
+            raise ValueError(f"Invalid value {seed} for the seed")
 
         if isinstance(seed, int) and seed < 0:
-            raise ValueError("invalid value for the seed")
+            raise ValueError(f"Invalid value {seed} for the seed")
 
         self.__seed: int | None = seed
-        print(f"sucessfully changed the seed to {seed}")
+        print(f"Successfully changed the seed to {seed}")
 
     def get_seed(self) -> int | None:
 
