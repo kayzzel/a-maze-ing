@@ -195,9 +195,26 @@ def find_valid_neighbors(
     to_explore: list[PathCell],
     explored: list[PathCell]
 ) -> list[PathCell]:
+    """
+        Description:
+    Find all reachable neighbors of the current cell and add them to the
+    list of cells to explore, updating their distance if a shorter path
+    is found
+
+        Parameters:
+    cells -> the 2D grid of all PathCells in the maze
+    cur_cell -> the PathCell whose neighbors are being examined
+    to_explore -> the current list of PathCells waiting to be explored
+    explored -> the list of PathCells that have already been visited
+
+        Returns value:
+    return the updated to_explore list with any newly found or improved
+    neighbors added
+    """
 
     neighbors: list[PathCell] = []
 
+    # Collect all neighbors reachable from cur_cell (i.e. no wall between them)
     for wall, state in cur_cell.walls.items():
 
         if not state:
@@ -207,11 +224,14 @@ def find_valid_neighbors(
 
     for neighbor in neighbors:
 
+        # Skip neighbors that have already been fully explored
         if neighbor in explored:
             continue
 
+        # Update the neighbor's distance and parent, improving it if possible
         neighbor.update(cur_cell, neighbor in to_explore)
 
+        # Add the neighbor to the exploration list if not already in it
         if neighbor not in to_explore:
             to_explore.append(neighbor)
 
@@ -219,15 +239,29 @@ def find_valid_neighbors(
 
 
 def find_next_cell(to_explore: list[PathCell]) -> PathCell | None:
+    """
+        Description:
+    Find the most promising PathCell to explore next by selecting the one
+    with the lowest total cost (distance_from_entry + distance_from_exit).
+    Ties are broken first by lowest distance_from_exit, then randomly
+
+        Parameters:
+    to_explore -> the list of PathCells waiting to be explored
+
+        Returns value:
+    return the best PathCell to visit next, or None if to_explore is empty
+    """
 
     if not to_explore:
         return None
 
+    # Sort the cells by their total estimated cost (g + h)
     sorted_list: list[PathCell] = sorted(
         to_explore,
         key=lambda cell: cell.distance_from_entry + cell.distance_from_exit
     )
 
+    # If multiple cells share the lowest total cost, break the tie
     if any(
         (cell.distance_from_entry + cell.distance_from_exit) ==
         (sorted_list[0].distance_from_entry
@@ -235,6 +269,7 @@ def find_next_cell(to_explore: list[PathCell]) -> PathCell | None:
         for cell in sorted_list[1:]
     ):
 
+        # Keep only the cells with the lowest total cost
         sorted_list = [
             cell
             for cell in to_explore
@@ -243,11 +278,14 @@ def find_next_cell(to_explore: list[PathCell]) -> PathCell | None:
              + sorted_list[0].distance_from_exit)
         ]
 
+        # Among those, sort by distance_from_exit to prefer cell closer to goal
         sorted_list = sorted(
             sorted_list,
             key=lambda cell: cell.distance_from_exit
         )
 
+        # If multiple cells also share the lowest distance_from_exit,
+        # pick randomly
         if any(
             cell.distance_from_exit == sorted_list[0].distance_from_exit
             for cell in sorted_list[1:]
@@ -268,16 +306,31 @@ def retrace_steps(
     destination: PathCell,
     entry_coor: tuple[int, int]
 ) -> list[tuple[int, int]]:
+    """
+        Description:
+    Reconstruct the path from the exit back to the entry by following
+    each PathCell's parent until the entry is reached
+
+        Parameters:
+    destination -> the PathCell at the exit point of the maze
+    entry_coor -> the coordinate of the entry point (col, row)
+
+        Returns value:
+    return the path as an ordered list of (col, row) coordinates
+    from the entry to the exit (excluding the entry itself)
+    """
 
     cell: PathCell = destination
 
     path: list[tuple[int, int]] = []
 
+    # Walk backwards from the exit to the entry using parent references
     while (cell.col, cell.row) != entry_coor:
 
         path.append((cell.col, cell.row))
         cell = cell.parent
 
+    # Reverse the path so it goes from entry to exit
     path.reverse()
 
     return path
@@ -287,6 +340,20 @@ def compute_path(
     path: list[tuple[int, int]],
     entry_coor: tuple[int, int]
 ) -> str | None:
+    """
+        Description:
+    Convert a list of (col, row) coordinates into a string of cardinal
+    directions (N, S, E, W) representing the step-by-step path through
+    the maze from the entry point
+
+        Parameters:
+    path -> the ordered list of (col, row) coordinates to follow
+    entry_coor -> the coordinate of the entry point (col, row)
+
+        Returns value:
+    return the path as a string of direction letters (e.g. "NEESW"),
+    or None if the path is empty
+    """
 
     cur_row: int
     cur_col: int
@@ -296,6 +363,7 @@ def compute_path(
 
     for col, row in path:
 
+        # Find which direction leads from the current position to the next cell
         for wall, dirs in WALL_DIRS.items():
 
             if (
@@ -304,6 +372,7 @@ def compute_path(
             ):
                 directions += wall
 
+        # Advance the current position to the next cell in the path
         cur_row, cur_col = row, col
 
     return directions
