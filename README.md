@@ -54,6 +54,8 @@
   ___
   ### 1. Generation algorithms
   + Wilson:<br>
+    This algirithm work by defining a random cell as part of the final maze then from another random cell it is trying to join it by creating a random path. If the path makes a loop then it destroy the part of the path that made the loop and continue until it join the cell randomly selected. When the cell is joined it build the path found in the maze. Then select another random cell that hasn't been expored yet and apply the same rule of pathfinding as befor to join the existing part of the maze. It repeats it until there are no more unvisited cells. It creats a maze that is always perfect, meaning that each cell is linked to another one by one only path.
+    I choose this algorithme, firstly because unlike some other algorithms this one doesn't have a pattern, also because it is one that is not optimized and hard to implement so I found that it would be a fun chalenge to make one that works well, and finally it was fun to watch it create a maze
 
 
   + Recursive backtracking:<br>
@@ -62,9 +64,6 @@
     I chose this algoritm because I usually struggle with recursion and backtracking, so I wanted to train to better comprehend how it works. And it also is an advantageous algorithm in terms of speed and optimization.<br>
 
   ### 2. Pathfinding algorithm
-  + Jump point search:<br>
-
-  
   + A*:<br>
     This algorithm uses two lists to store visited cells and cells to visit, as well as a heuristic calcul for the cost, effectively finding the shortest path between the entry and exit coordinates.<br>
     It starts at the entry point provided and adds it to the visited list. It then adds its viable neighbors (those who are accessible, i.e. when there aren't walls between them) to the list of cells to visit. Those cells to visit are going to be sorted by a heuristic function, that is to say a function that calculates the cost of each cell using a specific criterion. The criterion in question is the Manhattan distance, which is the sum of the distance between the cell and the entry point and the distance between the cell and the exit point. The cell with the least cost is the one that is going to be visited next. This process is repeated until the exit point is reached or all cells have been visited.<br>
@@ -73,6 +72,11 @@
 </details>
 <details>
   <summary><h4>Display Options</h4></summary>
+
+
+  + Jump point search:<br>
+    This algorithm work like A* but it has an optimisation that makes it "walk" in the same direction untile it crosses eather a wall or the exit, then if it crosses a wall it calculate the cost. So that means it makes less calcualtion that the original A*<br>
+
 
   ___
   ### Graphical Interface:
@@ -134,6 +138,7 @@
     - Makefile
     - menu image display<br>
   + Ibady:<br>
+    - parsing
     - recursive backtracking generation algorithm
     - a* pathfinding algorithm
     - mlx graphical interface (buttons, animations...)
@@ -157,8 +162,10 @@
     - [MiniLibx Man Page](https://qst0.github.io/ft_libgfx/man_mlx.html)<br><br>
   For the algorithms:<br>
     - [Recursive Backtracking Algorithm](https://weblog.jamisbuck.org/2010/12/27/maze-generation-recursive-backtracking)<br>
+    - [Wilson Algorithm](https://medium.com/@batu.senturk/the-ultimate-unbiased-maze-generation-technique-you-need-to-see-46123d5fec76)<br>
     - [A* Algorithm](https://www.youtube.com/watch?v=-L-WgKMFuhE&t=2s)<br>
-    - [Maze Algorithms Visualization Tool]()<br>
+    - [Jump Point Search](https://zerowidth.com/2013/a-visual-explanation-of-jump-point-search)<br>
+    - [Maze Algorithms Visualization Tool](https://amazeing.app)<br>
   
   ### 2. AI Usage:
   ChatGPT was used a little bit, mostly for some explanations on how to handle the MiniLibX library, especially because of the lack of documentation for the Python version.<br>
