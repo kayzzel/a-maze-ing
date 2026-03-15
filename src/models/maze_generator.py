@@ -89,8 +89,8 @@ class MazeGenerator:
         maze_sz: tuple[int, int],
         entry_point: tuple[int, int],
         exit_point: tuple[int, int],
-        is_perfect: bool,
-        seed: int | None
+        is_perfect: bool = True,
+        seed: int | None = None
     ) -> None:
 
         from ..services.generation_algo.rec_backtrack import rec_backtrack
@@ -233,6 +233,6 @@ class MazeGenerator:
 
         return True
 
-    def calculate_path(self, maze: Maze) -> str | None:
+    def solve_maze(self, maze: Maze) -> str | None:
 
         return self.solve_algo(maze)

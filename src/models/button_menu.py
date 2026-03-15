@@ -667,7 +667,7 @@ class ButtonMenu:
             case "toggle path on/off":
                 self.cur_menu = "path_menu"
                 if not self.maze.toggle_path:
-                    self.generator.solve_algo(self.maze.maze)
+                    self.generator.solve_maze(self.maze.maze)
                 self.maze.toggle_path_on_off()
 
             case "recursive backtracking":
@@ -683,7 +683,8 @@ class ButtonMenu:
             case "wilson":
                 self.cur_menu = "skip"
                 self.prev_menu = "gen_algo_choice"
-                self.maze.toggle_path = False
+                if self.maze.toggle_path:
+                    self.maze.toggle_path_on_off()
                 if self.maze.rainbow_mode:
                     self.maze.activate_rainbow()
                 self.generator.gen_algo = wilson
@@ -698,7 +699,7 @@ class ButtonMenu:
                 if self.maze.rainbow_mode:
                     self.maze.activate_rainbow()
                 self.generator.solve_algo = a_star
-                self.generator.solve_algo(self.maze.maze)
+                self.generator.solve_maze(self.maze.maze)
                 self.maze.toggle_path_on_off(True)
 
             case "jump point search":
@@ -708,7 +709,8 @@ class ButtonMenu:
                     self.maze.toggle_path_on_off()
                 if self.maze.rainbow_mode:
                     self.maze.activate_rainbow()
-                jump_point_search(self.maze.maze)
+                self.generator.solve_algo = jump_point_search
+                self.generator.solve_maze(self.maze.maze)
                 self.maze.toggle_path_on_off(True)
 
             case "random":
@@ -722,7 +724,6 @@ class ButtonMenu:
                 ])
                 self.maze.set_new_maze(self.generator.generate_maze())
                 self.maze.start_animation()
-                # random.choice([rec_backtrack, wilson])()
 
             case "ok":
 
