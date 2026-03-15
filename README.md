@@ -72,7 +72,7 @@
 
 
   + Jump point search:<br>
-    This algorithm work like A* but it has an optimisation that makes it "walk" in the same direction untile it crosses eather a wall or the exit, then if it crosses a wall it calculate the cost. So that means it makes less calcualtion that the original A*<br>
+    This algorithm works like A* but it has an optimisation that makes it "walk" in the same direction until it crosses eather a wall or the exit, then if it crosses a wall it calculate the cost. So that means it makes less calcualtion that the original A*<br>
 </details>
 <details>
   <summary><h4>Display Options</h4></summary>
