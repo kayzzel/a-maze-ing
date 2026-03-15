@@ -69,13 +69,13 @@
     It starts at the entry point provided and adds it to the visited list. It then adds its viable neighbors (those who are accessible, i.e. when there aren't walls between them) to the list of cells to visit. Those cells to visit are going to be sorted by a heuristic function, that is to say a function that calculates the cost of each cell using a specific criterion. The criterion in question is the Manhattan distance, which is the sum of the distance between the cell and the entry point and the distance between the cell and the exit point. The cell with the least cost is the one that is going to be visited next. This process is repeated until the exit point is reached or all cells have been visited.<br>
     As all cells have a parent cell that indicates the previous cell (where we came from to arrive on this cell), it simply has to retrace its steps back to the entry point, then reverse the resulting list of cells to obtain the path found from the entry to the exit.<br>
     I chose this algorithm because I found it easy to understand and implement, and it is pretty effective and optimized. Also I liked its name haha xD<br>
-</details>
-<details>
-  <summary><h4>Display Options</h4></summary>
 
 
   + Jump point search:<br>
     This algorithm work like A* but it has an optimisation that makes it "walk" in the same direction untile it crosses eather a wall or the exit, then if it crosses a wall it calculate the cost. So that means it makes less calcualtion that the original A*<br>
+</details>
+<details>
+  <summary><h4>Display Options</h4></summary>
 
 
   ___
