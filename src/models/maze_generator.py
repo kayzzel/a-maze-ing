@@ -223,7 +223,7 @@ class MazeGenerator:
                 output.write("\n\n")
                 output.write(str(maze.entry_point) + "\n")
                 output.write(str(maze.exit_point) + "\n")
-                self.calculate_path(maze)
+                self.solve_maze(maze)
                 output.write(maze.path_dirs + "\n")
 
         except OSError as err:
