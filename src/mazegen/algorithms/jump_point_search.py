@@ -1,5 +1,5 @@
-from ...models.maze_generator import Maze
-from src.utils.generation_utils import CellCoords
+from ..maze_generator import Maze
+from ..utils.generation_utils import CellCoords
 
 
 def get_path(

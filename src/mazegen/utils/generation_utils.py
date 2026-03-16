@@ -1,5 +1,5 @@
 from random import Random, randint
-from src.models.maze_generator import Maze, Cell
+from ..maze_generator import Maze, Cell
 
 
 # Type alias for a cell's (row, col) coordinate pair

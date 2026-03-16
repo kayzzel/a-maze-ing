@@ -1,15 +1,15 @@
 from .button import Button
 from .input import Input
 from .maze_display import MazeDisplay
-from .maze_generator import MazeGenerator
+from ..mazegen import MazeGenerator
 from .color_palette import ColorPalette
 from ..utils.cleanup import clear_img, clear_all
-from ..utils.checks import is_in
+from ..mazegen.utils.checks import is_in
 from ..utils.mlx_display import put_str_to_img
-from ..services.generation_algo.rec_backtrack import rec_backtrack
-from ..services.generation_algo.wilson import wilson
-from ..services.solving_algo.a_star import a_star
-from ..services.solving_algo.jump_point_search import jump_point_search
+from ..mazegen import rec_backtrack
+from ..mazegen import wilson
+from ..mazegen import a_star
+from ..mazegen import jump_point_search
 from enum import Enum
 import random
 
@@ -86,11 +86,13 @@ class ButtonTitle:
             *self.img_pos
         )
 
+    """
     def clean_img(self) -> None:
 
         clear_img(self.buf, self.img_sz[1], self.sz_line)
 
         self.mlx.mlx_destroy_image(self.mlx_ptr, self.img)
+    """
 
 
 class ButtonMenu:
@@ -271,8 +273,9 @@ class ButtonMenu:
             return None
 
         self.mlx.mlx_clear_window(self.mlx_ptr, self.mlx_win)
+        self.maze.display_on_window()
 
-        if not self.cur_menu == "settings":
+        if self.cur_menu not in ["settings", "skip"]:
             self.button_title.display()
 
         if self.cur_menu == "start_menu" and self.start_menu_img:
@@ -821,9 +824,10 @@ class ButtonMenu:
             case "recursive backtracking":
                 # Start maze generation using recursive backtracking
                 # and show skip
-                self.cur_menu = "skip"
                 self.prev_menu = "gen_algo_choice"
-                self.maze.toggle_path = False
+                self.cur_menu = "skip"
+                if self.maze.toggle_path:
+                    self.maze.toggle_path_on_off()
                 if self.maze.rainbow_mode:
                     self.maze.activate_rainbow()
                 self.generator.gen_algo = rec_backtrack
@@ -832,8 +836,8 @@ class ButtonMenu:
 
             case "wilson":
                 # Start maze generation using Wilson's algorithm and show skip
-                self.cur_menu = "skip"
                 self.prev_menu = "gen_algo_choice"
+                self.cur_menu = "skip"
                 if self.maze.toggle_path:
                     self.maze.toggle_path_on_off()
                 if self.maze.rainbow_mode:
@@ -844,8 +848,8 @@ class ButtonMenu:
 
             case "a*":
                 # Solve the maze using A* and display the path
-                self.cur_menu = "skip"
                 self.prev_menu = "path_menu"
+                self.cur_menu = "skip"
                 if self.maze.toggle_path:
                     self.maze.toggle_path_on_off()
                 if self.maze.rainbow_mode:
@@ -856,8 +860,8 @@ class ButtonMenu:
 
             case "jump point search":
                 # Solve the maze using Jump Point Search and display the path
-                self.cur_menu = "skip"
                 self.prev_menu = "path_menu"
+                self.cur_menu = "skip"
                 if self.maze.toggle_path:
                     self.maze.toggle_path_on_off()
                 if self.maze.rainbow_mode:
@@ -868,9 +872,10 @@ class ButtonMenu:
 
             case "random":
                 # Pick a random generation algorithm and start generation
-                self.cur_menu = "skip"
                 self.prev_menu = "gen_algo_choice"
-                self.maze.toggle_path = False
+                self.cur_menu = "skip"
+                if self.maze.toggle_path:
+                    self.maze.toggle_path_on_off()
                 if self.maze.rainbow_mode:
                     self.maze.activate_rainbow()
                 self.generator.gen_algo = random.choice([
@@ -901,9 +906,10 @@ class ButtonMenu:
 
             case "exit window":
                 # Clean up all button images before closing the window
+                self.clear_all_buttons()
                 clear_all(
                    (self.mlx, self.mlx_ptr, self.mlx_win),
-                   self
+                   self.maze
                 )
 
         # changes whether or not the maze is perfect
@@ -922,7 +928,6 @@ class ButtonMenu:
             self.input.cur_setting = button_clicked
             self.cur_menu = ""
 
-        # If an animation is running outside rainbow mode, show the skip menu
         if self.maze.animating and not self.maze.rainbow_mode:
             self.cur_menu = "skip"
 
@@ -941,9 +946,6 @@ class ButtonMenu:
             case "start_menu":
                 self.button_title.draw("A Maze Ing Menu")
 
-            case "settings":
-                self.button_title.draw("")
-
             case "main":
                 self.button_title.draw("Maze Menu")
 
@@ -953,15 +955,13 @@ class ButtonMenu:
             case "gen_algo_choice":
                 self.button_title.draw("Choose a generation algorithm")
 
-            case "skip":
-                self.button_title.draw("")
-
             case "color_palette":
-
                 self.button_title.draw(self.color_type)
 
             case "path_menu":
                 self.button_title.draw("Choose a pathfinding algorithm")
+
+        self.display_button_menu()
 
     def handle_settings(self) -> None:
         """
@@ -1128,23 +1128,22 @@ class ButtonMenu:
 
                 button.clean_img((
                     self.mlx,
-                    self.mlx_ptr,
-                    self.mlx_win
+                    self.mlx_ptr
                 ))
 
         # Clean up both images of the ok button
-        self.ok_button.clean_img((self.mlx, self.mlx_ptr, self.mlx_win))
+        for img in [self.ok_button.not_clicked, self.ok_button.clicked]:
 
-        clear_img(
-            self.ok_button.not_clicked["img_data"][0],
-            self.ok_button.img_sz[1],
-            self.ok_button.not_clicked["img_data"][1]
-        )
-        self.mlx.mlx_destroy_image(
-            self.mlx_ptr,
-            self.ok_button.not_clicked["img"]
-        )
+            clear_img(
+                img["img_data"][0],
+                self.ok_button.img_sz[1],
+                img["img_data"][1]
+            )
+            self.mlx.mlx_destroy_image(
+                self.mlx_ptr,
+                img["img"]
+            )
 
         self.color_palette.clean_img()
         self.input.clean_img()
-        self.button_title.clean_img()
+        # self.button_title.clean_img()

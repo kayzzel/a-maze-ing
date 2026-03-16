@@ -4,10 +4,8 @@ from .mlx_display import (
     draw_borders,
     put_str_to_img
 )
-from .tui_display import print_maze, print_maze_with_path
 from .events import handle_buttons, handle_keyboard_input, global_update
 from .cleanup import clear_all, clear_img
-from .checks import check_maze_input, compute_walls, is_in
 __all__ = [
     "img_put_px",
     "draw_borders",
@@ -17,10 +15,5 @@ __all__ = [
     "global_update",
     "render",
     "clear_img",
-    "clear_all",
-    "check_maze_input",
-    "compute_walls",
-    "is_in",
-    "print_maze",
-    "print_maze_with_path"
+    "clear_all"
 ]

@@ -1,6 +1,6 @@
 from random import Random, randint
-from ...models.maze_generator import Maze
-from ...utils.generation_utils import CellCoords, create_pattern
+from ..maze_generator import Maze
+from ..utils.generation_utils import CellCoords, create_pattern
 
 # defines all the directions
 DIRECTIONS: list[CellCoords] = [

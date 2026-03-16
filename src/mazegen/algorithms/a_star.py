@@ -1,4 +1,4 @@
-from ...models import Maze, Cell
+from ..maze_generator import Maze, Cell
 import random
 
 

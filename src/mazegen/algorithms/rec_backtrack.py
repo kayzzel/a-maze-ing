@@ -1,5 +1,5 @@
-from ...models.maze_generator import Maze, Cell
-from src.utils.generation_utils import create_pattern
+from ..maze_generator import Maze, Cell
+from ..utils.generation_utils import create_pattern
 from random import Random, randint
 import sys
 

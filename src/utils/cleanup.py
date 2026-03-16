@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from ..models import ButtonMenu
+    from ..models import MazeDisplay
 
 
 def clear_img(
@@ -22,7 +22,7 @@ def clear_img(
     buf[:] = b'\x00' * (height * sz_line)
 
 
-def clear_all(mlx_data: tuple, button_menu: "ButtonMenu") -> None:
+def clear_all(mlx_data: tuple, maze: "MazeDisplay") -> None:
     """
         Description:
     Perform a full cleanup before closing the application. Clears and
@@ -36,11 +36,8 @@ def clear_all(mlx_data: tuple, button_menu: "ButtonMenu") -> None:
 
     mlx, mlx_ptr, mlx_win = mlx_data
 
-    # Clean up all maze images first
-    button_menu.maze.clean_img()
-    button_menu.clear_all_buttons()
+    maze.clean_img()
 
-    # Clear and destroy the window, then exit the loop
     mlx.mlx_clear_window(mlx_ptr, mlx_win)
     mlx.mlx_destroy_window(mlx_ptr, mlx_win)
     mlx.mlx_loop_exit(mlx_ptr)

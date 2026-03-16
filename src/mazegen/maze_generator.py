@@ -1,6 +1,7 @@
 # need to move algorithms in the same directory
 from typing import Callable
-from ..utils import print_maze, print_maze_with_path, check_maze_input
+from .display import print_maze, print_maze_with_path
+from .utils import check_maze_input
 
 
 class Cell:
@@ -171,8 +172,7 @@ class MazeGenerator:
         seed: int | None = None
     ) -> None:
 
-        from ..services.generation_algo.rec_backtrack import rec_backtrack
-        from ..services.solving_algo.a_star import a_star
+        from .algorithms import rec_backtrack, a_star
 
         self.set_maze_sz(maze_sz)
         self.__entry_point: tuple[int, int] = (-1, -1)
@@ -356,7 +356,7 @@ class MazeGenerator:
         return the fully generated Maze instance
         """
 
-        from ..utils.generation_utils import maze_to_imperfect
+        from .utils import maze_to_imperfect
 
         maze: Maze = self.gen_algo(
             self.__maze_sz,

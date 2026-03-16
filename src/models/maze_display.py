@@ -6,7 +6,7 @@ from .color_palette import (
     Colors,
     ColorsExpanded
 )
-from .maze_generator import Maze
+from ..mazegen import Maze
 import time
 
 
@@ -329,8 +329,8 @@ class MazeDisplay:
             self.start_animation()
             return None
 
-        self.animating_path = False
         self.toggle_path = not (self.toggle_path)
+        self.animating_path = False
 
         # Use the path color when showing, background color when hiding
         self.cur_bg_color = (
