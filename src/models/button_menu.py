@@ -15,6 +15,18 @@ import random
 
 
 class ColorType(str, Enum):
+    """
+        Description:
+    An enumeration of the four color types that can be customized
+    in the maze display. Used to track which color is currently
+    being edited in the color palette menu
+
+        Attributes:
+    WALL -> the color of the maze walls
+    BG -> the background color of the maze
+    PATH -> the color of the solution path
+    ENTRY_EXIT -> the color of the entry and exit points
+    """
 
     WALL = "Wall Color"
     BG = "Background Color"
@@ -76,6 +88,32 @@ class ButtonTitle:
 
 
 class ButtonMenu:
+    """
+        Description:
+    Manages all the button menus of the application, including rendering,
+    navigation between menus, user input handling, color selection,
+    maze generation and solving, and settings configuration
+
+        Parameters:
+    mlx_data -> a tuple containing (mlx, mlx_ptr, mlx_win) for the MLX instance
+    maze_display -> the MazeDisplay instance used to render the maze
+    generator -> the MazeGenerator instance used to generate and solve mazes
+    win_sz -> the size of the window as (width, height)
+
+        Attributes:
+    mlx, mlx_ptr, mlx_win -> the MLX rendering context
+    maze -> the MazeDisplay instance
+    generator -> the MazeGenerator instance
+    win_sz -> the window size
+    menus -> a dict mapping menu names to their list of Buttons
+    color_palette -> the ColorPalette widget used for custom color picking
+    ok_button -> the confirmation button used in the color palette menu
+    cur_menu -> the name of the currently active menu
+    prev_menu -> the name of the previously active menu, used for back navigation
+    button_title -> the title string displayed above the current menu
+    color_type -> the ColorType currently being edited in the color palette
+    input -> the Input instance used to collect user settings input
+    """
 
     def __init__(
         self,
@@ -90,6 +128,7 @@ class ButtonMenu:
         self.generator: MazeGenerator = generator
         self.win_sz: tuple[int, int] = win_sz
 
+        # Build all menus by generating their buttons
         self.menus: dict[str, list[Button]] = {
             "start_menu": self.generate_buttons([
                 "maze",
@@ -168,6 +207,12 @@ class ButtonMenu:
         )
 
     def update_buttons(self) -> None:
+        """
+            Description:
+        Update the state of all buttons and the ok button. If the skip menu
+        is active and the maze has finished animating, switch back to the
+        previous menu and trigger a redisplay
+        """
 
         self.ok_button.update()
 
@@ -177,6 +222,7 @@ class ButtonMenu:
 
                 button.update()
 
+        # If the skip screen is showing and animation has ended, return to the previous menu
         if self.cur_menu == "skip" and not self.maze.animating:
 
             self.change_menu(self.menus["skip"][0])
@@ -184,6 +230,14 @@ class ButtonMenu:
             self.display_button_menu()
 
     def needs_refresh(self) -> bool:
+        """
+            Description:
+        Check whether any button in any menu or the ok button
+        has been marked as needing a visual refresh
+
+            Returns value:
+        return True if at least one button needs a refresh, False otherwise
+        """
 
         for menu in self.menus.values():
 
@@ -196,6 +250,14 @@ class ButtonMenu:
         return False
 
     def display_button_menu(self) -> None:
+        """
+            Description:
+        Clear the window and render the current menu. If the color palette
+        menu is active it renders the palette and the ok button. If user
+        input is being collected it renders the input widget instead.
+        Otherwise it renders the buttons of the current menu, highlighting
+        whichever button is currently pressed
+        """
 
         if not self.needs_refresh():
             return None
@@ -217,6 +279,7 @@ class ButtonMenu:
 
             self.color_palette.display_img()
 
+            # Show the pressed or unpressed state of the ok button
             img_to_display: dict = self.ok_button.not_clicked
 
             if self.ok_button.is_pressed:
@@ -239,8 +302,10 @@ class ButtonMenu:
 
         menu_to_display: list[Button] = self.menus[self.cur_menu]
 
+        # Default to showing the unclicked state of the menu image
         img_to_display = menu_to_display[0].not_clicked
 
+        # Switch to the clicked image if any button in the menu is pressed
         for button in menu_to_display:
 
             if button.is_pressed:
@@ -253,7 +318,31 @@ class ButtonMenu:
             *menu_to_display[0].img_pos
         )
 
+    def display_button_title(self) -> None:
+        """
+            Description:
+        Render the current menu title string centered above the button area.
+        Does nothing if button_title is empty
+        """
+
+        if self.button_title:
+
+            self.mlx.mlx_string_put(
+                self.mlx_ptr,
+                self.mlx_win,
+                (self.win_sz[0] - (len(self.button_title) * 10)) // 2,
+                self.maze.img_pos[1] + self.maze.img_height + 25,
+                0xFFFFFF,
+                self.button_title
+            )
+
     def create_ok_button(self) -> None:
+        """
+            Description:
+        Instantiate and render the ok button used to confirm color
+        selection in the color palette menu. The button is positioned
+        to the right of the palette, vertically centered
+        """
 
         self.ok_button: Button = Button(
             "ok",
@@ -275,7 +364,20 @@ class ButtonMenu:
         self.render_button_images([self.ok_button])
 
     def generate_setting_buttons(self, settings: list[str]) -> list[Button]:
+        """
+            Description:
+        Generate and render the buttons for the settings menu. The settings
+        are arranged across three rows, with each row's buttons evenly spaced
+        horizontally within the window
 
+            Parameters:
+        settings -> the list of setting names to create buttons for
+
+            Returns value:
+        return the list of rendered Button instances for the settings menu
+        """
+
+        # Split the settings into three rows
         lines: list[list[str]] = [
             settings[:2],
             settings[2:len(settings) - 2],
@@ -288,6 +390,7 @@ class ButtonMenu:
 
         for line in range(len(lines)):
 
+            # Compute the button width and horizontal spacing for this row
             button_width: int = (
                 (self.win_sz[0] - len(lines[line])) // 2
             )
@@ -300,6 +403,7 @@ class ButtonMenu:
 
             for button_number in range(len(lines[line])):
 
+                # Compute the position of each button within its row
                 button_pos: tuple[int, int] = (
                     (
                         button_width * button_number
@@ -408,6 +512,18 @@ class ButtonMenu:
     """
 
     def generate_buttons(self, button_names: list[str]) -> list[Button]:
+        """
+            Description:
+        Generate and render all the buttons for a standard menu. Buttons are
+        evenly spaced horizontally across the window and sized relative to
+        the number of buttons and the window dimensions
+
+            Parameters:
+        button_names -> the list of button label strings to create
+
+            Returns value:
+        return the list of rendered Button instances for the menu
+        """
 
         button_img_sz: tuple[int, int] = (
             self.win_sz[0],
@@ -420,6 +536,7 @@ class ButtonMenu:
 
         buttons: list[Button] = []
 
+        # Compute button dimensions, capping at maximum sizes
         button_width: int = (
             self.win_sz[0] // len(button_names)
             - (100 - 10 * len(button_names))
@@ -435,12 +552,12 @@ class ButtonMenu:
         if button_names[0] == "skip" and button_width > 400:
             button_width = 400
 
+        # Compute the horizontal spacing between buttons
         horizontal_offset: int = (
             self.win_sz[0] - len(button_names) * button_width
         ) // (len(button_names) + 1)
 
-        # initializing each button with the correct values
-
+        # Initialize each button with the correct values
         for button_number in range(len(button_names)):
 
             button_pos: tuple[int, int] = (
@@ -465,9 +582,18 @@ class ButtonMenu:
         return buttons
 
     def render_button_images(self, buttons: list[Button]) -> None:
+        """
+            Description:
+        Render the MLX images for a list of buttons. One shared image is
+        created for the unclicked state of all buttons, and one individual
+        image is created per button for its clicked state, with that button
+        drawn at a slight offset to indicate it is pressed
 
-        # rendering the button image where no buttons are pressed
+            Parameters:
+        buttons -> the list of Button instances to render images for
+        """
 
+        # Render the shared image where no button is pressed
         none_clicked_img = self.mlx.mlx_new_image(
             self.mlx_ptr,
             *buttons[0].img_sz
@@ -482,8 +608,7 @@ class ButtonMenu:
                 0
             )
 
-        # setting the no clicked image of each button
-
+        # Assign the shared unclicked image to every button
         for button in buttons:
 
             button.not_clicked = {
@@ -491,12 +616,10 @@ class ButtonMenu:
                 "img_data": (buf, sz_line, bpp)
             }
 
-        # rendering all the pressed button images
-
+        # Render one individual clicked image per button
         for b in range(len(buttons)):
 
-            # initializing a new image for each button
-
+            # Initialize a fresh image for this button's clicked state
             clicked_img = self.mlx.mlx_new_image(
                 self.mlx_ptr,
                 *buttons[0].img_sz
@@ -508,9 +631,8 @@ class ButtonMenu:
 
             for button_nb in range(len(buttons)):
 
-                # setting the offset to draw the button
-                # at the correct position on the image
-
+                # Draw the active button with an offset to simulate a press,
+                # all other buttons are drawn at the normal position
                 offset: int = 0
 
                 if button_nb == b:
@@ -521,18 +643,30 @@ class ButtonMenu:
                     offset
                 )
 
-            # setting the clicked button image
-            # to the corresponding button
-
+            # Assign the clicked image to the corresponding button
             buttons[b].clicked = {
                 "img": clicked_img,
                 "img_data": (buf, sz_line, bpp)
             }
 
     def find_button_clicked(self, x: int, y: int) -> Button | None:
+        """
+            Description:
+        Determine which button was clicked at the given window coordinates.
+        If the color palette menu is active, check the ok button and the
+        palette itself. Otherwise check all buttons in the current menu
+
+            Parameters:
+        x -> the x coordinate of the click in the window
+        y -> the y coordinate of the click in the window
+
+            Returns value:
+        return the Button that was clicked, or None if no button was hit
+        """
 
         if self.cur_menu == "color_palette":
 
+            # Check if the ok button was clicked
             if is_in(
                 x,
                 y,
@@ -541,6 +675,7 @@ class ButtonMenu:
             ):
                 return self.ok_button
 
+            # Check if a color in the palette was clicked and update colors
             if is_in(
                 x,
                 y,
@@ -569,6 +704,13 @@ class ButtonMenu:
         return None
 
     def update_colors(self) -> None:
+        """
+            Description:
+        Update the maze colors based on the current menu context. If called
+        from the color_change menu, four distinct random colors are picked
+        from the palette. Otherwise the color corresponding to the current
+        color_type is replaced with the color selected in the palette
+        """
 
         new_colors: list[tuple] = [
             self.maze.wall_color,
@@ -579,6 +721,7 @@ class ButtonMenu:
 
         if self.cur_menu == "color_change":
 
+            # Pick four distinct random colors for all color slots
             new_colors[0] = random.choice(
                 random.choice(self.color_palette.colors).nuances
             )
@@ -597,6 +740,7 @@ class ButtonMenu:
             self.maze.change_colors(new_colors)
             return None
 
+        # Map the current color type to its index in the colors list
         match self.color_type:
 
             case ColorType.WALL:
@@ -611,14 +755,25 @@ class ButtonMenu:
             case ColorType.ENTRY_EXIT:
                 color_to_change = 3
 
+        # Replace only the targeted color slot with the palette selection
         new_colors[color_to_change] = self.color_palette.color_picked
         self.maze.change_colors(new_colors)
 
     def change_menu(self, button_clicked: Button) -> None:
+        """
+            Description:
+        Handle a button click by navigating to the appropriate menu and
+        triggering any associated actions such as starting maze generation,
+        running a solving algorithm, changing colors, or updating settings
+
+            Parameters:
+        button_clicked -> the Button instance that was clicked
+        """
 
         match button_clicked.name:
 
             case "skip":
+                # Return to the previous menu and stop any running animation
                 self.cur_menu = self.prev_menu
                 self.maze.stop_animation()
 
@@ -641,6 +796,7 @@ class ButtonMenu:
                 self.cur_menu = "color_change"
 
             case "back to main menu":
+                # Reset the maze state and input before returning to the start
                 self.cur_menu = "start_menu"
                 if self.maze.toggle_path:
                     self.maze.toggle_path_on_off()
@@ -657,6 +813,8 @@ class ButtonMenu:
                 self.update_colors()
 
             case "custom colors":
+                # Enter the palette starting from the wall color
+                self.cur_menu = "color_palette"
                 self.color_type = ColorType.WALL
                 self.cur_menu = "color_palette"
 
@@ -671,6 +829,7 @@ class ButtonMenu:
                 self.maze.toggle_path_on_off()
 
             case "recursive backtracking":
+                # Start maze generation using recursive backtracking and show skip
                 self.cur_menu = "skip"
                 self.prev_menu = "gen_algo_choice"
                 self.maze.toggle_path = False
@@ -681,6 +840,7 @@ class ButtonMenu:
                 self.maze.start_animation()
 
             case "wilson":
+                # Start maze generation using Wilson's algorithm and show skip
                 self.cur_menu = "skip"
                 self.prev_menu = "gen_algo_choice"
                 if self.maze.toggle_path:
@@ -692,6 +852,7 @@ class ButtonMenu:
                 self.maze.start_animation()
 
             case "a*":
+                # Solve the maze using A* and display the path
                 self.cur_menu = "skip"
                 self.prev_menu = "path_menu"
                 if self.maze.toggle_path:
@@ -703,6 +864,7 @@ class ButtonMenu:
                 self.maze.toggle_path_on_off(True)
 
             case "jump point search":
+                # Solve the maze using Jump Point Search and display the path
                 self.cur_menu = "skip"
                 self.prev_menu = "path_menu"
                 if self.maze.toggle_path:
@@ -714,6 +876,7 @@ class ButtonMenu:
                 self.maze.toggle_path_on_off(True)
 
             case "random":
+                # Pick a random generation algorithm and start generation
                 self.cur_menu = "skip"
                 self.prev_menu = "gen_algo_choice"
                 self.maze.toggle_path = False
@@ -729,6 +892,7 @@ class ButtonMenu:
 
                 if self.color_type != ColorType.ENTRY_EXIT:
 
+                    # Advance to the next color type in the palette flow
                     self.cur_menu = "color_palette"
 
                     if self.color_type == ColorType.WALL:
@@ -741,9 +905,11 @@ class ButtonMenu:
                         self.color_type = ColorType.ENTRY_EXIT
 
                 else:
+                    # All colors have been picked, return to the color menu
                     self.cur_menu = "color_change"
 
             case "exit window":
+                # Clean up all button images before closing the window
                 self.clear_all_buttons()
                 clear_all(
                     (self.mlx, self.mlx_ptr, self.mlx_win),
@@ -755,7 +921,8 @@ class ButtonMenu:
             self.generator.set_perfect(not self.generator.get_perfect())
             self.refresh_setting(button_clicked)
 
-        elif button_clicked.name in [
+        # Start text input collection for any editable settings button
+        if button_clicked.name in [
             button.name
             for button in self.menus["settings"]
             if button.name != "back to main menu"
@@ -764,12 +931,19 @@ class ButtonMenu:
             self.input.cur_setting = button_clicked
             self.cur_menu = ""
 
+        # If an animation is running outside rainbow mode, show the skip menu
         if self.maze.animating and not self.maze.rainbow_mode:
             self.cur_menu = "skip"
 
         self.update_button_title()
 
     def update_button_title(self) -> None:
+        """
+            Description:
+        Update the button_title string to match the currently active menu.
+        The title is displayed above the buttons to indicate which menu
+        the user is in
+        """
 
         match self.cur_menu:
 
@@ -796,6 +970,15 @@ class ButtonMenu:
                 self.button_title.draw(self.color_type)
 
     def handle_settings(self) -> None:
+        """
+            Description:
+        Process the user input collected for a settings field. Parses and
+        validates the input based on which setting is being edited, then
+        applies the new value to the generator. Resets the input state and
+        returns to the settings menu on success, or prompts the user to
+        retry on invalid input
+
+        """
 
         if not (
             self.input.taking_input
@@ -811,12 +994,14 @@ class ButtonMenu:
                 or "maze height" in self.input.cur_setting.name
             ):
 
+                # Ensure all entered characters are integers
                 if not all(
                     isinstance(nb, int)
                     for nb in self.input.user_input
                 ):
                     raise ValueError
 
+                # Reconstruct the full integer value digit by digit
                 val = 0
 
                 for value in self.input.user_input:
@@ -840,6 +1025,7 @@ class ButtonMenu:
                 or "exit point" in self.input.cur_setting.name
             ):
 
+                # Ensure all characters are digits or a single comma separator
                 if not all(
                     value in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ","]
                     for value in self.input.user_input
@@ -850,6 +1036,7 @@ class ButtonMenu:
                 new_y: int = 0
                 comma_encountered: bool = False
 
+                # Parse the x and y values separated by a comma
                 for value in self.input.user_input:
 
                     if value != "," and not comma_encountered:
@@ -862,6 +1049,7 @@ class ButtonMenu:
                         comma_encountered = True
 
                     elif value == "," and comma_encountered:
+                        # A second comma is invalid
                         raise ValueError
 
                 print(
@@ -878,6 +1066,7 @@ class ButtonMenu:
 
             elif "seed" in self.input.cur_setting.name:
 
+                # Ensure all entered characters are integers
                 if not all(
                     isinstance(nb, int)
                     for nb in self.input.user_input
@@ -908,17 +1097,26 @@ class ButtonMenu:
             self.input.taking_input = True
             return None
 
+        # Reset the input state and return to the settings menu
+        self.input.reset()
         self.cur_menu = "settings"
         self.refresh_setting(self.input.cur_setting)
         self.input.reset()
 
     def clear_all_buttons(self) -> None:
+        """
+            Description:
+        Release all MLX images associated with every button in every menu,
+        as well as the ok button and the color palette and input widgets.
+        Should be called before closing the window to avoid memory leaks
+        """
 
         if self.start_menu_img:
             self.mlx.mlx_destroy_image(self.mlx_ptr, self.start_menu_img)
 
         for menu in self.menus.values():
 
+            # Clear and destroy the shared unclicked image for this menu
             clear_img(
                 menu[0].not_clicked["img_data"][0],
                 menu[0].img_sz[1],
@@ -929,6 +1127,7 @@ class ButtonMenu:
                 menu[0].not_clicked["img"]
             )
 
+            # Clean up the individual clicked images for each button
             for button in menu:
 
                 button.clean_img((
@@ -937,6 +1136,7 @@ class ButtonMenu:
                     self.mlx_win
                 ))
 
+        # Clean up both images of the ok button
         for img in [self.ok_button.not_clicked, self.ok_button.clicked]:
 
             clear_img(
