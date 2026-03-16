@@ -222,7 +222,6 @@ class MazeGenerator:
                 )
 
         self.__maze_sz: tuple[int, int] = sz
-        print(f"Successfully modified maze size to {sz}")
 
     def get_maze_sz(self) -> tuple[int, int]:
         """
@@ -285,8 +284,6 @@ class MazeGenerator:
                 )
             self.__exit_point: tuple[int, int] = point
 
-        print(f"Successfully changed {point_type} coordinates to {point}")
-
     def get_entry_exit_point(self) -> tuple[
         tuple[int, int],
         tuple[int, int]
@@ -309,7 +306,6 @@ class MazeGenerator:
             )
 
         self.__is_perfect: bool = perfection
-        print(f"Successfully changed the maze's perfection to {perfection}")
 
     def get_perfect(self) -> bool:
         """
@@ -340,7 +336,6 @@ class MazeGenerator:
             raise ValueError(f"Invalid value {seed} for the seed")
 
         self.__seed: int | None = seed
-        print(f"Successfully changed the seed to {seed}")
 
     def get_seed(self) -> int | None:
 
