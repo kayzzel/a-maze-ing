@@ -154,7 +154,7 @@ class MazeDisplay:
         # Center the maze image horizontally and place it near the top
         self.img_pos: tuple[int, int] = (
             (self.win_sz[0] - self.img_sz[0]) // 2,
-            self.win_sz[1] // 10
+            self.win_sz[1] // 15
         )
 
     def start_animation(self) -> None:

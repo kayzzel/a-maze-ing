@@ -86,6 +86,12 @@ class ButtonTitle:
             *self.img_pos
         )
 
+    def clean_img(self) -> None:
+
+        clear_img(self.buf, self.img_sz[1], self.sz_line)
+
+        self.mlx.mlx_destroy_image(self.mlx_ptr, self.img)
+
 
 class ButtonMenu:
     """
@@ -109,7 +115,8 @@ class ButtonMenu:
     color_palette -> the ColorPalette widget used for custom color picking
     ok_button -> the confirmation button used in the color palette menu
     cur_menu -> the name of the currently active menu
-    prev_menu -> the name of the previously active menu, used for back navigation
+    prev_menu -> the name of the previously active menu,
+                used for back navigation
     button_title -> the title string displayed above the current menu
     color_type -> the ColorType currently being edited in the color palette
     input -> the Input instance used to collect user settings input
@@ -188,8 +195,8 @@ class ButtonMenu:
         self.input: Input = Input(win_sz, mlx_data)
 
         self.start_menu_img, _, _ = self.mlx.mlx_xpm_file_to_image(
-                self.mlx_ptr, "./src/images/start_menu.xpm"
-                )
+            self.mlx_ptr, "./src/images/start_menu.xpm"
+        )
 
         self.menus["main"][0].needs_refresh = True
         self.display_button_menu()
@@ -222,7 +229,8 @@ class ButtonMenu:
 
                 button.update()
 
-        # If the skip screen is showing and animation has ended, return to the previous menu
+        # If the skip screen is showing and animation has ended,
+        # return to the previous menu
         if self.cur_menu == "skip" and not self.maze.animating:
 
             self.change_menu(self.menus["skip"][0])
@@ -272,7 +280,7 @@ class ButtonMenu:
                 self.mlx_ptr, self.mlx_win,
                 self.start_menu_img,
                 (self.win_sz[0] - 800) // 2,
-                self.win_sz[1] // 10
+                self.win_sz[1] // 15
             )
 
         if self.cur_menu == "color_palette":
@@ -317,24 +325,6 @@ class ButtonMenu:
             img_to_display["img"],
             *menu_to_display[0].img_pos
         )
-
-    def display_button_title(self) -> None:
-        """
-            Description:
-        Render the current menu title string centered above the button area.
-        Does nothing if button_title is empty
-        """
-
-        if self.button_title:
-
-            self.mlx.mlx_string_put(
-                self.mlx_ptr,
-                self.mlx_win,
-                (self.win_sz[0] - (len(self.button_title) * 10)) // 2,
-                self.maze.img_pos[1] + self.maze.img_height + 25,
-                0xFFFFFF,
-                self.button_title
-            )
 
     def create_ok_button(self) -> None:
         """
@@ -483,7 +473,7 @@ class ButtonMenu:
 
         for s in range(len(self.menus["settings"])):
 
-            # initializing a new image for each button
+            # clearing the buttons' images before drawing on them again
 
             buf = self.menus["settings"][s].clicked["img_data"][0]
             height = self.menus["settings"][s].img_sz[1]
@@ -829,7 +819,8 @@ class ButtonMenu:
                 self.maze.toggle_path_on_off()
 
             case "recursive backtracking":
-                # Start maze generation using recursive backtracking and show skip
+                # Start maze generation using recursive backtracking
+                # and show skip
                 self.cur_menu = "skip"
                 self.prev_menu = "gen_algo_choice"
                 self.maze.toggle_path = False
@@ -910,19 +901,19 @@ class ButtonMenu:
 
             case "exit window":
                 # Clean up all button images before closing the window
-                self.clear_all_buttons()
                 clear_all(
-                    (self.mlx, self.mlx_ptr, self.mlx_win),
-                    self.maze
+                   (self.mlx, self.mlx_ptr, self.mlx_win),
+                   self
                 )
 
+        # changes whether or not the maze is perfect
         if "perfect" in button_clicked.name:
 
             self.generator.set_perfect(not self.generator.get_perfect())
             self.refresh_setting(button_clicked)
 
         # Start text input collection for any editable settings button
-        if button_clicked.name in [
+        elif button_clicked.name in [
             button.name
             for button in self.menus["settings"]
             if button.name != "back to main menu"
@@ -969,6 +960,9 @@ class ButtonMenu:
 
                 self.button_title.draw(self.color_type)
 
+            case "path_menu":
+                self.button_title.draw("Choose a pathfinding algorithm")
+
     def handle_settings(self) -> None:
         """
             Description:
@@ -985,6 +979,9 @@ class ButtonMenu:
             and self.input.cur_setting
             and self.input.user_input
         ):
+            self.cur_menu = "settings"
+            if self.input.cur_setting:
+                self.refresh_setting(self.input.cur_setting)
             self.input.reset()
             return None
 
@@ -1098,7 +1095,6 @@ class ButtonMenu:
             return None
 
         # Reset the input state and return to the settings menu
-        self.input.reset()
         self.cur_menu = "settings"
         self.refresh_setting(self.input.cur_setting)
         self.input.reset()
@@ -1137,17 +1133,18 @@ class ButtonMenu:
                 ))
 
         # Clean up both images of the ok button
-        for img in [self.ok_button.not_clicked, self.ok_button.clicked]:
+        self.ok_button.clean_img((self.mlx, self.mlx_ptr, self.mlx_win))
 
-            clear_img(
-                img["img_data"][0],
-                self.ok_button.img_sz[1],
-                img["img_data"][1]
-            )
-            self.mlx.mlx_destroy_image(
-                self.mlx_ptr,
-                img["img"]
-            )
+        clear_img(
+            self.ok_button.not_clicked["img_data"][0],
+            self.ok_button.img_sz[1],
+            self.ok_button.not_clicked["img_data"][1]
+        )
+        self.mlx.mlx_destroy_image(
+            self.mlx_ptr,
+            self.ok_button.not_clicked["img"]
+        )
 
         self.color_palette.clean_img()
         self.input.clean_img()
+        self.button_title.clean_img()

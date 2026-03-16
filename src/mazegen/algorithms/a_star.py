@@ -325,7 +325,7 @@ def retrace_steps(
     path: list[tuple[int, int]] = []
 
     # Walk backwards from the exit to the entry using parent references
-    while (cell.col, cell.row) != entry_coor:
+    while (cell.col, cell.row) != entry_point:
 
         path.append((cell.col, cell.row))
         cell = cell.parent
@@ -348,7 +348,7 @@ def compute_path(
 
         Parameters:
     path -> the ordered list of (col, row) coordinates to follow
-    entry_coor -> the coordinate of the entry point (col, row)
+    entry_point -> the coordinate of the entry point (col, row)
 
         Returns value:
     return the path as a string of direction letters (e.g. "NEESW"),
@@ -367,8 +367,8 @@ def compute_path(
         for wall, dirs in WALL_DIRS.items():
 
             if (
-                cur_row == row + dirs[0]
-                and cur_col == col + dirs[1]
+                row == cur_row + dirs[0]
+                and col == cur_col + dirs[1]
             ):
                 directions += wall
 

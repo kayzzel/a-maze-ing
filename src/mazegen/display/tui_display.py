@@ -46,9 +46,9 @@ def print_maze(maze: list[str]) -> None:
 
 def print_maze_with_path(
     maze: list[str],
+    path: str,
     start: tuple[int, int],
-    end: tuple[int, int],
-    path: str
+    end: tuple[int, int]
 ) -> None:
     """
         Description:

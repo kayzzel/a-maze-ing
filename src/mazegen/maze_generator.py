@@ -1,5 +1,6 @@
 # need to move algorithms in the same directory
 from typing import Callable
+from ..utils import print_maze, print_maze_with_path, check_maze_input
 
 
 class Cell:
@@ -174,8 +175,9 @@ class MazeGenerator:
         from ..services.solving_algo.a_star import a_star
 
         self.set_maze_sz(maze_sz)
-        self.set_entry_exit_point(entry_point, "entry")
+        self.__entry_point: tuple[int, int] = (-1, -1)
         self.set_entry_exit_point(exit_point, "exit")
+        self.set_entry_exit_point(entry_point, "entry")
         self.set_perfect(is_perfect)
         self.set_seed(seed)
 
@@ -203,7 +205,7 @@ class MazeGenerator:
 
         for val in sz:
 
-            if not isinstance(val, int) or val <= 0:
+            if not isinstance(val, int) or not (5 <= val <= 201):
                 raise ValueError("Invalid size {sz} for the maze")
 
         self.__maze_sz: tuple[int, int] = sz
@@ -255,9 +257,19 @@ class MazeGenerator:
             )
 
         if point_type == "entry":
-            self.__entry_point: tuple[int, int] = point
+            if point == self.__exit_point:
+                raise ValueError(
+                    f"Invalid {point_type} coordinates for the maze\n"
+                    "Entry coordinates are the same as the exit coordinates"
+                )
+            self.__entry_point = point
 
         elif point_type == "exit":
+            if point == self.__entry_point:
+                raise ValueError(
+                    f"Invalid {point_type} coordinates for the maze\n"
+                    "Exit coordinates are the same as the entry coordinates"
+                )
             self.__exit_point: tuple[int, int] = point
 
         print(f"Successfully changed {point_type} coordinates to {point}")
@@ -359,7 +371,7 @@ class MazeGenerator:
 
         return maze
 
-    def write_to_output(self, maze: Maze, output_filename: str) -> None:
+    def write_to_output(self, maze: Maze, output_filename: str) -> bool:
         """
             Description:
         Write the maze's hexadecimal grid, entry and exit coordinates,
@@ -389,7 +401,7 @@ class MazeGenerator:
 
         return True
 
-    def calculate_path(self, maze: Maze) -> str | None:
+    def solve_maze(self, maze: Maze) -> str | None:
         """
             Description:
         Solve the given maze using the current solving algorithm
@@ -403,3 +415,34 @@ class MazeGenerator:
         """
 
         return self.solve_algo(maze)
+
+    def tui_display_maze(
+        self,
+        hexa_maze: list[str],
+        path: str | None = None,
+        entry_point: tuple[int, int] | None = None,
+        exit_point: tuple[int, int] | None = None
+    ) -> None:
+
+        if not hexa_maze:
+            print("Error: No maze provided")
+            return None
+
+        if not check_maze_input(hexa_maze):
+            print("Error: Invalid maze input")
+            return None
+
+        if not path or not entry_point or not exit_point:
+            print_maze(hexa_maze)
+            return None
+
+        if entry_point == exit_point:
+            print("Error: Entry and exit point are the same")
+            return None
+
+        print_maze_with_path(
+            hexa_maze,
+            path,
+            entry_point,
+            exit_point
+        )

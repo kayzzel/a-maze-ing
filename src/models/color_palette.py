@@ -166,7 +166,7 @@ class ColorPalette:
         # Position the palette near the bottom-left of the window
         self.win_pos: tuple[int, int] = (
             200,
-            win_sz[1] - self.height - 50
+            win_sz[1] - self.height - 80
         )
         self.end_pos: tuple[int, int] = (
             self.win_pos[0] + self.width,

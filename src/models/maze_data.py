@@ -40,12 +40,12 @@ class MazeData(BaseModel):
         """
 
         # Ensure each coordinate is within the grid boundaries
-        for coor in [self.entry_coor, self.exit_coor]:
+        for coor in [self.entry_point, self.exit_point]:
             if not 0 <= coor[0] < self.width or not 0 <= coor[1] < self.height:
                 raise ValueError("Invalid coordinates!")
 
         # Ensure the entry and exit are not placed on the same cell
-        if self.entry_coor == self.exit_coor:
+        if self.entry_point == self.exit_point:
             raise ValueError("Entry and exit coordinates are the same!")
 
         return self
@@ -79,8 +79,8 @@ class MazeData(BaseModel):
         for attr in [
             "width",
             "height",
-            "entry_coor",
-            "exit_coor",
+            "entry_point",
+            "exit_point",
             "output_filename",
             "perfect",
             "seed"

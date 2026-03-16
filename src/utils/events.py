@@ -1,6 +1,9 @@
 from .mlx_display import render
 
 
+LETTERS: str = "abcdefghijklmnopqrstuvwyz"
+
+
 # Maps keycodes to their corresponding values:
 # digits 0-9, comma, space, enter, and delete
 KEYS: dict[int, int | str] = {
@@ -8,6 +11,9 @@ KEYS: dict[int, int | str] = {
     for index in range(10)
 } | {44: ",", 32: " ", 65293: "enter", 65288: "del", 65307: "esc"} | {
     97 + index: LETTERS[index]
+    for index in range(len(LETTERS))
+} | {
+    65 + index: LETTERS.upper()[index]
     for index in range(len(LETTERS))
 }
 
@@ -88,23 +94,37 @@ def handle_keyboard_input(
 
     button_menu, mlx_data = param
 
-    # Ignore keyboard events when the input widget is not active
-    if not button_menu.input.taking_input:
-        return None
-
-    if KEYS[keycode] == "enter":
-        # Submit the current input to the settings handler
-        button_menu.handle_settings()
-        return None
-
-    if KEYS[keycode] == "del":
-        # Do nothing if there is no input to delete
-        if not button_menu.input.user_input:
+    try:
+        # Ignore keyboard events when the input widget is not active
+        if not button_menu.input.taking_input:
             return None
 
-    else:
-        # Append the pressed key's value to the input buffer
-        button_menu.input.user_input.append(KEYS[keycode])
+        if KEYS[keycode] == "esc":
+            button_menu.cur_menu = "settings"
+            button_menu.refresh_setting(button_menu.input.cur_setting)
+            button_menu.input.reset()
+            return None
+
+        if KEYS[keycode] == "enter":
+            # Submit the current input to the settings handler
+            button_menu.handle_settings()
+            return None
+
+        if KEYS[keycode] == "del":
+            # Do nothing if there is no input to delete
+            if not button_menu.input.user_input:
+                return None
+            button_menu.input.user_input.pop()
+
+        else:
+            # Append the pressed key's value to the input buffer
+            button_menu.input.user_input.append(KEYS[keycode])
+    except KeyError:
+        print("Invalid key")
+        button_menu.cur_menu = "settings"
+        button_menu.refresh_setting(button_menu.input.cur_setting)
+        button_menu.input.reset()
+        return None
 
     # Redraw the input widget to reflect the updated buffer
     button_menu.input.update()

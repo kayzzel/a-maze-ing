@@ -37,19 +37,29 @@ def main() -> None:
     ):
         return None
 
+    import tkinter as tk
+
+    root = tk.Tk()
+    root.withdraw()
+
+    width: int = root.winfo_screenwidth()
+    height: int = root.winfo_screenheight()
+
+    root.destroy()
+
     mlx = Mlx()
 
     mlx_ptr = mlx.mlx_init()
 
-    mlx_win = mlx.mlx_new_window(mlx_ptr, 1920, 1080, "A-MAZE-ING")
+    mlx_win = mlx.mlx_new_window(mlx_ptr, width, height, "A-MAZE-ING")
 
     mlx_data: tuple = (mlx, mlx_ptr, mlx_win)
 
     mlx.mlx_clear_window(mlx_ptr, mlx_win)
 
     maze_display: MazeDisplay = MazeDisplay(
-        (600, 600),
-        (1920, 1080),
+        ((height // 10) * 6, (height // 10) * 6),
+        (width, height),
         mlx_data
     )
 
@@ -57,7 +67,7 @@ def main() -> None:
         mlx_data,
         maze_display,
         generator,
-        (1920, 1080)
+        (width, height)
     )
 
     mlx.mlx_mouse_hook(
