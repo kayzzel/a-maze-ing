@@ -2,6 +2,7 @@ from src.models import ButtonMenu, MazeDisplay, MazeData
 from src.mazegen import MazeGenerator
 from src.utils.events import handle_buttons, handle_keyboard_input
 from src.utils.events import global_update
+from src.utils.cleanup import clear_all
 from src.services import parse_config
 from mlx import Mlx
 import sys
@@ -94,6 +95,10 @@ def main() -> None:
         (maze_display, button_menu, mlx_data)
     )
     mlx.mlx_loop(mlx_ptr)
+    clear_all(
+       mlx_data,
+       button_menu
+    )
 
 
 if __name__ == "__main__":

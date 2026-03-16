@@ -3,7 +3,7 @@ from .input import Input
 from .maze_display import MazeDisplay
 from ..mazegen import MazeGenerator
 from .color_palette import ColorPalette
-from ..utils.cleanup import clear_img, clear_all
+from ..utils.cleanup import clear_img
 from ..mazegen.utils.checks import is_in
 from ..utils.mlx_display import put_str_to_img
 from ..mazegen import rec_backtrack
@@ -86,13 +86,11 @@ class ButtonTitle:
             *self.img_pos
         )
 
-    """
     def clean_img(self) -> None:
 
         clear_img(self.buf, self.img_sz[1], self.sz_line)
 
         self.mlx.mlx_destroy_image(self.mlx_ptr, self.img)
-    """
 
 
 class ButtonMenu:
@@ -905,12 +903,8 @@ class ButtonMenu:
                     self.cur_menu = "color_change"
 
             case "exit window":
-                # Clean up all button images before closing the window
-                self.clear_all_buttons()
-                clear_all(
-                   (self.mlx, self.mlx_ptr, self.mlx_win),
-                   self.maze
-                )
+                # exit the loop
+                self.mlx.mlx_loop_exit(self.mlx_ptr)
 
         # changes whether or not the maze is perfect
         if "perfect" in button_clicked.name:
@@ -1146,4 +1140,4 @@ class ButtonMenu:
 
         self.color_palette.clean_img()
         self.input.clean_img()
-        # self.button_title.clean_img()
+        self.button_title.clean_img()
