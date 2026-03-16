@@ -208,6 +208,19 @@ class MazeGenerator:
             if not isinstance(val, int) or not (5 <= val <= 201):
                 raise ValueError("Invalid size {sz} for the maze")
 
+        for point in ["__entry_point", "__exit_point"]:
+
+            if not hasattr(self, point):
+                continue
+
+            coor_point: tuple[int, int] = getattr(self, point)
+
+            if sz[0] <= coor_point[0] or sz[1] <= coor_point[1]:
+                raise ValueError(
+                    f"Maze size {sz} is too small "
+                    "for the entry/exit coordinates"
+                )
+
         self.__maze_sz: tuple[int, int] = sz
         print(f"Successfully modified maze size to {sz}")
 
