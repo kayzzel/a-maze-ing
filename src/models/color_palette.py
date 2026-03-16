@@ -324,6 +324,16 @@ class ColorPalette:
 
 
 class ColorsExpanded(Color_type, Enum):
+    """
+        Description:
+    an extention the the Colors enum
+
+        Attributes:
+    REA_1, RED_2, ORANGE_1, ORANGE_2, YELLOW_1, YELLOW_2,
+    GREEN_1, GREEN_2, GREEN_3, BLUE_1, BLUE_2, BLUE_3,
+    VIOLET_1, VIOLET_2, VIOLET_3 -> each holds four (R, G, B, A) tuples
+                                    ordered from dark to light
+    """
 
     RED_1 = (
         (51, 10, 10, 255),
@@ -417,6 +427,7 @@ class ColorsExpanded(Color_type, Enum):
     )
 
 
+# Palette for rainbow mod
 RAINBOW_PALETTE: list[Colors | ColorsExpanded] = [
     Colors.RED,
     Colors.ORANGE,
@@ -429,6 +440,7 @@ RAINBOW_PALETTE: list[Colors | ColorsExpanded] = [
 ]
 
 
+# Extented palette for rainbow mod in bigger mazes
 RAINBOW_PALETTE_EXPANDED: list[Colors | ColorsExpanded] = [
     ColorsExpanded.RED_1,
     ColorsExpanded.RED_2,

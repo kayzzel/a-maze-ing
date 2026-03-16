@@ -59,9 +59,9 @@ def print_maze_with_path(
 
         Parameters:
     maze -> the maze as a list of hexadecimal row strings
+    path -> the solution path as a string of direction letters (NSEW)
     start -> the (col, row) coordinate of the entry point
     end -> the (col, row) coordinate of the exit point
-    path -> the solution path as a string of direction letters (NSEW)
     """
 
     height = len(maze)

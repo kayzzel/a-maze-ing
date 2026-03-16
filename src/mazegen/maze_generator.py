@@ -423,6 +423,18 @@ class MazeGenerator:
         entry_point: tuple[int, int] | None = None,
         exit_point: tuple[int, int] | None = None
     ) -> None:
+        """
+            Description:
+        display a given maze in the terminal,
+        and if a path is provided then also print it with the start and exit
+
+            Parameters:
+        hexa_maze -> A maze in hexadecimal values in which each bit represent
+                     a wall (W, S, E, N)
+        path -> The direction to go from the start to the exit (N, S, E, W)
+        entry_point -> the coordinate of the start (x, y)
+        exit_point -> the coordinate of the end (x, y)
+        """
 
         if not hexa_maze:
             print("Error: No maze provided")

@@ -35,6 +35,30 @@ class ColorType(str, Enum):
 
 
 class ButtonTitle:
+    """
+        Description:
+    The title of the menu we are in
+
+        Parameters:
+    title -> the name of the menu that we are in
+    img_sz -> the size of the image in px (width, height)
+    img_pos -> the coordinate of the up-left corner of the title (row, col)
+    mlx_data -> the informations about the mlx window
+                - the object of Mlx class
+                - the pointer of the mlx
+                - the window
+
+        Attributes:
+    mlx -> an object of Mlx class
+    mlx_ptr -> the pointerof the mlx
+    mlx_win -> the mlx window
+    img_sz -> the size of the image in px (width, height)
+    img_pos -> the coordinate of the up-left corner of the title (row, col)
+    img -> an image created to the given dimention with the given mlx
+    buf -> the buffer that contain the pixel value of the image
+    bpp -> the number of bit per pixel
+    sz_line -> the size of the line in bits
+    """
 
     def __init__(
         self,
@@ -48,23 +72,36 @@ class ButtonTitle:
         self.img_sz: tuple[int, int] = img_sz
         self.img_pos: tuple[int, int] = img_pos
 
+        # Creating the image that will contain the title
         self.img = self.mlx.mlx_new_image(
             self.mlx_ptr,
             *img_sz
         )
 
+        # Getting the information about the image to draw on it
         self.buf, self.bpp, self.sz_line, _ = self.mlx.mlx_get_data_addr(
             self.img
         )
 
+        # Clearing the image to be sure that there are no arifacts on it
         clear_img(self.buf, self.img_sz[1], self.sz_line)
 
+        # Draws the given title
         self.draw(title)
 
     def draw(self, title: str) -> None:
+        """
+            Description:
+        take a title a draw it on the previously created image
 
+            Parameters:
+        title -> the string that will be written on the image
+        """
+
+        # Clearing the image to be sure that there are no arifacts on it
         clear_img(self.buf, self.img_sz[1], self.sz_line)
 
+        # Put the title centered in white on the image
         put_str_to_img(
             title,
             self.buf,
@@ -78,7 +115,12 @@ class ButtonTitle:
         )
 
     def display(self) -> None:
+        """
+            Description:
+        display the image that contain the title on the mlx window
+        """
 
+        # Display the image that contain the title on the mlx window
         self.mlx.mlx_put_image_to_window(
             self.mlx_ptr,
             self.mlx_win,
@@ -87,9 +129,15 @@ class ButtonTitle:
         )
 
     def clean_img(self) -> None:
+        """
+            Description:
+        Clearing the img and then distroy it to be sure that there is no leaks
+        """
 
+        # Display the image that contain the title on the mlx window
         clear_img(self.buf, self.img_sz[1], self.sz_line)
 
+        # Destroy the image
         self.mlx.mlx_destroy_image(self.mlx_ptr, self.img)
 
 
@@ -202,7 +250,14 @@ class ButtonMenu:
         self.display_button_menu()
 
     def initialize_button_title(self) -> None:
+        """
+            Description:
+        Display the name of the starting menu title and store the
+        button title to later be able to change it without recreating
+        a new image
+        """
 
+        # Create a button title "A Maze Ing Menu" 30 px under the maze
         self.button_title: ButtonTitle = ButtonTitle(
             "A Maze Ing Menu",
             (self.win_sz[0], 30),
@@ -267,15 +322,19 @@ class ButtonMenu:
         whichever button is currently pressed
         """
 
+        # if there is no need to refresh then don't do anything
         if not self.needs_refresh():
             return None
 
+        # Clear the window then display the maze on it
         self.mlx.mlx_clear_window(self.mlx_ptr, self.mlx_win)
         self.maze.display_on_window()
 
+        # Display the title of the menu if not in "setting" or "skip"
         if self.cur_menu not in ["settings", "skip"]:
             self.button_title.display()
 
+        # If we are on the start menu display an image instead of the maze
         if self.cur_menu == "start_menu" and self.start_menu_img:
             self.mlx.mlx_put_image_to_window(
                 self.mlx_ptr, self.mlx_win,
@@ -284,6 +343,7 @@ class ButtonMenu:
                 self.win_sz[1] // 15
             )
 
+        # if we are on the color palette then display it
         if self.cur_menu == "color_palette":
 
             self.color_palette.display_img()
@@ -418,6 +478,11 @@ class ButtonMenu:
         return setting_buttons
 
     def refresh_setting(self, setting: Button) -> None:
+        """
+            Description:
+        actualize the name of the button to descibe their new values
+        if changed
+        """
 
         if setting is None:
             return None
@@ -457,10 +522,12 @@ class ButtonMenu:
         elif "seed" in setting.name:
             setting.name = f"seed : {self.generator.get_seed()}"
 
+        # Get the information of the clicked button then redraw it
         buf = self.menus["settings"][0].not_clicked["img_data"][0]
         height = self.menus["settings"][0].img_sz[1]
         sz_line = self.menus["settings"][0].not_clicked["img_data"][1]
 
+        # Clear the image to be able to redraw the button
         clear_img(buf, height, sz_line)
 
         for setting_button in self.menus["settings"]:
@@ -495,12 +562,6 @@ class ButtonMenu:
                     self.menus["settings"][setting_nb].clicked["img_data"],
                     offset
                 )
-
-    """
-
-    generates all the buttons needed for the display
-
-    """
 
     def generate_buttons(self, button_names: list[str]) -> list[Button]:
         """
