@@ -1,14 +1,17 @@
 from .mlx_display import (
     img_put_px,
     render,
-    get_color_palette
+    draw_borders,
+    put_str_to_img
 )
-from .events import handle_buttons, global_update
+from .events import handle_buttons, handle_keyboard_input, global_update
 from .cleanup import clear_all, clear_img
 __all__ = [
     "img_put_px",
-    "get_color_palette",
+    "draw_borders",
+    "put_str_to_img",
     "handle_buttons",
+    "handle_keyboard_input",
     "global_update",
     "render",
     "clear_img",

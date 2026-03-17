@@ -1,243 +1,270 @@
 import time
-from ..utils import clear_img, img_put_px
+from ..utils.cleanup import clear_img
+from ..utils.mlx_display import img_put_px, draw_borders, put_str_to_img
 
-# the width of the button border
 
+# Width and depth used to draw the 3D-like button borders
 BORDER_WIDTH: int = 2
+BORDER_DEPTH: int = 8
 
 
 class Button:
 
     """
+        Description:
+    Represent a clickable button displayed inside an image.
+    The button contains two visual states (pressed / not pressed)
+    and handles its own click animation.
 
-    ---- initializing the button ----
+        Parameters:
+    name -> text displayed at the center of the button
+    button_sz -> width and height of the button
+    button_pos -> base position of the button inside the button image
+    color -> color used to draw the button borders
+    img_sz -> size of the button image
+    button_img_pos -> position of the button image inside the window
 
-    [parameters needed]
+        Attributes:
+    end_pos -> end position of the button inside the image
+               (used to detect mouse clicks inside the button area)
 
-     => name: the name of the button (displayed in the center)
-     => win_sz: the size of the window (width, height)
-     => nb_button: the number of the button
-            (needed to display the buttons next to each other separately)
-     => color: the color for the border
-     => mlx_data: the mlx object, the mlx pointer and the mlx window
+    name_pos -> position where the button name is drawn
 
-    [attributes of the class]
+    not_clicked -> dictionary containing the image and data
+                   of the button when it is not pressed
 
-     => depth: the depth for the button graphics
-     => base_pos: the position inside the window
-     => end_pos: the end position of the button
-            (needed to know the button area when clicking with the mouse)
-     => offset: the offset added to base_pos for the click animation
-     => name_pos: the position of the button name in the window
-     => img: the button image
-     => is_pressed: indicates whether or not the button is being pressed
-            (needed for the animation)
-     => press_start_time: tracks the elapsed time since the button was pressed
-     => press_duration:
-            sets the maximum time for the clicking animation to last
+    clicked -> dictionary containing the image and data
+               of the button when it is pressed
 
+    needs_refresh -> indicates whether the button needs to be redrawn
+
+    is_pressed -> indicates whether the button is currently pressed
+                  (used for the click animation)
+
+    press_start_time -> time when the button was pressed
+
+    press_duration -> duration of the click animation
     """
 
     def __init__(
         self,
         name: str,
-        win_sz: tuple[int, int],
-        nb_button: int,
+        button_sz: tuple[int, int],
+        button_pos: tuple[int, int],
         color: tuple[int, int, int, int],
-        mlx_data: tuple
+        img_sz: tuple[int, int],
+        button_img_pos: tuple[int, int]
     ) -> None:
 
+        # Button display name
         self.name: str = name
-        self.number: int = nb_button
+
+        # Color used for the borders
         self.color: tuple = color
-        self.depth: int = 8
-        self.width: int = win_sz[0] // 5 + 25
-        self.height: int = win_sz[1] // 8
-        self.win_sz: tuple[int, int] = win_sz
-        self.base_pos: tuple[int, int] = (
-            (25 + self.width) * self.number + 15,
-            self.win_sz[1] - (self.height + 50)
-        )
+
+        # Button size
+        self.width, self.height = button_sz
+
+        # Base position inside the button image
+        self.base_pos: tuple[int, int] = button_pos
+
+        # End position inside the image
         self.end_pos: tuple[int, int] = (
             self.base_pos[0] + self.width,
             self.base_pos[1] + self.height
         )
-        self.offset: int = 0
+
+        # Position of the button image inside the window
+        self.img_pos: tuple[int, int] = button_img_pos
+
+        # Button start position relative to the window
+        self.start_win_pos: tuple[int, int] = (
+            self.img_pos[0] + self.base_pos[0],
+            self.img_pos[1] + self.base_pos[1],
+        )
+
+        # Button end position relative to the window
+        self.end_win_pos: tuple[int, int] = (
+            self.img_pos[0] + self.end_pos[0],
+            self.img_pos[1] + self.end_pos[1]
+        )
+
+        # Compute the position where the button name will be drawn
+        # (rough horizontal centering based on character width)
         self.name_pos: tuple[int, int] = (
             self.base_pos[0] + (
-                (self.width - len(name) * 10) // 2
+                (self.width - len(name) * 12) // 2
             ),
-            self.base_pos[1] + self.height // 2 - 10
+            self.base_pos[1]
+            + self.height // 2 - 10
         )
-        self.mlx, self.mlx_ptr, self.mlx_win = mlx_data
-        self.img = self.mlx.mlx_new_image(
-            self.mlx_ptr,
-            self.width,
-            self.height
-        )
-        self.buf, self.bpp, self.sz_line, *oth = (
-            self.mlx.mlx_get_data_addr(self.img)
-        )
+
+        # Images representing the button states
+        self.not_clicked: dict
+        self.clicked: dict
+
+        # Size of the button image
+        self.img_sz: tuple[int, int] = img_sz
+
+        # Rendering flags
+        self.needs_refresh: bool = False
         self.is_pressed: bool = False
+
+        # Animation timing
         self.press_start_time: float = 0
         self.press_duration: float = 0.08
 
-    """
+    def draw(
+        self,
+        img_data: tuple[memoryview, int, int],
+        offset: int
+    ) -> None:
+        """
+            Description:
+        Draw the button borders and text on the given image.
 
-    draws the button border on the image
+        The offset is used to create the pressed animation
+        by slightly shifting the drawing position.
 
-    """
-    def draw(self) -> None:
+            Parameters:
+        img_data -> information about the image to draw on
+                    (pixel buffer, size_line, bits_per_pixel)
 
-        clear_img(self.buf, self.height, self.sz_line)
+        offset -> number of pixels used to offset the button
+                  when simulating the pressed state
+        """
 
-        for row in range(self.height):
+        # Compute the start and end coordinates with the offset applied
+        s_x: int = self.base_pos[0] - offset
+        s_y: int = self.base_pos[1] - offset
+        e_x: int = s_x + self.width
+        e_y: int = s_y + self.height
 
-            for col in range(self.width):
+        # Draw the outer border of the button
+        draw_borders(
+            (s_x, s_y),
+            (e_x, e_y),
+            BORDER_WIDTH,
+            img_data,
+            self.color
+        )
 
-                if self.is_outline(col, row):
-                    img_put_px(
-                        col,
-                        row,
-                        self.buf,
-                        self.sz_line,
-                        self.bpp,
-                        self.color
-                    )
+        # Adjust the borders inward to draw the inner border
+        s_x += BORDER_WIDTH
+        s_y += BORDER_WIDTH
+        e_x -= BORDER_WIDTH
+        e_y -= BORDER_WIDTH
 
-    """
+        draw_borders(
+            (s_x + BORDER_DEPTH, s_y + BORDER_DEPTH),
+            (e_x - BORDER_DEPTH, e_y - BORDER_DEPTH),
+            BORDER_WIDTH,
+            img_data,
+            self.color
+        )
 
-    updates the button state and offset for the correct click display
+        # Save the border positions for reuse
+        positions: tuple[int, int, int, int] = (s_x, s_y, e_x, e_y)
+        s_x, s_y, e_x, e_y = positions
 
-    """
+        # Draw the diagonal corners (top-left)
+        for _ in range(BORDER_WIDTH, BORDER_WIDTH + BORDER_DEPTH):
+
+            img_put_px(s_x, s_y, *img_data, self.color)
+            s_x += 1
+            s_y += 1
+
+        s_x, s_y, e_x, e_y = positions
+
+        # Draw the diagonal corners (top-right)
+        for _ in range(BORDER_WIDTH, BORDER_WIDTH + BORDER_DEPTH):
+
+            img_put_px(e_x, s_y, *img_data, self.color)
+            e_x -= 1
+            s_y += 1
+
+        s_x, s_y, e_x, e_y = positions
+
+        # Draw the diagonal corners (bottom-left)
+        for _ in range(BORDER_WIDTH, BORDER_WIDTH + BORDER_DEPTH):
+
+            img_put_px(s_x, e_y, *img_data, self.color)
+            s_x += 1
+            e_y -= 1
+
+        s_x, s_y, e_x, e_y = positions
+
+        # Draw the diagonal corners (bottom-right)
+        for _ in range(BORDER_WIDTH, BORDER_WIDTH + BORDER_DEPTH):
+
+            img_put_px(e_x, e_y, *img_data, self.color)
+            e_x -= 1
+            e_y -= 1
+
+        # Draw the button label
+        put_str_to_img(
+            self.name,
+            img_data[0],
+            (
+                self.name_pos[0] - offset,
+                self.name_pos[1] - offset
+            ),
+            img_data[1],
+            img_data[2],
+            (255, 255, 255, 255)
+        )
 
     def update(self) -> None:
+        """
+            Description:
+        Update the button state and check whether the
+        clicking animation has finished.
+        """
 
+        # If the button is not pressed there is nothing to update
         if not self.is_pressed:
+            self.needs_refresh = False
             return None
 
-        # checks if the clicking animation is over
-
+        # Check if the clicking animation duration has elapsed
         if time.monotonic() - self.press_start_time >= self.press_duration:
 
-            self.offset = 0
+            # Stop the pressed state
             self.is_pressed = False
 
-        self.draw()
+            # Request a redraw to update the button state
+            self.needs_refresh = True
 
-    """
+    def clean_img(self, mlx_data: tuple) -> None:
+        """
+            Description:
+        Clear and destroy the image used for the
+        pressed button state.
+        """
 
-    verifies if the current pixel is part of the border and needs to be drawn
+        # Get the image buffer information
+        buf, sz_line, bpp = self.clicked["img_data"]
 
-    """
+        # Clear the image pixels
+        clear_img(buf, self.img_sz[1], sz_line)
 
-    def is_outline(self, col: int, row: int) -> bool:
-
-        posx: list[int] = [
-            x for x in range(
-                self.width - BORDER_WIDTH - self.depth,
-                self.width - BORDER_WIDTH
-            )
-        ]
-        posy: list[int] = [
-            y for y in range(
-                self.height - BORDER_WIDTH - self.depth,
-                self.height - BORDER_WIDTH
-            )
-        ]
-
-        for pos in range(
-            BORDER_WIDTH, BORDER_WIDTH + self.depth
-        ):
-            if (col, row) == (pos, pos):
-                return True
-
-        for pos in range(len(posx)):
-            if (col, row) == (posx[-(pos + 1)], pos + BORDER_WIDTH):
-                return True
-
-            if (col, row) == (pos + BORDER_WIDTH, posy[-(pos + 1)]):
-                return True
-
-            if (col, row) == (posx[pos], posy[pos]):
-                return True
-
-        for pos in [0, BORDER_WIDTH + self.depth]:
-
-            if (
-                pos <= col < pos + BORDER_WIDTH
-                or self.width - pos - BORDER_WIDTH
-                <= col < self.width - pos
-            ) and pos <= row < self.height - pos:
-                return True
-
-            if (
-                pos <= row < pos + BORDER_WIDTH
-                or self.height - pos - BORDER_WIDTH
-                <= row < self.height - pos
-            ) and pos <= col < self.width - pos:
-                return True
-
-        return False
-
-    """
-
-    starts the clicking animation
-
-    """
+        # Destroy the image in the MLX context
+        mlx_data[0].mlx_destroy_image(mlx_data[1], self.clicked["img"])
 
     def click_button(self) -> None:
+        """
+            Description:
+        Start the button clicking animation.
+        """
 
-        # checks if the button is already being pressed
-
+        # If the button is already being pressed
+        # ignore the new click
         if self.is_pressed:
             return None
 
+        # Start the pressed state
         self.is_pressed = True
-        self.offset = 2
+        self.needs_refresh = True
+
+        # Save the start time of the animation
         self.press_start_time = time.monotonic()
-
-    """
-
-    clears the button image and destroys it
-
-    """
-
-    def clean_img(self) -> None:
-
-        clear_img(self.buf, self.height, self.sz_line)
-
-        self.mlx.mlx_destroy_image(
-            self.mlx_ptr,
-            self.img
-        )
-
-
-"""
-
-generates all the buttons needed for the display
-
-"""
-
-
-def generate_buttons(mlx_data: tuple, win_sz: tuple[int, int]) -> list[Button]:
-
-    button_names: list[str] = [
-        "Generate new maze",
-        "Toggle path on/off",
-        "Change colors",
-        "Exit window"
-    ]
-
-    buttons: list[Button] = []
-
-    for button_number in range(len(button_names)):
-        buttons.append(Button(
-            button_names[button_number],
-            win_sz,
-            button_number,
-            (255, 255, 255, 255),
-            mlx_data
-        ))
-
-    return buttons
