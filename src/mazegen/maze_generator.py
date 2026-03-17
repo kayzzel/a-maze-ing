@@ -2,10 +2,6 @@
 from typing import Callable
 from .display import print_maze, print_maze_with_path
 from .utils import check_maze_input
-from .algorithms.rec_backtrack import rec_backtrack
-from .algorithms.wilson import wilson
-from .algorithms.a_star import a_star
-from .algorithms.jump_point_search import jump_point_search
 
 
 class Cell:
@@ -175,6 +171,8 @@ class MazeGenerator:
         is_perfect: bool = True,
         seed: int | None = None
     ) -> None:
+        from .algorithms.rec_backtrack import rec_backtrack
+        from .algorithms.a_star import a_star
 
         self.set_maze_sz(maze_sz)
         self.__entry_point: tuple[int, int] = (-1, -1)
@@ -345,6 +343,9 @@ class MazeGenerator:
 
     def set_gen_algo(self, algorithm: Callable) -> None:
 
+        from .algorithms.rec_backtrack import rec_backtrack
+        from .algorithms.wilson import wilson
+
         if not callable(algorithm) or algorithm not in [
             wilson,
             rec_backtrack
@@ -357,6 +358,9 @@ class MazeGenerator:
         self.gen_algo = algorithm
 
     def set_solve_algo(self, algorithm: Callable) -> None:
+
+        from .algorithms.a_star import a_star
+        from .algorithms.jump_point_search import jump_point_search
 
         if not callable(algorithm) or algorithm not in [
             a_star,
