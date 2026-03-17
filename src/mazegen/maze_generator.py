@@ -218,7 +218,8 @@ class MazeGenerator:
             if sz[0] <= point[0] or sz[1] <= point[1]:
                 raise ValueError(
                     f"Maze size {sz} is too small "
-                    "for the entry/exit coordinates"
+                    "for the entry/exit coordinates "
+                    f"{self.get_entry_exit_point()}"
                 )
 
         self.__maze_sz = sz
