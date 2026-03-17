@@ -64,13 +64,16 @@ def validate_format(line: str) -> tuple:
 
     elif match.group(1) == "PERFECT":
 
-        if match.group(2) not in ["True", "False"]:
+        if match.group(2) not in ["True", "False", "0", "1", "true", "false"]:
             raise ValueError(
                 f"Invalid value {match.group(2)} for perfection parameter "
-                "(must be a boolean)"
+                "(must be a boolean: e.g 'True', 'false', '0')"
             )
 
-        value = bool(match.group(2))
+        value = (
+            True if match.group(2) in ["True", "true", "1"]
+            else False
+        )
 
     elif match.group(1) == "SEED":
 
