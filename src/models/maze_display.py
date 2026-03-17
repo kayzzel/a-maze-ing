@@ -437,10 +437,10 @@ class MazeDisplay:
             return None
 
         if self.maze.width // len(RAINBOW_PALETTE_EXPANDED) >= 1:
-            self.rainbow_palette = RAINBOW_PALETTE_EXPANDED
+            self.rainbow_palette = list(RAINBOW_PALETTE_EXPANDED)
 
         else:
-            self.rainbow_palette = RAINBOW_PALETTE
+            self.rainbow_palette = list(RAINBOW_PALETTE)
 
         self.rainbow_delimiter = (
             self.maze.width // len(self.rainbow_palette)
@@ -500,8 +500,7 @@ class MazeDisplay:
 
                 cur_color_index += 1
 
-        last_color: Colors | ColorsExpanded = self.rainbow_palette[-1]
-        self.rainbow_palette.remove(self.rainbow_palette[-1])
+        last_color: Colors | ColorsExpanded = self.rainbow_palette.pop()
         self.rainbow_palette = [last_color] + self.rainbow_palette
 
     def clean_img(self) -> None:
