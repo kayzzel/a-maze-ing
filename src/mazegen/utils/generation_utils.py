@@ -33,6 +33,7 @@ def create_pattern(
 
     # The pattern requires at least a 10x10 maze to fit
     if height < 10 or width < 10:
+        print("Maze is too narrow to generate the 42 pattern (min: 10x10)")
         return set()
 
     # Compute the offset needed to center the pattern in the maze
@@ -56,6 +57,10 @@ def create_pattern(
 
     # Discard the pattern if it would block the entry or exit point
     if start[::-1] in pattern_cells or end[::-1] in pattern_cells:
+        print(
+            "The entry or exit is in the pattern "
+            "so the pattern can't be generated"
+            )
         return set()
 
     return set(pattern_cells)
