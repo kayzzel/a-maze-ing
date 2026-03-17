@@ -12,6 +12,11 @@ INSTALLS	=	pydantic 							\
 
 #-------------------------------- RULES --------------------------------------#
 
+all: $(NAME)
+
+$(NAME): install run
+
+
 install: 
 	python3 -m pip install $(INSTALLS)
 
@@ -28,3 +33,10 @@ clean:
 lint:
 	python3 -m flake8 . --exclude .venv
 	python3 -m mypy . --warn-return-any --warn-unused-ignores --ignore-missing-imports --disallow-untyped-defs --check-untyped-defs --exclude .venv
+
+build:
+	@cd src && \
+	python3 setup.py bdist_wheel && \
+	mv dist/*.whl .. && \
+	rm -rf build dist mazegen.egg* && \
+	cd ..
