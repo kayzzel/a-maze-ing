@@ -17,6 +17,9 @@
 
   ___
   ### 1. Makefile
+  + Install dependencies and run the program:<br>
+  ```make```<br>
+
   + Install dependencies: <br>
   ```make install```<br>
 
@@ -25,6 +28,9 @@
 
   + Check flake8 and mypy norms: <br>
   ```make lint```<br>
+
+  + Compile mazegen module into .whl and move it at the root while deleting all building files:<br>
+  ```make build```<br>
 
   ### 2. Execution
   + Run the program (with the default configuration file 'config.txt'): <br>
