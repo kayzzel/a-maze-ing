@@ -2,6 +2,7 @@
 from typing import Callable
 from .display import print_maze, print_maze_with_path
 from .utils import check_maze_input
+from .algorithms import rec_backtrack, a_star, wilson, jump_point_search
 
 
 class Cell:
@@ -172,8 +173,6 @@ class MazeGenerator:
         seed: int | None = None
     ) -> None:
 
-        from .algorithms import rec_backtrack, a_star
-
         self.set_maze_sz(maze_sz)
         self.__entry_point: tuple[int, int] = (-1, -1)
         self.set_entry_exit_point(exit_point, "exit")
@@ -340,6 +339,32 @@ class MazeGenerator:
     def get_seed(self) -> int | None:
 
         return self.__seed
+
+    def set_gen_algo(self, algorithm: Callable) -> None:
+
+        if not isinstance(algorithm, Callable) or algorithm not in [
+            wilson,
+            rec_backtrack
+        ]:
+            raise ValueError(
+                "Invalid generation algorithm provided\n"
+                "Choose between 'wilson' and 'rec_backtrack'"
+            )
+
+        self.gen_algo = algorithm
+
+    def set_solve_algo(self, algorithm: Callable) -> None:
+
+        if not isinstance(algorithm, Callable) or algorithm not in [
+            a_star,
+            jump_point_search
+        ]:
+            raise ValueError(
+                "Invalid generation algorithm provided\n"
+                "Choose between 'a_star' and 'jump_point_search'"
+            )
+
+        self.solve_algo = algorithm
 
     def initialize_maze(self) -> Maze:
         """
