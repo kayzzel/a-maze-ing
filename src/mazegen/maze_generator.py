@@ -2,7 +2,10 @@
 from typing import Callable
 from .display import print_maze, print_maze_with_path
 from .utils import check_maze_input
-from .algorithms import rec_backtrack, a_star, wilson, jump_point_search
+from .algorithms.rec_backtrack import rec_backtrack
+from .algorithms.wilson import wilson
+from .algorithms.a_star import a_star
+from .algorithms.jump_point_search import jump_point_search
 
 
 class Cell:
@@ -342,7 +345,7 @@ class MazeGenerator:
 
     def set_gen_algo(self, algorithm: Callable) -> None:
 
-        if not isinstance(algorithm, Callable) or algorithm not in [
+        if not callable(algorithm) or algorithm not in [
             wilson,
             rec_backtrack
         ]:
@@ -355,7 +358,7 @@ class MazeGenerator:
 
     def set_solve_algo(self, algorithm: Callable) -> None:
 
-        if not isinstance(algorithm, Callable) or algorithm not in [
+        if not callable(algorithm) or algorithm not in [
             a_star,
             jump_point_search
         ]:
