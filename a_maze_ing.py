@@ -14,13 +14,21 @@ def main() -> None:
 
     if len(sys.argv) == 2:
         filename = sys.argv[1]
+
+    elif len(sys.argv) == 1:
+        print(
+            "No configuration filename provided - "
+            "Resorting to default 'config.txt'.\n"
+            "To use your own parameters,"
+            "run 'python3 a_maze_ing.py <filename>'"
+        )
+
     else:
         print(
-                "No configuration filename provided - "
-                "Resorting to default 'config.txt'.\n"
-                "To use your own parameters,"
-                "run 'python3 a_maze_ing.py <filename>"
-                )
+            "Too many parameters provided\n"
+            "Usage: 'python3 a_maze_ing.py <filename>'"
+        )
+        return None
 
     maze_data: MazeData | None = parse_config(filename)
 

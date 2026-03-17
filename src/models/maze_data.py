@@ -61,6 +61,11 @@ class MazeData(BaseModel):
         or raise a ValueError if the extension is incorrect
         """
 
+        if self.output_filename[0].isnumeric():
+            raise ValueError(
+                "Output filename must not start with numeric characters"
+            )
+
         if not self.output_filename.endswith(".txt"):
             raise ValueError("Invalid output filename (text file required)")
 

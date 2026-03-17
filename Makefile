@@ -16,10 +16,10 @@ install:
 	python3 -m pip install $(INSTALLS)
 
 run:
-	python3 $(NAME) $(CONFIG_FILE)
+	@python3 $(NAME) $(CONFIG_FILE)
 
 debug:
-	python3 -m pdb $(NAME) $(CONFIG_FILE)
+	@python3 -m pdb $(NAME) $(CONFIG_FILE)
 
 clean:
 	find . -name "__pycache__" -type d -exec rm -rf "{}" +

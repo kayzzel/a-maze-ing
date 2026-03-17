@@ -37,16 +37,48 @@ def validate_format(line: str) -> tuple:
     # Cast the value to the appropriate type based on the key
     if match.group(1) in ["WIDTH", "HEIGHT"]:
 
+        if not match.group(2).isnumeric():
+            raise ValueError(
+                f"Invalid value {match.group(2)} for "
+                "maze width or height"
+            )
+
         value: int | str | list | tuple | bool | None = int(match.group(2))
 
     elif match.group(1) in ["ENTRY", "EXIT"]:
         # Split the coordinate string and convert to a tuple of ints
         value = match.group(2).split(",")
+
+        if len(value) != 2:
+            raise ValueError(
+                "Too many values provided for "
+                "entry/exit coordinates (only two required)"
+            )
+
+        if not value[0].isnumeric() or not value[1].isnumeric():
+            raise ValueError(
+                f"Invalid coordinates {value} provided (must be integers)"
+            )
+
         value = tuple((int(value[0]), int(value[1])))
+
     elif match.group(1) == "PERFECT":
+
+        if match.group(2) not in ["True", "False"]:
+            raise ValueError(
+                f"Invalid value {match.group(2)} for perfection parameter "
+                "(must be a boolean)"
+            )
+
         value = bool(match.group(2))
 
     elif match.group(1) == "SEED":
+
+        if not match.group(2).isnumeric() and match.group(2) != "None":
+            raise ValueError(
+                f"Invalid value {match.group(2)} for seed "
+                "(must be an integer or None)"
+            )
 
         if match.group(2) == "None":
             value = None
@@ -54,7 +86,8 @@ def validate_format(line: str) -> tuple:
         else:
             value = int(match.group(2))
 
-    else:
+    elif match.group(1) == "OUTPUT_FILE":
+
         value = match.group(2)
 
     return (match.group(1).lower(), value)
@@ -82,7 +115,7 @@ def parse_config(config_filename: str) -> None | MazeData:
             for line in config.readlines():
 
                 # Skip comment lines
-                if line.startswith("#"):
+                if line.startswith("#") or line.strip() == "":
                     continue
 
                 # Parse the line into a key-value pair and check for duplicates
@@ -96,6 +129,19 @@ def parse_config(config_filename: str) -> None | MazeData:
                 # Store the validated key-value pair
                 config_data[new_pair[0]] = new_pair[1]
 
+        if not all(
+            key in config_data.keys()
+            for key in [
+                "width",
+                "height",
+                "entry",
+                "exit",
+                "output_file",
+                "perfect",
+                "seed"
+            ]
+        ):
+            raise KeyError("Missing keys in configuration file")
         # Build and return the MazeData from the collected configuration values
         return MazeData(
             width=config_data["width"],
@@ -110,7 +156,7 @@ def parse_config(config_filename: str) -> None | MazeData:
     # Handle Pydantic validation errors separately for a cleaner error message
     except ValidationError as err:
         print(f"Caught ValidationError: {err.errors()[0]['msg']}\n")
-    except (ValueError, ValidationError, OSError) as err:
+    except (ValueError, ValidationError, OSError, KeyError) as err:
         print(f"Caught {err.__class__.__name__}: {err}\n")
 
     return None

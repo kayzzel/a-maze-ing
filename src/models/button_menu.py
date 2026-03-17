@@ -907,6 +907,8 @@ class ButtonMenu:
 
             case "a*":
                 # Solve the maze using A* and display the path
+                if not self.maze.generated:
+                    return None
                 self.prev_menu = "path_menu"
                 self.cur_menu = "skip"
                 if self.maze.toggle_path:
@@ -919,6 +921,8 @@ class ButtonMenu:
 
             case "jump point search":
                 # Solve the maze using Jump Point Search and display the path
+                if not self.maze.generated:
+                    return None
                 self.prev_menu = "path_menu"
                 self.cur_menu = "skip"
                 if self.maze.toggle_path:
@@ -1107,11 +1111,6 @@ class ButtonMenu:
                         # A second comma is invalid
                         raise ValueError
 
-                print(
-                    self.input.cur_setting.name.split(
-                        " :", 1
-                    )[0].replace(" point", "")
-                )
                 self.generator.set_entry_exit_point(
                     (new_x, new_y),
                     self.input.cur_setting.name.split(

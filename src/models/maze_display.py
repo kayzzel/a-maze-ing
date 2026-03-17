@@ -166,6 +166,9 @@ class MazeDisplay:
         starting, and records the current time as the first frame timestamp
         """
 
+        if self.animating_path and not self.generated:
+            return None
+
         self.animating = True
         self.anim_step = 0
 
@@ -200,7 +203,7 @@ class MazeDisplay:
         self.generated = True
         self.animating = False
 
-        # If the path animation just ended, toggle the path off cleanly
+        # If the path animation just ended, toggle the path on cleanly
         if self.animating_path:
             self.toggle_path_on_off()
 
@@ -296,7 +299,6 @@ class MazeDisplay:
         Render the maze image onto the window at its configured position.
         Does nothing if the maze is neither animating nor fully generated
         """
-
         if not self.animating and not self.generated:
             return None
 
