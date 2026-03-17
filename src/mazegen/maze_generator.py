@@ -288,6 +288,14 @@ class MazeGenerator:
         tuple[int, int],
         tuple[int, int]
     ]:
+        """
+            Description:
+        return the entry and exit point that are private attribute in the maze
+
+            Returns value:
+        entry_point -> (x, y) coordinate in cells
+        exit_point-> (x, y) coordinate in cells
+        """
         return (self.__entry_point, self.__exit_point)
 
     def set_perfect(self, perfection: bool) -> None:
@@ -338,10 +346,25 @@ class MazeGenerator:
         self.__seed: int | None = seed
 
     def get_seed(self) -> int | None:
+        """
+            Description:
+        returns the seed that is set for the maze_generator
+
+            Returns value:
+        the seed, a positive integer
+        """
 
         return self.__seed
 
     def set_gen_algo(self, algorithm: Callable) -> None:
+        """
+            Description:
+        set an algorithm in only the right function an in the list of
+        authorised algorithm
+
+            Parameters:
+        the function that represent the algorithme
+        """
 
         from .algorithms.rec_backtrack import rec_backtrack
         from .algorithms.wilson import wilson
@@ -358,6 +381,14 @@ class MazeGenerator:
         self.gen_algo = algorithm
 
     def set_solve_algo(self, algorithm: Callable) -> None:
+        """
+            Description:
+        set an algorithm in only the right function an in the list of
+        authorised algorithm
+
+            Parameters:
+        the function that represent the algorithme
+        """
 
         from .algorithms.a_star import a_star
         from .algorithms.jump_point_search import jump_point_search
