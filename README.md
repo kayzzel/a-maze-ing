@@ -8,7 +8,8 @@
   ___
 
   + General description: <br>
-  This project is a __maze generator and solver__. It is able to generate and solve as many different mazes as needed using multiple algorithms. It displays the process on a __MiniLibX graphical interface__ that allows the user to manipulate the program and make choices via buttons. It also uses a __MazeGenerator__ that can be imported as a standalone module to generate/solve mazes (but without the MiniLibX display).<br><br>
+  This project is a __maze generator and solver__. It is able to generate and solve as many different mazes as needed using multiple algorithms. It displays the process on a __MiniLibX graphical interface__ that allows the user to manipulate the program and make choices via buttons. It also uses a __MazeGenerator__ that can be imported as a standalone module to generate/solve mazes (but without the MiniLibX display).<br>
+  The maze generated will have a centered "42" pattern if the maze is big enough (10x10 minimum) and if the entry/exit points are not inside it.<br><br>
 
 </details>
 <details>
@@ -109,7 +110,8 @@
   
     If the values given are not valid, the generator raises a ValueError with helpful error messages.<br><br>
   + Maze generation:<br><br>
-    To generate a maze, you need to use the method generate_maze() (no parameters needed).<br><br>
+    To generate a maze, you need to use the method generate_maze() (no parameters needed).<br>
+    The maze generated will have a centered "42" pattern if the maze is big enough (10x10 minimum) and if the entry/exit points are not inside it.<br><br>
     For example, for a generator called "maze_gen", you can call: maze_gen.generate_maze(). It will return a Maze object that has the following attributes:<br><br>
       - sz = the maze size (width, height)
       - width = the maze width
