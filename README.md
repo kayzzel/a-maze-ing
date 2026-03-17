@@ -126,7 +126,7 @@
     You can have a visual representation of the maze in the terminal by calling the method tui_display_maze().<br>
     If you wish to see only the maze's structure, you should pass it only the hexadecimal representation of the maze as a parameter (that you can obtain with the maze_to_hexa() method of the Maze object). If you wish to see the solution as well, you should call it with three more parameters: the path in string representation (the path_dirs attribute of the Maze object if it has been solved), the entry coordinates and the exit coordinates.<br><br>
   + Algorithms used:<br><br>
-    The algorithms used by default are the "rec_backtrack" = recursive backtracking (generation) and "jump_point_search" = jump point search (pathfinding), but should you wish to use other available algorithms instead (such as wilson or a* star), you can change directly the generator's attributes like so: "maze_gen.gen_algo = wilson" or "maze_gen.solve_algo = a_star".<br><br>
+    The algorithms used by default are the "rec_backtrack" = recursive backtracking (generation) and "a_star" = A* (pathfinding), but should you wish to use other available algorithms instead (such as wilson or jump point search), you can use the generator's setter functions set_gen_algo() and set_solve_algo() like so: "maze_gen.set_gen_algo(wilson)" or "maze_gen.set_solve_algo(jump_point_search)".<br><br>
 </details>
 <details>
   <summary><h4>Team and Project Management</h4></summary>
