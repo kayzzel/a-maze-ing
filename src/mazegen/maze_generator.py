@@ -2,6 +2,7 @@
 from typing import Callable
 from .display import print_maze, print_maze_with_path
 from .utils import check_maze_input
+from .algorithms import rec_backtrack, a_star, wilson, jump_point_search
 
 
 class Cell:
@@ -172,8 +173,6 @@ class MazeGenerator:
         seed: int | None = None
     ) -> None:
 
-        from .algorithms import rec_backtrack, a_star
-
         self.set_maze_sz(maze_sz)
         self.__entry_point: tuple[int, int] = (-1, -1)
         self.set_entry_exit_point(exit_point, "exit")
@@ -208,8 +207,20 @@ class MazeGenerator:
             if not isinstance(val, int) or not (5 <= val <= 201):
                 raise ValueError("Invalid size {sz} for the maze")
 
+        for point in ["__entry_point", "__exit_point"]:
+
+            if not hasattr(self, point):
+                continue
+
+            coor_point: tuple[int, int] = getattr(self, point)
+
+            if sz[0] <= coor_point[0] or sz[1] <= coor_point[1]:
+                raise ValueError(
+                    f"Maze size {sz} is too small "
+                    "for the entry/exit coordinates"
+                )
+
         self.__maze_sz: tuple[int, int] = sz
-        print(f"Successfully modified maze size to {sz}")
 
     def get_maze_sz(self) -> tuple[int, int]:
         """
@@ -272,8 +283,6 @@ class MazeGenerator:
                 )
             self.__exit_point: tuple[int, int] = point
 
-        print(f"Successfully changed {point_type} coordinates to {point}")
-
     def get_entry_exit_point(self) -> tuple[
         tuple[int, int],
         tuple[int, int]
@@ -296,7 +305,6 @@ class MazeGenerator:
             )
 
         self.__is_perfect: bool = perfection
-        print(f"Successfully changed the maze's perfection to {perfection}")
 
     def get_perfect(self) -> bool:
         """
@@ -327,11 +335,36 @@ class MazeGenerator:
             raise ValueError(f"Invalid value {seed} for the seed")
 
         self.__seed: int | None = seed
-        print(f"Successfully changed the seed to {seed}")
 
     def get_seed(self) -> int | None:
 
         return self.__seed
+
+    def set_gen_algo(self, algorithm: Callable) -> None:
+
+        if not isinstance(algorithm, Callable) or algorithm not in [
+            wilson,
+            rec_backtrack
+        ]:
+            raise ValueError(
+                "Invalid generation algorithm provided\n"
+                "Choose between 'wilson' and 'rec_backtrack'"
+            )
+
+        self.gen_algo = algorithm
+
+    def set_solve_algo(self, algorithm: Callable) -> None:
+
+        if not isinstance(algorithm, Callable) or algorithm not in [
+            a_star,
+            jump_point_search
+        ]:
+            raise ValueError(
+                "Invalid generation algorithm provided\n"
+                "Choose between 'a_star' and 'jump_point_search'"
+            )
+
+        self.solve_algo = algorithm
 
     def initialize_maze(self) -> Maze:
         """

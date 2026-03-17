@@ -13,12 +13,12 @@ def print_maze(maze: list[str]) -> None:
     width = len(maze[0])
 
     # Top border spanning the full width of the maze
-    print("+---" * width + "+")
+    print("\033[94m" + "+---" * width + "+" + "\033[0m")
 
     for r in range(height):
 
-        line_cells = "|"
-        line_floor = "+"
+        line_cells = "\033[94m" + "|" + "\033[0m"
+        line_floor = "\033[94m" + "+" + "\033[0m"
 
         for c in range(width):
 
@@ -30,15 +30,15 @@ def print_maze(maze: list[str]) -> None:
 
             # East wall
             if east_closed:
-                line_cells += "   |"
+                line_cells += "\033[94m" + "   |" + "\033[0m"
             else:
-                line_cells += "    "
+                line_cells += "\033[94m" + "    " + "\033[0m"
 
             # South wall
             if south_closed:
-                line_floor += "---+"
+                line_floor += "\033[94m" + "---+" + "\033[0m"
             else:
-                line_floor += "   +"
+                line_floor += "\033[94m" + "   +" + "\033[0m"
 
         print(line_cells)
         print(line_floor)
@@ -73,8 +73,8 @@ def print_maze_with_path(
     # Mark the start and end cells
     sy, sx = start
     ey, ex = end
-    grid[sx][sy] = "S"
-    grid[ex][ey] = "E"
+    grid[sx][sy] = "\033[96m" + "S" + "\033[0m"
+    grid[ex][ey] = "\033[96m" + "E" + "\033[0m"
 
     # Walk the path and mark each intermediate cell with an asterisk
     row, col = sx, sy
@@ -92,15 +92,15 @@ def print_maze_with_path(
 
         # Leave the start and end markers unchanged
         if (col, row) != start and (col, row) != end:
-            grid[row][col] = "*"
+            grid[row][col] = "\033[93m" + "*" + "\033[0m"
 
     # Print the maze with the path overlay
-    print("+---" * width + "+")
+    print("\033[94m" + "+---" * width + "+" + "\033[0m")
 
     for r in range(height):
 
-        line_cells = "|"
-        line_floor = "+"
+        line_cells = "\033[94m" + "|" + "\033[0m"
+        line_floor = "\033[94m" + "+" + "\033[0m"
 
         for c in range(width):
 
@@ -114,15 +114,15 @@ def print_maze_with_path(
 
             # East wall
             if east_closed:
-                line_cells += cell_char + "|"
+                line_cells += cell_char + "\033[94m" + "|" + "\033[0m"
             else:
-                line_cells += cell_char + " "
+                line_cells += cell_char + "\033[94m" + " " + "\033[0m"
 
             # South wall
             if south_closed:
-                line_floor += "---+"
+                line_floor += "\033[94m" + "---+" + "\033[0m"
             else:
-                line_floor += "   +"
+                line_floor += "\033[94m" + "   +" + "\033[0m"
 
         print(line_cells)
         print(line_floor)

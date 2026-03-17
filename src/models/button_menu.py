@@ -1016,6 +1016,9 @@ class ButtonMenu:
             case "path_menu":
                 self.button_title.draw("Choose a pathfinding algorithm")
 
+            case "settings":
+                self.button_title.draw("")
+
         self.display_button_menu()
 
     def handle_settings(self) -> None:
