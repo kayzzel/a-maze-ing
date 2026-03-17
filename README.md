@@ -26,8 +26,11 @@
   ```make lint```<br>
 
   ### 2. Execution
-  + Run the program: <br>
+  + Run the program (with the default configuration file 'config.txt'): <br>
   ```make run```<br>
+
+  + Run the program with a custom configuration file:<br>
+  ```python3 a_maze_ing.py <configuration filename>```<br>
 
   + Run the program in debug mode:<br>
   ```make debug```<br>
@@ -88,7 +91,7 @@
 
   ___
   ### Maze Generator:
-  The mazegen-* module can be imported as a standalone module, and it can be used to generate and solve mazes. It doesn't use the MiniLibX library for a graphical display, but a terminal display is available.<br><br>
+  The mazegen module can be imported as a standalone module, and it can be used to generate and solve mazes. To install the module, copy the mazegen-*.whl file (located at the root of the repository) and run ```pip install <mazegen-*.whl>```. The module also has a README.md that indicates how to properly use it, but the instructions are also below.<br><br>
   + Instantiation:<br><br>
     To use it properly, you first need to instantiate a MazeGenerator object, by passing it these parameters:<br>
       - maze size = a tuple of integers for maze width and maze height (in that order)
@@ -99,7 +102,8 @@
   
     The generator will then use these provided parameters to generate mazes, although you can modify them using the setter functions:<br>
       - set_maze_sz(maze_sz: tuple[int, int])
-      - set_entry_exit_coordinates(point: tuple[int, int], type: str)      // example: set_entry_exit_coordinates((0, 0), "entry")
+      - set_entry_exit_coordinates(point: tuple[int, int], type: str)<br>
+      => Example: set_entry_exit_coordinates((0, 0), "entry")
       - set_perfect(is_perfect: bool)
       - set_seed(seed: int | None)<br><br>
   
